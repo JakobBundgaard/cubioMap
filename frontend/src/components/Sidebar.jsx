@@ -28,9 +28,12 @@ function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive }) 
       {/* Detaljer om det valgte område */}
       {selectedArea ? (
         <div>
-          <p><strong>Navn:</strong> {selectedArea.name}</p>
-          <p><strong>Naturværdi:</strong> {selectedArea.natureValue}</p>
-          <p><strong>Område:</strong> {selectedArea.areaSize.toFixed(2)} m²</p>
+          <p><strong>Område:</strong> {selectedArea.name}</p>
+          <p><strong>Størrelse:</strong> {selectedArea.areaSize.toFixed(2)} m²</p>
+          <p>
+            <strong>{selectedArea.name.includes(",") ? "Gennemsnitlig Naturværdi" : "Naturværdi"}:</strong>{" "}
+            {selectedArea.natureValue}
+          </p>
         </div>
       ) : (
         <p>Vælg et område på kortet for detaljer.</p>

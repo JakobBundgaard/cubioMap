@@ -63,28 +63,30 @@ function MapComponent({ setSelectedArea, isMultiSelectActive }) {
         }
     };
     
-//   const handleAreaClick = (area) => {
-//     // const natureValue = generateNatureValue();
-//     const areaSize = calculateAreaSize(area.bounds);
-//     setSelectedArea({
-//       name: area.name,
-//       natureValue: area.natureValue,
-//       areaSize: areaSize,
-//     });
-//     rectangleClicked.current = true;
-    //     };
-    
-
     useEffect(() => {
         const totalNatureValue = selectedAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
         const totalAreaSize = selectedAreas.reduce((acc, area) => acc + (parseFloat(area.areaSize) || 0), 0);
+        const areaNames = selectedAreas.map(area => area.name).join(", ");
+        const averageNatureValue = selectedAreas.length > 0 ? (totalNatureValue / selectedAreas.length).toFixed(2) : 0;
     
         setSelectedArea({
-            name: selectedAreas.length > 0 ? `${selectedAreas.length} valgte områder` : "Ingen områder valgt",
-            natureValue: totalNatureValue,
+            name: selectedAreas.length > 0 ? areaNames : "Ingen områder valgt",
+            natureValue: averageNatureValue, // Gennemsnit af naturværdierne
             areaSize: totalAreaSize, // Opbevar som tal
         });
     }, [selectedAreas, setSelectedArea]);
+    
+    // VIRKER
+    // useEffect(() => {
+    //     const totalNatureValue = selectedAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
+    //     const totalAreaSize = selectedAreas.reduce((acc, area) => acc + (parseFloat(area.areaSize) || 0), 0);
+    
+    //     setSelectedArea({
+    //         name: selectedAreas.length > 0 ? `${selectedAreas.length} valgte områder` : "Ingen områder valgt",
+    //         natureValue: totalNatureValue,
+    //         areaSize: totalAreaSize, // Opbevar som tal
+    //     });
+    // }, [selectedAreas, setSelectedArea]);
 
 
 
