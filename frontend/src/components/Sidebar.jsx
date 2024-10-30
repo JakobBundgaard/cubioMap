@@ -1,8 +1,24 @@
 import PropTypes from 'prop-types';
+import { BsPencilSquare } from "react-icons/bs";
+import { TbPointerPlus } from "react-icons/tb";
+import { IoSettingsOutline } from "react-icons/io5";
 
 function Sidebar({ selectedArea }) {
   return (
-    <aside className="bg-white w-80 p-4 border-l border-gray-300 shadow-lg">
+      <aside className="bg-white w-80 p-4 border-l border-gray-300 shadow-lg">
+          
+        <div className="flex space-x-4 mb-4">
+            <div title="Tegn område" className="cursor-pointer hover:text-blue-500">
+                <BsPencilSquare size={20} />
+            </div>
+            <div title="Vælg flere kvadrater" className="cursor-pointer hover:text-blue-500">
+                <TbPointerPlus size={20} />
+              </div>
+              <div title="Indstillinger" className="cursor-pointer hover:text-blue-500">
+                <IoSettingsOutline size={20} />
+            </div>
+        </div>
+
       <h2 className="text-lg font-bold mb-4">Detaljeret Information</h2>
 
       {/* Detaljer om det valgte område */}
