@@ -3,7 +3,7 @@ import { BsPencilSquare } from "react-icons/bs";
 import { TbPointerPlus } from "react-icons/tb";
 import { IoSettingsOutline } from "react-icons/io5";
 
-function Sidebar({ selectedArea }) {
+function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive }) {
   return (
       <aside className="bg-white w-80 p-4 border-l border-gray-300 shadow-lg">
           
@@ -11,10 +11,14 @@ function Sidebar({ selectedArea }) {
             <div title="Tegn område" className="cursor-pointer hover:text-blue-500">
                 <BsPencilSquare size={20} />
             </div>
-            <div title="Vælg flere kvadrater" className="cursor-pointer hover:text-blue-500">
+            <div
+                title="Vælg flere kvadrater"
+                className={`cursor-pointer ${isMultiSelectActive ? "text-blue-500" : "hover:text-blue-500"}`}
+                onClick={() => setIsMultiSelectActive(!isMultiSelectActive)}
+            >
                 <TbPointerPlus size={20} />
-              </div>
-              <div title="Indstillinger" className="cursor-pointer hover:text-blue-500">
+            </div>
+            <div title="Indstillinger" className="cursor-pointer hover:text-blue-500">
                 <IoSettingsOutline size={20} />
             </div>
         </div>
@@ -26,7 +30,7 @@ function Sidebar({ selectedArea }) {
         <div>
           <p><strong>Navn:</strong> {selectedArea.name}</p>
           <p><strong>Naturværdi:</strong> {selectedArea.natureValue}</p>
-          <p><strong>Område:</strong> {selectedArea.areaSize} m²</p>
+          <p><strong>Område:</strong> {selectedArea.areaSize.toFixed(2)} m²</p>
         </div>
       ) : (
         <p>Vælg et område på kortet for detaljer.</p>
@@ -42,6 +46,8 @@ Sidebar.propTypes = {
       natureValue: PropTypes.number.isRequired,
       areaSize: PropTypes.number.isRequired,
     }),
+    isMultiSelectActive: PropTypes.bool.isRequired,
+    setIsMultiSelectActive: PropTypes.func.isRequired,
   };
 
 export default Sidebar;

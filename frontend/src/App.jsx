@@ -5,23 +5,27 @@ import { useState } from "react";
 
 function App() {
   const [selectedArea, setSelectedArea] = useState(null);
+  const [isMultiSelectActive, setIsMultiSelectActive] = useState(false);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      {/* Headerbar */}
+      
       <Header />
 
       <div className="flex flex-grow overflow-hidden">
+        <Sidebar
+          selectedArea={selectedArea}
+          isMultiSelectActive={isMultiSelectActive}
+          setIsMultiSelectActive={setIsMultiSelectActive}
+        />
 
         
-      <Sidebar selectedArea={selectedArea} />
-
-        {/* Kortkomponent */}
         <div className="flex-grow overflow-hidden">
-        <MapComponent setSelectedArea={setSelectedArea} />
-        </div>
-
-        
+          <MapComponent
+            setSelectedArea={setSelectedArea}
+            isMultiSelectActive={isMultiSelectActive}
+          />
+        </div> 
       </div>
     </div>
   )
