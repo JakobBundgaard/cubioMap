@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { MapContainer, TileLayer, Rectangle, Tooltip, useMapEvents } from "react-leaflet";
 import djurslandGrid from "../data/djurslandGrid_small.json";
 import PropTypes from 'prop-types';
 
 function MapComponent({ setSelectedArea }) {
-  const [zoomLevel, setZoomLevel] = useState(8);
+    const [zoomLevel, setZoomLevel] = useState(8);
+    const rectangleClicked = useRef(false);
 
   // Funktion til at generere en tilfældig naturværdi mellem 50 og 100
   const generateNatureValue = () => Math.floor(Math.random() * 51) + 50;
@@ -35,7 +36,22 @@ function MapComponent({ setSelectedArea }) {
       natureValue: natureValue,
       areaSize: areaSize,
     });
-  };
+    rectangleClicked.current = true;
+    };
+    
+    const handleMapClickOutside = () => {
+        if (!rectangleClicked.current) {
+          setSelectedArea(null); // Nulstil sidebaren hvis der ikke er klikket på et rektangel
+        }
+        rectangleClicked.current = false; // Nulstil til falsk efter hvert kortklik
+      };
+    
+    const MapClickListener = () => {
+        useMapEvents({
+          click: handleMapClickOutside, 
+        });
+        return null;
+      };
 
   // Overvåg kortets zoom-niveau
   const ZoomWatcher = () => {
@@ -56,7 +72,8 @@ function MapComponent({ setSelectedArea }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
 
-      <ZoomWatcher />
+          <ZoomWatcher />
+          <MapClickListener />
 
       {/* Vis grid kun hvis zoom-niveauet er højere end 12 */}
       {zoomLevel > 12 &&
@@ -66,8 +83,11 @@ function MapComponent({ setSelectedArea }) {
             bounds={area.bounds}
             pathOptions={{ color: "green", weight: 0.5 }}
             eventHandlers={{
-              click: () => handleAreaClick(area), // Skiftet til klik-event
-            }}
+                click: (e) => {
+                  e.originalEvent.stopPropagation(); // Forhindre propagation af event til MapClickListener
+                  handleAreaClick(area);
+                },
+              }}
           >
             <Tooltip direction="top" offset={[0, -10]} opacity={1}>
               <div>
