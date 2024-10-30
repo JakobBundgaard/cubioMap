@@ -1,84 +1,90 @@
-import { useState } from 'react';
-import { MapContainer, TileLayer, Rectangle, Popup, useMapEvents } from 'react-leaflet';
-import djurslandGrid from '../data/djurslandGrid_small.json';
+import { useState } from "react";
+import { MapContainer, TileLayer, Rectangle, Tooltip, useMapEvents } from "react-leaflet";
+import djurslandGrid from "../data/djurslandGrid_small.json";
+import PropTypes from 'prop-types';
 
-function MapComponent() {
-    const [selectedArea, setSelectedArea] = useState(null);
-    const [natureValue, setNatureValue] = useState(null);
-    const [zoomLevel, setZoomLevel] = useState(8);
-    const [areaSize, setAreaSize] = useState(null);
+function MapComponent({ setSelectedArea }) {
+  const [zoomLevel, setZoomLevel] = useState(8);
 
-    // Definer grid størrelser i meter
-    const gridSizeLatMeters = 111320 * 0.001; // Baseret på grid_size_lat (ca. 100 meter)
-    const gridSizeLngMeters = 111320 * 0.00175; // Baseret på grid_size_lng (ca. 100 meter ved den justerede værdi)
+  // Funktion til at generere en tilfældig naturværdi mellem 50 og 100
+  const generateNatureValue = () => Math.floor(Math.random() * 51) + 50;
 
+  // Beregn kvadratets areal baseret på koordinaterne i bounds
+  const calculateAreaSize = (bounds) => {
+    const [southWest, northEast] = bounds;
 
-    // Funktion til at generere en tilfældig naturværdi mellem 50 og 100
-  const generateNatureValue = () => {
-    return Math.floor(Math.random() * 51) + 50;
-    };
-    
-    // Beregn arealet af et område baseret på justerede grid størrelser
-    const calculateAreaSize = () => {
-        const areaInSquareMeters = gridSizeLatMeters * gridSizeLngMeters;
-        return areaInSquareMeters.toFixed(2); 
-    };
-    
-    // Håndter klik på rektangel
+    // Beregn forskellen i bredde- og længdegrad
+    const latDiff = Math.abs(northEast[0] - southWest[0]);
+    const lngDiff = Math.abs(northEast[1] - southWest[1]);
+
+    // Konverter bredde- og længdegrad til meter
+    const latDistance = latDiff * 111320; // ca. meter per breddegrad
+    const lngDistance = lngDiff * 111320 * Math.cos(southWest[0] * (Math.PI / 180)); // længdegrad afhænger af bredde
+
+    // Beregn arealet i kvadratmeter
+    const areaInSquareMeters = latDistance * lngDistance;
+    return areaInSquareMeters.toFixed(2); // afrundet til 2 decimaler
+  };
+
+  // Håndter klik på rektangel
   const handleAreaClick = (area) => {
-      setSelectedArea(area);
-      setNatureValue(generateNatureValue());
-      setAreaSize(calculateAreaSize());
-    };
-    
-    // Overvåg kortets zoom-niveau
-    const ZoomWatcher = () => {
-        useMapEvents({
-            zoomend: (e) => {
-                setZoomLevel(e.target.getZoom());
-            },
-        });
-        return null;
-    };
+    const natureValue = generateNatureValue();
+    const areaSize = calculateAreaSize(area.bounds);
+    setSelectedArea({
+      name: area.name,
+      natureValue: natureValue,
+      areaSize: areaSize,
+    });
+  };
 
+  // Overvåg kortets zoom-niveau
+  const ZoomWatcher = () => {
+    useMapEvents({
+      zoomend: (e) => setZoomLevel(e.target.getZoom()),
+    });
+    return null;
+  };
 
   return (
-    <MapContainer center={[56.2639, 9.5018]} zoom={8} style={{ height: "100vh", width: "100%" }}>
+    <MapContainer
+      center={[56.2639, 9.5018]}
+      zoom={8}
+      style={{ height: "100vh", width: "100%" }}
+    >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          />
-          
-        <ZoomWatcher />
+      />
 
-      {zoomLevel > 12 && djurslandGrid.map((area) => (
-        <Rectangle
-          key={area.id}
-          bounds={area.bounds}
-          eventHandlers={{
-            click: () => handleAreaClick(area),
-          }}
-          pathOptions={{ color: 'green', weight: 0.5 }}
-        />
-      ))}
+      <ZoomWatcher />
 
-      {selectedArea && (
-        <Popup
-          position={[
-            (selectedArea.bounds[0][0] + selectedArea.bounds[1][0]) / 2,
-            (selectedArea.bounds[0][1] + selectedArea.bounds[1][1]) / 2
-          ]}
-          onClose={() => setSelectedArea(null)}
-        >
-          <div>
-            <h3>{selectedArea.name}</h3>
-            <p>Område: {areaSize} m²</p>
-            <p>Naturværdi: {natureValue}</p>
-          </div>
-        </Popup>
-      )}
+      {/* Vis grid kun hvis zoom-niveauet er højere end 12 */}
+      {zoomLevel > 12 &&
+        djurslandGrid.map((area) => (
+          <Rectangle
+            key={area.id}
+            bounds={area.bounds}
+            pathOptions={{ color: "green", weight: 0.5 }}
+            eventHandlers={{
+              click: () => handleAreaClick(area), // Skiftet til klik-event
+            }}
+          >
+            <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+              <div>
+                <strong>{area.name}</strong>
+                <p>Naturværdi: {generateNatureValue()}</p>
+              </div>
+            </Tooltip>
+          </Rectangle>
+        ))}
     </MapContainer>
   );
 }
 
+MapComponent.propTypes = {
+  setSelectedArea: PropTypes.func.isRequired,
+};
+
 export default MapComponent;
+
+
