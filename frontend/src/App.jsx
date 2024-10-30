@@ -7,17 +7,17 @@ function App() {
   const [selectedArea, setSelectedArea] = useState(null);
 
   return (
-    <div className="h-screen flex flex-col">
+    <div className="h-screen flex flex-col overflow-hidden">
       {/* Headerbar */}
       <Header />
 
-      <div className="flex flex-grow">
+      <div className="flex flex-grow overflow-hidden">
 
         
       <Sidebar selectedArea={selectedArea} />
 
         {/* Kortkomponent */}
-        <div className="flex-grow">
+        <div className="flex-grow overflow-hidden">
         <MapComponent setSelectedArea={setSelectedArea} />
         </div>
 
