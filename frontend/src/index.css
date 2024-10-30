@@ -1,3 +1,7 @@
+/* Import Leaflet CSS først */
+@import "leaflet/dist/leaflet.css";
+
+/* Tailwind CSS direktiver */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
