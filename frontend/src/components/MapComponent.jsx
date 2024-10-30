@@ -1,18 +1,12 @@
 import { useState } from 'react';
-import { MapContainer, TileLayer, Rectangle, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Rectangle, Popup, useMapEvents } from 'react-leaflet';
 import djurslandGrid from '../data/djurslandGrid_small.json';
 
 function MapComponent() {
     const [selectedArea, setSelectedArea] = useState(null);
     const [natureValue, setNatureValue] = useState(null);
+    const [zoomLevel, setZoomLevel] = useState(8);
 
-    // Definer områder over Djursland (koordinater: sydvest og nordøst hjørner)
-//   const areas = [
-//     { id: 1, bounds: [[56.348, 10.484], [56.358, 10.504]], name: "Område A" },
-//     { id: 2, bounds: [[56.358, 10.484], [56.368, 10.504]], name: "Område B" },
-//     { id: 3, bounds: [[56.348, 10.504], [56.358, 10.524]], name: "Område C" },
-//     { id: 4, bounds: [[56.358, 10.504], [56.368, 10.524]], name: "Område D" }
-//     ];
 
     // Funktion til at generere en tilfældig naturværdi mellem 50 og 100
   const generateNatureValue = () => {
@@ -23,23 +17,36 @@ function MapComponent() {
   const handleAreaClick = (area) => {
       setSelectedArea(area);
       setNatureValue(generateNatureValue());
-  };
+    };
+    
+    // Overvåg kortets zoom-niveau
+    const ZoomWatcher = () => {
+        useMapEvents({
+            zoomend: (e) => {
+                setZoomLevel(e.target.getZoom());
+            },
+        });
+        return null;
+    };
+
 
   return (
     <MapContainer center={[56.2639, 9.5018]} zoom={8} style={{ height: "100vh", width: "100%" }}>
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
+          />
+          
+        <ZoomWatcher />
 
-      {djurslandGrid.map((area) => (
+      {zoomLevel > 12 && djurslandGrid.map((area) => (
         <Rectangle
           key={area.id}
           bounds={area.bounds}
           eventHandlers={{
             click: () => handleAreaClick(area),
           }}
-          pathOptions={{ color: 'green', weight: 1 }}
+          pathOptions={{ color: 'green', weight: 0.5 }}
         />
       ))}
 
