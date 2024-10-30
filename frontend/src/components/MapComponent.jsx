@@ -1,17 +1,18 @@
 import { useState } from 'react';
-import { MapContainer, TileLayer, Rectangle, Popup} from 'react-leaflet';
+import { MapContainer, TileLayer, Rectangle, Popup } from 'react-leaflet';
+import djurslandGrid from '../data/djurslandGrid_small.json';
 
 function MapComponent() {
     const [selectedArea, setSelectedArea] = useState(null);
     const [natureValue, setNatureValue] = useState(null);
 
     // Definer områder over Djursland (koordinater: sydvest og nordøst hjørner)
-  const areas = [
-    { id: 1, bounds: [[56.348, 10.484], [56.358, 10.504]], name: "Område A" },
-    { id: 2, bounds: [[56.358, 10.484], [56.368, 10.504]], name: "Område B" },
-    { id: 3, bounds: [[56.348, 10.504], [56.358, 10.524]], name: "Område C" },
-    { id: 4, bounds: [[56.358, 10.504], [56.368, 10.524]], name: "Område D" }
-    ];
+//   const areas = [
+//     { id: 1, bounds: [[56.348, 10.484], [56.358, 10.504]], name: "Område A" },
+//     { id: 2, bounds: [[56.358, 10.484], [56.368, 10.504]], name: "Område B" },
+//     { id: 3, bounds: [[56.348, 10.504], [56.358, 10.524]], name: "Område C" },
+//     { id: 4, bounds: [[56.358, 10.504], [56.368, 10.524]], name: "Område D" }
+//     ];
 
     // Funktion til at generere en tilfældig naturværdi mellem 50 og 100
   const generateNatureValue = () => {
@@ -31,7 +32,7 @@ function MapComponent() {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
 
-      {areas.map((area) => (
+      {djurslandGrid.map((area) => (
         <Rectangle
           key={area.id}
           bounds={area.bounds}
