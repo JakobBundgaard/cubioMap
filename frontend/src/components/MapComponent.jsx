@@ -6,17 +6,29 @@ function MapComponent() {
     const [selectedArea, setSelectedArea] = useState(null);
     const [natureValue, setNatureValue] = useState(null);
     const [zoomLevel, setZoomLevel] = useState(8);
+    const [areaSize, setAreaSize] = useState(null);
+
+    // Definer grid størrelser i meter
+    const gridSizeLatMeters = 111320 * 0.001; // Baseret på grid_size_lat (ca. 100 meter)
+    const gridSizeLngMeters = 111320 * 0.00175; // Baseret på grid_size_lng (ca. 100 meter ved den justerede værdi)
 
 
     // Funktion til at generere en tilfældig naturværdi mellem 50 og 100
   const generateNatureValue = () => {
     return Math.floor(Math.random() * 51) + 50;
-  };
+    };
+    
+    // Beregn arealet af et område baseret på justerede grid størrelser
+    const calculateAreaSize = () => {
+        const areaInSquareMeters = gridSizeLatMeters * gridSizeLngMeters;
+        return areaInSquareMeters.toFixed(2); 
+    };
     
     // Håndter klik på rektangel
   const handleAreaClick = (area) => {
       setSelectedArea(area);
       setNatureValue(generateNatureValue());
+      setAreaSize(calculateAreaSize());
     };
     
     // Overvåg kortets zoom-niveau
@@ -60,6 +72,7 @@ function MapComponent() {
         >
           <div>
             <h3>{selectedArea.name}</h3>
+            <p>Område: {areaSize} m²</p>
             <p>Naturværdi: {natureValue}</p>
           </div>
         </Popup>
