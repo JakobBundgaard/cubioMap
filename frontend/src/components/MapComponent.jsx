@@ -7,8 +7,7 @@ function MapComponent({ setSelectedArea }) {
     const [zoomLevel, setZoomLevel] = useState(8);
     const rectangleClicked = useRef(false);
 
-  // Funktion til at generere en tilfældig naturværdi mellem 50 og 100
-  const generateNatureValue = () => Math.floor(Math.random() * 51) + 50;
+
 
   // Beregn kvadratets areal baseret på koordinaterne i bounds
   const calculateAreaSize = (bounds) => {
@@ -29,11 +28,11 @@ function MapComponent({ setSelectedArea }) {
 
   // Håndter klik på rektangel
   const handleAreaClick = (area) => {
-    const natureValue = generateNatureValue();
+    // const natureValue = generateNatureValue();
     const areaSize = calculateAreaSize(area.bounds);
     setSelectedArea({
       name: area.name,
-      natureValue: natureValue,
+      natureValue: area.natureValue,
       areaSize: areaSize,
     });
     rectangleClicked.current = true;
@@ -92,7 +91,7 @@ function MapComponent({ setSelectedArea }) {
             <Tooltip direction="top" offset={[0, -10]} opacity={1}>
               <div>
                 <strong>{area.name}</strong>
-                <p>Naturværdi: {generateNatureValue()}</p>
+                <p>Naturværdi: {area.natureValue}</p>
               </div>
             </Tooltip>
           </Rectangle>
