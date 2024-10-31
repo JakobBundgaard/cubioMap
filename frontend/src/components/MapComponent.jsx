@@ -134,9 +134,9 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive }) {
                     position="topright"
                     onCreated={onCreated}
                     draw={{
-                        rectangle: true,
                         polygon: true,
                         circle: true,
+                        rectangle: false,
                         polyline: false, // Polyline bruges ikke, da det ikke danner et område
                     }}
                 />
