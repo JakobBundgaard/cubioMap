@@ -6,6 +6,7 @@ import { useState } from "react";
 function App() {
   const [selectedArea, setSelectedArea] = useState(null);
   const [isMultiSelectActive, setIsMultiSelectActive] = useState(false);
+  const [isDrawActive, setIsDrawActive] = useState(false);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -17,6 +18,8 @@ function App() {
           selectedArea={selectedArea}
           isMultiSelectActive={isMultiSelectActive}
           setIsMultiSelectActive={setIsMultiSelectActive}
+          isDrawActive={isDrawActive}
+          setIsDrawActive={setIsDrawActive}
         />
 
         
@@ -24,6 +27,7 @@ function App() {
           <MapComponent
             setSelectedArea={setSelectedArea}
             isMultiSelectActive={isMultiSelectActive}
+            isDrawActive={isDrawActive}
           />
         </div> 
       </div>

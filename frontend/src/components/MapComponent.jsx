@@ -1,13 +1,16 @@
 import { useState, useRef, useEffect } from "react";
-import { MapContainer, TileLayer, Rectangle, Tooltip, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Rectangle, Tooltip, FeatureGroup, useMapEvents } from "react-leaflet";
+import { EditControl } from "react-leaflet-draw";
+import "leaflet-draw/dist/leaflet.draw.css";
+import * as L from "leaflet";
 import djurslandGrid from "../data/djurslandGrid_small.json";
 import PropTypes from 'prop-types';
 
-function MapComponent({ setSelectedArea, isMultiSelectActive }) {
+function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive }) {
     const [zoomLevel, setZoomLevel] = useState(8);
     const [selectedAreas, setSelectedAreas] = useState([]);
     const rectangleClicked = useRef(false);
-
+    const featureGroupRef = useRef(null);
 
 
     // Beregn kvadratets areal baseret på koordinaterne i bounds
@@ -57,7 +60,62 @@ function MapComponent({ setSelectedArea, isMultiSelectActive }) {
         });
     }, [selectedAreas, setSelectedArea]);
 
+    // Funktion til at beregne overlap af brugerdefineret område med kvadrater
+
+    const calculateAverageNatureValueForDrawnArea = (layer) => {
+        const overlappingAreas = djurslandGrid.filter((area) => {
+            const areaBounds = L.latLngBounds(area.bounds);
     
+            // Hvis det tegnede område er en polygon eller rektangel
+            if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+                const drawnBounds = L.latLngBounds(layer.getLatLngs()[0]);
+                return areaBounds.overlaps(drawnBounds) || drawnBounds.contains(areaBounds); // Tjekker både overlap og fuld indeholdelse
+            } 
+            
+            // Hvis det tegnede område er en cirkel
+            else if (layer instanceof L.Circle) {
+                const center = layer.getLatLng();
+                const radius = layer.getRadius();
+                return areaBounds.contains(center) || areaBounds.distanceTo(center) <= radius || areaBounds.within(layer.getBounds()); 
+            }
+            
+            return false;
+        });
+    
+        const totalNatureValue = overlappingAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
+        const averageNatureValue = overlappingAreas.length > 0 ? (totalNatureValue / overlappingAreas.length) : 0;
+        return parseFloat(averageNatureValue.toFixed(2));
+    };
+    
+
+    // Funktion til at håndtere tegning af brugerdefinerede områder
+    const onCreated = (e) => {
+        const layer = e.layer;
+        let areaSize = 0;
+
+        // Beregn arealet for forskellige lagtyper
+        if (layer instanceof L.Rectangle || layer instanceof L.Polygon) {
+            areaSize = L.GeometryUtil.geodesicArea(layer.getLatLngs()[0]);
+        } else if (layer instanceof L.Circle) {
+            areaSize = Math.PI * Math.pow(layer.getRadius(), 2);
+        }
+
+        const averageNatureValue = calculateAverageNatureValueForDrawnArea(layer);
+
+        setSelectedArea({
+            name: "Brugerdefineret område",
+            natureValue: averageNatureValue,
+            areaSize: parseFloat(areaSize.toFixed(2)),
+        });
+    };
+
+    // Funktion til at nulstille FeatureGroup ved deaktivering af tegnemode
+    useEffect(() => {
+        if (!isDrawActive && featureGroupRef.current) {
+            featureGroupRef.current.clearLayers();  // Clear all drawn layers when draw mode is off
+        }
+    }, [isDrawActive]);
+
     const MapClickListener = () => {
         useMapEvents({
           click: () => {
@@ -93,8 +151,25 @@ function MapComponent({ setSelectedArea, isMultiSelectActive }) {
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
 
-      <ZoomWatcher />
-      <MapClickListener />
+        <ZoomWatcher />
+        <MapClickListener />
+            
+
+        {/* Tegneværktøjer aktiveret, hvis isDrawActive er true */}
+        <FeatureGroup ref={featureGroupRef}>
+            {isDrawActive && (
+                <EditControl
+                    position="topright"
+                    onCreated={onCreated}
+                    draw={{
+                        polygon: true,
+                        circle: false,
+                        rectangle: false,
+                        polyline: false, // Polyline bruges ikke, da det ikke danner et område
+                    }}
+                />
+            )}
+        </FeatureGroup>
 
       {zoomLevel > 12 &&
         djurslandGrid.map((area) => {
@@ -129,6 +204,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive }) {
 MapComponent.propTypes = {
     setSelectedArea: PropTypes.func.isRequired,
     isMultiSelectActive: PropTypes.bool.isRequired,
+    isDrawActive: PropTypes.bool.isRequired,
   };
 
 export default MapComponent;
