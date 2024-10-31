@@ -1,0 +1,6 @@
+# Generelle systemfiler
+.DS_Store
+Thumbs.db
+
+# Virtuelt miljø
+venv/

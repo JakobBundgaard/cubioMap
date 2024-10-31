@@ -1,0 +1,17 @@
+# Django-specifikke filer
+*.pyc
+__pycache__/
+db.sqlite3
+media/
+
+# Virtuelt miljø (Hvis du ikke har placeret det i root-gitignore)
+venv/
+
+# Miljøvariabler
+.env
+
+# Logfiler
+*.log
+
+# Cache- og temp-filer
+.DS_Store
