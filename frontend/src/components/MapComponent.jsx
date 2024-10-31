@@ -60,6 +60,54 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive }) {
         });
     }, [selectedAreas, setSelectedArea]);
 
+    // Funktion til at beregne overlap af brugerdefineret område med kvadrater
+
+    const calculateAverageNatureValueForDrawnArea = (layer) => {
+        const overlappingAreas = djurslandGrid.filter((area) => {
+            const areaBounds = L.latLngBounds(area.bounds);
+    
+            // Hvis det tegnede område er en polygon eller rektangel
+            if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+                const drawnBounds = L.latLngBounds(layer.getLatLngs()[0]);
+                return areaBounds.overlaps(drawnBounds) || drawnBounds.contains(areaBounds); // Tjekker både overlap og fuld indeholdelse
+            } 
+            
+            // Hvis det tegnede område er en cirkel
+            else if (layer instanceof L.Circle) {
+                const center = layer.getLatLng();
+                const radius = layer.getRadius();
+                return areaBounds.contains(center) || areaBounds.distanceTo(center) <= radius || areaBounds.within(layer.getBounds()); 
+            }
+            
+            return false;
+        });
+    
+        const totalNatureValue = overlappingAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
+        const averageNatureValue = overlappingAreas.length > 0 ? (totalNatureValue / overlappingAreas.length) : 0;
+        return parseFloat(averageNatureValue.toFixed(2));
+    };
+    
+
+    // const calculateAverageNatureValueForDrawnArea = (layer) => {
+    //     const overlappingAreas = djurslandGrid.filter((area) => {
+    //         const areaBounds = L.latLngBounds(area.bounds);
+    //         if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+    //             const drawnBounds = L.latLngBounds(layer.getLatLngs()[0]);
+    //             return areaBounds.overlaps(drawnBounds);
+    //         } else if (layer instanceof L.Circle) {
+    //             const center = layer.getLatLng();
+    //             const radius = layer.getRadius();
+    //             return areaBounds.contains(center) || areaBounds.distanceTo(center) <= radius;
+    //         }
+    //         return false;
+    //     });
+
+    //     const totalNatureValue = overlappingAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
+    //     const averageNatureValue = overlappingAreas.length > 0 ? (totalNatureValue / overlappingAreas.length) : 0;
+    //     return parseFloat(averageNatureValue.toFixed(2));
+    // };
+
+
     // Funktion til at håndtere tegning af brugerdefinerede områder
     const onCreated = (e) => {
         const layer = e.layer;
@@ -72,7 +120,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive }) {
             areaSize = Math.PI * Math.pow(layer.getRadius(), 2);
         }
 
-        const averageNatureValue = 70; // Dummy naturværdi; kan opdateres baseret på andre faktorer
+        const averageNatureValue = calculateAverageNatureValueForDrawnArea(layer);
 
         setSelectedArea({
             name: "Brugerdefineret område",
@@ -135,7 +183,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive }) {
                     onCreated={onCreated}
                     draw={{
                         polygon: true,
-                        circle: true,
+                        circle: false,
                         rectangle: false,
                         polyline: false, // Polyline bruges ikke, da det ikke danner et område
                     }}
