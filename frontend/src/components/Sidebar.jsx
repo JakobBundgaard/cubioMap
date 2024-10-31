@@ -3,12 +3,16 @@ import { BsPencilSquare } from "react-icons/bs";
 import { TbPointerPlus } from "react-icons/tb";
 import { IoSettingsOutline } from "react-icons/io5";
 
-function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive }) {
+function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive, isDrawActive, setIsDrawActive }) {
   return (
       <aside className="bg-white w-80 p-4 border-l border-gray-300 shadow-lg">
           
         <div className="flex space-x-4 mb-4">
-            <div title="Tegn område" className="cursor-pointer hover:text-blue-500">
+            <div
+                title="Tegn område"
+                className={`cursor-pointer ${isDrawActive ? "text-blue-500" : "hover:text-blue-500"}`}
+                onClick={() => setIsDrawActive(!isDrawActive)} // Aktiver/deaktiver tegnefunktionen
+            >
                 <BsPencilSquare size={20} />
             </div>
             <div
@@ -51,6 +55,8 @@ Sidebar.propTypes = {
     }),
     isMultiSelectActive: PropTypes.bool.isRequired,
     setIsMultiSelectActive: PropTypes.func.isRequired,
+    isDrawActive: PropTypes.bool.isRequired,
+    setIsDrawActive: PropTypes.func.isRequired,
   };
 
 export default Sidebar;
