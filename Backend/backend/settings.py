@@ -64,10 +64,26 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'cubio_map',         # Navnet på databasen
+        'USER': 'cubio_user',         # Den nye bruger
+        'PASSWORD': 'pass1234',  # Adgangskoden du valgte til cubio_user
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
+
+# GDAL path configuration
+GDAL_LIBRARY_PATH = r"C:\Programmer\GDAL\bin\gdal.dll"
+GEOS_LIBRARY_PATH = r"C:\Programmer\GDAL\bin\geos_c.dll"
+
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.sqlite3',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
