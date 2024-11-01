@@ -2,6 +2,7 @@ import MapComponent from "./components/MapComponent";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import { useState } from "react";
+import HelloWorld from "./components/Hello";
 
 function App() {
   const [selectedArea, setSelectedArea] = useState(null);
@@ -10,7 +11,7 @@ function App() {
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
-      
+      <HelloWorld />
       <Header />
 
       <div className="flex flex-grow overflow-hidden">
