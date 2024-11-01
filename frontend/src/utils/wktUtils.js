@@ -2,7 +2,6 @@ import { parseFromWK } from "wkt-parser-helper";
 
 export const wktToBounds = (wkt) => {
     const geometry = parseFromWK(wkt);
-    console.log("Parsed geometry:", geometry);
   if (geometry && geometry.type === "Polygon") {
     const coordinates = geometry.coordinates[0];
     const southWest = [coordinates[0][1], coordinates[0][0]]; // Startpunkt
