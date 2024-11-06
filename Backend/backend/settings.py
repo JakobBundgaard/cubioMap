@@ -1,3 +1,12 @@
+import ctypes
+try:
+    ctypes.CDLL("C:/Programmer/GDAL/bin/gdal.dll")
+    print("GDAL blev indlæst korrekt via ctypes.")
+except OSError as e:
+    print("Kunne ikke indlæse GDAL biblioteket via ctypes:", e)
+
+
+
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
