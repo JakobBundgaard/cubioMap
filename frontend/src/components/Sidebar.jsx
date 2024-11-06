@@ -25,7 +25,7 @@ function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive, is
                 <TbPointerPlus size={20} />
             </div>
             <div
-                title="Vis insekter"
+                title="Vis detektioner"
                 className={`cursor-pointer ${isInsectMarkersVisible ? "text-blue-500" : "hover:text-blue-500"}`}
                 onClick={toggleInsectMarkers}
             >
