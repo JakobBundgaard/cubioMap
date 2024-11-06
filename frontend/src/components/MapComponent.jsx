@@ -1,21 +1,25 @@
 import { useState, useRef, useEffect } from "react";
-import { MapContainer, TileLayer, Rectangle, Tooltip, FeatureGroup, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Rectangle, Tooltip, FeatureGroup, Marker, Popup, useMapEvents } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 import "leaflet-draw/dist/leaflet.draw.css";
 import * as L from "leaflet";
 import PropTypes from 'prop-types';
 import { wktToBounds } from "../utils/wktUtils";
+import "leaflet/dist/leaflet.css";
 
 
 
-function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive }) {
+function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isInsectMarkersVisible }) {
     const [zoomLevel, setZoomLevel] = useState(8);
     const [selectedAreas, setSelectedAreas] = useState([]);
     const [areas, setAreas] = useState([]); // Tilføj state til API-data
+    const [gbifData, setGbifData] = useState([]);
     const rectangleClicked = useRef(false);
     const featureGroupRef = useRef(null);
 
+  
     useEffect(() => {
+      // Hent områder fra API
       fetch('http://127.0.0.1:8000/api/areas/')
         .then((response) => response.json())
         .then((data) => {
@@ -26,8 +30,39 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive }) {
           }));
           setAreas(convertedData);
         })
-        .catch((error) => console.error('Error fetching data:', error));
+        .catch((error) => console.error('Error fetching area data:', error));
+      
+      // Hent GBIF-data fra API
+      fetch('http://127.0.0.1:8000/api/gbif-data/') // Sørg for at have en korrekt endpoint til GBIFData
+        .then((response) => response.json())
+        .then((data) => {
+          console.log("GBIF Data:", data);
+          setGbifData(data);
+        })
+        .catch((error) => console.error('Error fetching GBIF data:', error));
     }, []);
+  
+    useEffect(() => {
+      console.log("isInsectMarkersVisible:", isInsectMarkersVisible);
+    }, [isInsectMarkersVisible]);
+    
+    useEffect(() => {
+      console.log("Current Zoom Level:", zoomLevel);
+    }, [zoomLevel]);
+  
+    // useEffect(() => {
+    //   fetch('http://127.0.0.1:8000/api/areas/')
+    //     .then((response) => response.json())
+    //     .then((data) => {
+    //       const convertedData = data.map((area) => ({
+    //         ...area,
+    //         bounds: wktToBounds(area.geom),  // Konverter geom til bounds
+    //         natureValue: parseFloat(area.nature_value),
+    //       }));
+    //       setAreas(convertedData);
+    //     })
+    //     .catch((error) => console.error('Error fetching data:', error));
+    // }, []);
 
     // Beregn kvadratets areal baseret på koordinaterne i bounds
     const calculateAreaSize = (bounds) => {
@@ -145,10 +180,10 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive }) {
     return (
       
         <MapContainer
-      center={[56.2639, 9.5018]}
-      zoom={8}
-      style={{ height: "100vh", width: "100%" }}
-    >
+            center={[56.2639, 9.5018]}
+            zoom={8}
+            style={{ height: "100vh", width: "100%" }}
+        >
       <TileLayer
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -197,6 +232,30 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive }) {
             </Rectangle>
           );
         })}
+
+        {zoomLevel > 12 && isInsectMarkersVisible && gbifData.map((data) => {
+            const wktString = data.coordinates;
+            const match = /POINT \(([^ ]+) ([^ ]+)\)/.exec(wktString);
+            if (!match) return null;
+        
+            const lon = parseFloat(match[1]);
+            const lat = parseFloat(match[2]);
+          
+            return (
+                <Marker
+                    key={data.source_id}
+                    position={[lat, lon]} // [lat, lon] format
+                >
+                    <Popup>
+                        <div>
+                            <strong>Species:</strong> {data.species || "Ukendt"}<br />
+                            <strong>Date:</strong> {data.occurrence_date || "Ikke angivet"}
+                        </div>
+                    </Popup>
+                </Marker>
+            );
+        })}
+
     </MapContainer>
   );
 }
@@ -205,6 +264,7 @@ MapComponent.propTypes = {
     setSelectedArea: PropTypes.func.isRequired,
     isMultiSelectActive: PropTypes.bool.isRequired,
     isDrawActive: PropTypes.bool.isRequired,
+    isInsectMarkersVisible: PropTypes.bool.isRequired
   };
 
 export default MapComponent;
