@@ -8,6 +8,11 @@ function App() {
   const [selectedArea, setSelectedArea] = useState(null);
   const [isMultiSelectActive, setIsMultiSelectActive] = useState(false);
   const [isDrawActive, setIsDrawActive] = useState(false);
+  const [isInsectMarkersVisible, setIsInsectMarkersVisible] = useState(false);
+
+  const toggleInsectMarkers = () => {
+    setIsInsectMarkersVisible(!isInsectMarkersVisible);
+  };
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -21,6 +26,8 @@ function App() {
           setIsMultiSelectActive={setIsMultiSelectActive}
           isDrawActive={isDrawActive}
           setIsDrawActive={setIsDrawActive}
+          toggleInsectMarkers={toggleInsectMarkers}
+          isInsectMarkersVisible={isInsectMarkersVisible}
         />
 
         
@@ -29,6 +36,7 @@ function App() {
             setSelectedArea={setSelectedArea}
             isMultiSelectActive={isMultiSelectActive}
             isDrawActive={isDrawActive}
+            isInsectMarkersVisible={isInsectMarkersVisible}
           />
         </div> 
       </div>
