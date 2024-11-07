@@ -19,4 +19,13 @@ class GBIFData(models.Model):
 
     def __str__(self):
         return f"{self.species} at {self.coordinates}"
+    
+    
+class VegetationData(models.Model):
+    area = models.ForeignKey(Area, on_delete=models.CASCADE, related_name='vegetation_data')
+    vegetation_index = models.DecimalField(max_digits=5, decimal_places=2)  # f.eks. NDVI værdi
+    capture_date = models.DateField()  # dato for vegetationsmåling
+
+    def __str__(self):
+        return f"Vegetation index {self.vegetation_index} for {self.area.name} on {self.capture_date}"
 
