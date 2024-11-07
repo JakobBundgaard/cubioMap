@@ -1,4 +1,5 @@
 from django.contrib.gis.db import models
+from django.contrib.gis.geos import Point
 
 class Area(models.Model):
     name = models.CharField(max_length=100)
@@ -8,4 +9,14 @@ class Area(models.Model):
 
     def __str__(self):
         return self.name
+    
+
+class GBIFData(models.Model):
+    species = models.CharField(max_length=100)
+    occurrence_date = models.DateField()
+    coordinates = models.PointField()
+    source_id = models.CharField(max_length=100, unique=True)  # For at undgå dubletter
+
+    def __str__(self):
+        return f"{self.species} at {self.coordinates}"
 
