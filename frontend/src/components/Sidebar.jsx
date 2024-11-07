@@ -3,7 +3,8 @@ import { BsPencilSquare } from "react-icons/bs";
 import { TbPointerPlus } from "react-icons/tb";
 import { IoSettingsOutline } from "react-icons/io5";
 // import { FaBug } from "react-icons/fa";
-import { BsBug } from "react-icons/bs";
+// import { BsBug } from "react-icons/bs";
+import { BsBinoculars } from "react-icons/bs";
 
 function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive, isDrawActive, setIsDrawActive, toggleInsectMarkers, isInsectMarkersVisible }) {
   return (
@@ -29,7 +30,7 @@ function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive, is
                 className={`cursor-pointer ${isInsectMarkersVisible ? "text-blue-500" : "hover:text-blue-500"}`}
                 onClick={toggleInsectMarkers}
             >
-                <BsBug size={20} />
+                <BsBinoculars size={20} />
             </div>
               <div title="Indstillinger" className="cursor-pointer hover:text-blue-500">
                   <IoSettingsOutline size={20} />
