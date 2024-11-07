@@ -8,7 +8,32 @@ import PropTypes from 'prop-types';
 import { wktToBounds } from "../utils/wktUtils";
 import "leaflet/dist/leaflet.css";
 
+async function fetchDanishName(scientificName) {
+  try {
+      const response = await fetch(`https://api.gbif.org/v1/species?name=${scientificName}`);
+      const data = await response.json();
+      
+      if (data.results && data.results.length > 0) {
+          const species = data.results[0];
+          
+          // Først, tjek om "vernacularName" findes direkte på rodeniveau
+          if (species.vernacularName) {
+              return species.vernacularName;
+          }
+          
+          // Hvis ikke, forsøg at finde det i "vernacularNames" listen
+          const vernacularNames = species.vernacularNames || [];
+          const danishNameEntry = vernacularNames.find(name => name.language === "dan");
 
+          return danishNameEntry ? danishNameEntry.vernacularName : "Dansk navn ikke tilgængeligt";
+      }
+      
+      return "Dansk navn ikke tilgængeligt";
+  } catch (error) {
+      console.error("Fejl ved hentning af dansk navn:", error);
+      return "Fejl ved API-opslag";
+  }
+}
 
 function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isInsectMarkersVisible }) {
     const [zoomLevel, setZoomLevel] = useState(8);
@@ -17,7 +42,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
     const [gbifData, setGbifData] = useState([]);
     const rectangleClicked = useRef(false);
     const featureGroupRef = useRef(null);
-
+    
   
     useEffect(() => {
       // Hent områder fra API
@@ -34,7 +59,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
         .catch((error) => console.error('Error fetching area data:', error));
       
       // Hent GBIF-data fra API
-      fetch('http://127.0.0.1:8000/api/gbif-data/') // Sørg for at have en korrekt endpoint til GBIFData
+      fetch('http://127.0.0.1:8000/api/gbif-data/') 
         .then((response) => response.json())
         .then((data) => {
           console.log("GBIF Data:", data);
@@ -43,6 +68,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
         .catch((error) => console.error('Error fetching GBIF data:', error));
     }, []);
   
+    // For bug fixing. Delete later
     useEffect(() => {
       console.log("isInsectMarkersVisible:", isInsectMarkersVisible);
     }, [isInsectMarkersVisible]);
@@ -85,6 +111,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
         }
     };
     
+  
     useEffect(() => {
         const totalNatureValue = selectedAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
         const totalAreaSize = selectedAreas.reduce((acc, area) => acc + (parseFloat(area.areaSize) || 0), 0);
@@ -173,10 +200,10 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
             maxZoom={20}
             style={{ height: "100vh", width: "100%" }}
         >
-      <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-      />
+        <TileLayer
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        />
 
         <ZoomWatcher />
         <MapClickListener />
@@ -196,83 +223,76 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
             )}
         </FeatureGroup>
 
-      {zoomLevel > 12 &&
-        areas.map((area) => {
-          const isSelected = selectedAreas.some(selected => selected.id === area.id);
-          
-          return (
-            <Rectangle
-              key={area.id}
-              bounds={area.bounds}
-              pathOptions={{ color: isSelected ? "blue" : "green", weight: 0.5 }}
-              eventHandlers={{
-                click: (e) => {
-                  e.originalEvent.stopPropagation();
-                  handleAreaClick(area);
-                },
-              }}
-            >
-              <Tooltip direction="top" offset={[0, -10]} opacity={1}>
-                <div>
-                  <strong>{area.name}</strong>
-                  <p>Naturværdi: {area.nature_value}</p>
-                </div>
-              </Tooltip>
-            </Rectangle>
-          );
-        })}
+        {zoomLevel > 12 &&
+          areas.map((area) => {
+            const isSelected = selectedAreas.some(selected => selected.id === area.id);
+            
+            return (
+              <Rectangle
+                key={area.id}
+                bounds={area.bounds}
+                pathOptions={{ color: isSelected ? "blue" : "green", weight: 0.5 }}
+                eventHandlers={{
+                  click: (e) => {
+                    e.originalEvent.stopPropagation();
+                    handleAreaClick(area);
+                  },
+                }}
+              >
+                <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+                  <div>
+                    <strong>{area.name}</strong>
+                    <p>Naturværdi: {area.nature_value}</p>
+                  </div>
+                </Tooltip>
+              </Rectangle>
+            );
+          })}
 
-{zoomLevel > 12 && isInsectMarkersVisible && (
-          <MarkerClusterGroup disableClusteringAtZoom={18}>
-            {gbifData.map((data) => {
-              const wktString = data.coordinates;
-              const match = /POINT \(([^ ]+) ([^ ]+)\)/.exec(wktString);
-              if (!match) return null;
+          {zoomLevel > 12 && isInsectMarkersVisible && (
+                <MarkerClusterGroup disableClusteringAtZoom={18}>
+                  {gbifData.map((data) => {
+                    const wktString = data.coordinates;
+                    const match = /POINT \(([^ ]+) ([^ ]+)\)/.exec(wktString);
+                    if (!match) return null;
 
-              const lon = parseFloat(match[1]);
-              const lat = parseFloat(match[2]);
+                    const lon = parseFloat(match[1]);
+                    const lat = parseFloat(match[2]);
 
-              return (
-                <Marker
-                  key={data.source_id}
-                  position={[lat, lon]}
-                >
-                  <Popup>
-                    <div>
-                      <strong>Species:</strong> {data.species || "Ukendt"}<br />
-                      <strong>Date:</strong> {data.occurrence_date || "Ikke angivet"}
-                    </div>
-                  </Popup>
-                </Marker>
-              );
+                    return (
+                      <Marker
+                        key={data.source_id}
+                        position={[lat, lon]}
+                      >
+                        <Popup>
+                          <DanishNamePopup data={data} />
+                        </Popup>
+                      </Marker>
+                    );
             })}
           </MarkerClusterGroup>
         )}
-
-        {/* {zoomLevel > 12 && isInsectMarkersVisible && gbifData.map((data) => {
-            const wktString = data.coordinates;
-            const match = /POINT \(([^ ]+) ([^ ]+)\)/.exec(wktString);
-            if (!match) return null;
-        
-            const lon = parseFloat(match[1]);
-            const lat = parseFloat(match[2]);
-          
-            return (
-                <Marker
-                    key={data.source_id}
-                    position={[lat, lon]} // [lat, lon] format
-                >
-                    <Popup>
-                        <div>
-                            <strong>Species:</strong> {data.species || "Ukendt"}<br />
-                            <strong>Date:</strong> {data.occurrence_date || "Ikke angivet"}
-                        </div>
-                    </Popup>
-                </Marker>
-            );
-        })} */}
-
     </MapContainer>
+  );
+}
+
+function DanishNamePopup({ data }) {
+  const [danishName, setDanishName] = useState("Henter dansk navn...");
+
+  useEffect(() => {
+      const fetchName = async () => {
+          const name = await fetchDanishName(data.species);
+          setDanishName(name);
+      };
+      fetchName();
+  }, [data.species]);
+
+  return (
+      <div>
+          <strong>Artsnavn (Latin):</strong> {data.species || "Ukendt"}<br />
+          <strong>Dansk navn:</strong> {danishName}<br />
+          <strong>Detektionsdato:</strong> {data.occurrence_date || "Ikke angivet"}
+      </div>
   );
 }
 
@@ -281,7 +301,15 @@ MapComponent.propTypes = {
     isMultiSelectActive: PropTypes.bool.isRequired,
     isDrawActive: PropTypes.bool.isRequired,
     isInsectMarkersVisible: PropTypes.bool.isRequired
-  };
+};
+  
+DanishNamePopup.propTypes = {
+  data: PropTypes.shape({
+      species: PropTypes.string.isRequired,
+      occurrence_date: PropTypes.string,   
+      coordinates: PropTypes.string        
+  }).isRequired
+};
 
 export default MapComponent;
 
