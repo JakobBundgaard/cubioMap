@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { MapContainer, TileLayer, Rectangle, Tooltip, FeatureGroup, Marker, Popup, useMapEvents } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
+import MarkerClusterGroup from "react-leaflet-markercluster";
 import "leaflet-draw/dist/leaflet.draw.css";
 import * as L from "leaflet";
 import PropTypes from 'prop-types';
@@ -50,19 +51,6 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
       console.log("Current Zoom Level:", zoomLevel);
     }, [zoomLevel]);
   
-    // useEffect(() => {
-    //   fetch('http://127.0.0.1:8000/api/areas/')
-    //     .then((response) => response.json())
-    //     .then((data) => {
-    //       const convertedData = data.map((area) => ({
-    //         ...area,
-    //         bounds: wktToBounds(area.geom),  // Konverter geom til bounds
-    //         natureValue: parseFloat(area.nature_value),
-    //       }));
-    //       setAreas(convertedData);
-    //     })
-    //     .catch((error) => console.error('Error fetching data:', error));
-    // }, []);
 
     // Beregn kvadratets areal baseret på koordinaterne i bounds
     const calculateAreaSize = (bounds) => {
@@ -182,6 +170,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
         <MapContainer
             center={[56.2639, 9.5018]}
             zoom={8}
+            maxZoom={20}
             style={{ height: "100vh", width: "100%" }}
         >
       <TileLayer
@@ -233,7 +222,34 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
           );
         })}
 
-        {zoomLevel > 12 && isInsectMarkersVisible && gbifData.map((data) => {
+{zoomLevel > 12 && isInsectMarkersVisible && (
+          <MarkerClusterGroup disableClusteringAtZoom={18}>
+            {gbifData.map((data) => {
+              const wktString = data.coordinates;
+              const match = /POINT \(([^ ]+) ([^ ]+)\)/.exec(wktString);
+              if (!match) return null;
+
+              const lon = parseFloat(match[1]);
+              const lat = parseFloat(match[2]);
+
+              return (
+                <Marker
+                  key={data.source_id}
+                  position={[lat, lon]}
+                >
+                  <Popup>
+                    <div>
+                      <strong>Species:</strong> {data.species || "Ukendt"}<br />
+                      <strong>Date:</strong> {data.occurrence_date || "Ikke angivet"}
+                    </div>
+                  </Popup>
+                </Marker>
+              );
+            })}
+          </MarkerClusterGroup>
+        )}
+
+        {/* {zoomLevel > 12 && isInsectMarkersVisible && gbifData.map((data) => {
             const wktString = data.coordinates;
             const match = /POINT \(([^ ]+) ([^ ]+)\)/.exec(wktString);
             if (!match) return null;
@@ -254,7 +270,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
                     </Popup>
                 </Marker>
             );
-        })}
+        })} */}
 
     </MapContainer>
   );
