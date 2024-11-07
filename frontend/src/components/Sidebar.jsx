@@ -1,7 +1,7 @@
 import PropTypes from 'prop-types';
 import { BsPencilSquare } from "react-icons/bs";
 import { TbPointerPlus } from "react-icons/tb";
-import { IoSettingsOutline } from "react-icons/io5";
+// import { IoSettingsOutline } from "react-icons/io5";
 
 function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive, isDrawActive, setIsDrawActive }) {
   return (
@@ -22,9 +22,9 @@ function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive, is
             >
                 <TbPointerPlus size={20} />
             </div>
-            <div title="Indstillinger" className="cursor-pointer hover:text-blue-500">
+            {/* <div title="Indstillinger" className="cursor-pointer hover:text-blue-500">
                 <IoSettingsOutline size={20} />
-            </div>
+            </div> */}
         </div>
 
       <h2 className="text-lg font-bold mb-4">Detaljeret Information</h2>
