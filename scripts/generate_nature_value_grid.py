@@ -25,54 +25,71 @@ def calculate_shannon_index(species_counts):
 
 # Funktion til at generere dummy-data for jordkvalitetsværdi
 def generate_soil_quality_index():
-    # Dummy-værdier for SOC, CEC, tekstur og pH
-    soc = random.uniform(1, 3)  # SOC-værdi mellem 1 og 3
-    cec = random.uniform(5, 15)  # CEC-værdi mellem 5 og 15
-    texture_score = random.choice([0.8, 1.0, 1.2])  # Tekstur-indeks
-    ph = random.uniform(6, 7.5)  # pH-værdi mellem 6 og 7.5
-
-    # Samlet jordkvalitetsværdi, vægtet
+    soc = random.uniform(1, 3)
+    cec = random.uniform(5, 15)
+    texture_score = random.choice([0.8, 1.0, 1.2])
+    ph = random.uniform(6, 7.5)
     soil_quality_value = (0.4 * soc) + (0.3 * cec) + (0.2 * texture_score) + (0.1 * ph)
     return soil_quality_value
 
-# Åbn en CSV-fil til at skrive dataene
+# List til at samle værdier for normalisering
+shannon_values, ndvi_values, soil_values = [], [], []
+
+# Generer data først uden at skrive til fil for at indsamle værdier til normalisering
+data = []
+lat = start_lat
+area_id = 1
+while lat < end_lat:
+    lng = start_lng
+    while lng < end_lng:
+        bounds = [[lat, lng], [lat + grid_size_lat, lng + grid_size_lng]]
+        area_size = grid_size_lat * grid_size_lng * 111320 * 111320
+        wkt_geom = f'POLYGON(({lng} {lat}, {lng} {lat + grid_size_lat}, {lng + grid_size_lng} {lat + grid_size_lat}, {lng + grid_size_lng} {lat}, {lng} {lat}))'
+        
+        # Generér Shannon Index, NDVI og jordkvalitet
+        num_species = random.randint(3, 10)
+        species_counts = [random.randint(1, 20) for _ in range(num_species)]
+        shannon_index = calculate_shannon_index(species_counts)
+        ndvi = random.uniform(0.3, 0.8)
+        soil_quality_value = generate_soil_quality_index()
+        
+        shannon_values.append(shannon_index)
+        ndvi_values.append(ndvi)
+        soil_values.append(soil_quality_value)
+        
+        data.append([area_id, f"Cubio {area_id}", shannon_index, ndvi, soil_quality_value, area_size, wkt_geom])
+        
+        area_id += 1
+        lng += grid_size_lng
+    lat += grid_size_lat
+
+# Normaliseringsfunktion
+def normalize(value, min_value, max_value):
+    return (value - min_value) / (max_value - min_value) if max_value > min_value else 0
+
+# Find min og max for normalisering
+min_shannon, max_shannon = min(shannon_values), max(shannon_values)
+min_ndvi, max_ndvi = min(ndvi_values), max(ndvi_values)
+min_soil, max_soil = min(soil_values), max(soil_values)
+
+# Åbn CSV-fil til at skrive data
 with open(output_path, mode='w', newline='') as file:
     writer = csv.writer(file)
-    # Skriv kolonneoverskrifterne
     writer.writerow(["id", "name", "nature_value", "shannon_index", "ndvi", "soil_quality_value", "area_size", "geom"])
-
-    area_id = 1
-    lat = start_lat
-    while lat < end_lat:
-        lng = start_lng
-        while lng < end_lng:
-            # Beregn sydvest og nordøst hjørner
-            bounds = [[lat, lng], [lat + grid_size_lat, lng + grid_size_lng]]
-            area_size = grid_size_lat * grid_size_lng * 111320 * 111320  # Ca. arealberegning i kvadratmeter
-
-            # Opret en WKT-geometri for at beskrive kvadratet som en polygon
-            wkt_geom = f'POLYGON(({lng} {lat}, {lng} {lat + grid_size_lat}, {lng + grid_size_lng} {lat + grid_size_lat}, {lng + grid_size_lng} {lat}, {lng} {lat}))'
-
-            # Dummy data for Shannon Index
-            num_species = random.randint(3, 10)  # Antal arter i hver kvadrat
-            species_counts = [random.randint(1, 20) for _ in range(num_species)]  # Observationer pr. art
-            shannon_index = calculate_shannon_index(species_counts)
-
-            # Dummy data for NDVI (Normaliseret vegetationsindeks)
-            ndvi = random.uniform(0.3, 0.8)  # NDVI-værdier mellem 0.3 og 0.8
-
-            # Dummy data for Jordkvalitetsværdi
-            soil_quality_value = generate_soil_quality_index()
-
-            # Beregn Naturværdi-score
-            nature_value = (0.4 * shannon_index) + (0.3 * ndvi) + (0.3 * soil_quality_value)
-
-            # Skriv række i CSV-filen med Shannon, NDVI, Jordkvalitet og Naturværdi
-            writer.writerow([area_id, f"Cubio {area_id}", round(nature_value, 4), round(shannon_index, 4),
-                             round(ndvi, 4), round(soil_quality_value, 4), round(area_size, 2), wkt_geom])
-
-            area_id += 1
-            lng += grid_size_lng
-        lat += grid_size_lat
+    
+    for row in data:
+        area_id, name, shannon_index, ndvi, soil_quality_value, area_size, wkt_geom = row
+        
+        # Normaliser værdierne
+        normalized_shannon = normalize(shannon_index, min_shannon, max_shannon)
+        normalized_ndvi = normalize(ndvi, min_ndvi, max_ndvi)
+        normalized_soil = normalize(soil_quality_value, min_soil, max_soil)
+        
+        # Beregn vægtet naturværdi-score
+        nature_value = (0.4 * normalized_shannon) + (0.3 * normalized_ndvi) + (0.3 * normalized_soil)
+        
+        # Skriv række til CSV med normaliserede og vægtede værdier
+        writer.writerow([area_id, name, round(nature_value, 4), round(normalized_shannon, 4),
+                         round(normalized_ndvi, 4), round(normalized_soil, 4), round(area_size, 2), wkt_geom])
 
 print(f"Data skrevet til {output_path}")
