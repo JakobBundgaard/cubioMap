@@ -46,13 +46,16 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
   
     useEffect(() => {
       // Hent områder fra API
-      fetch('http://127.0.0.1:8000/api/areas/')
+      fetch('http://127.0.0.1:8000/api/enhanced-areas/')
         .then((response) => response.json())
         .then((data) => {
           const convertedData = data.map((area) => ({
             ...area,
             bounds: wktToBounds(area.geom),  // Konverter geom til bounds
             natureValue: parseFloat(area.nature_value),
+            shannonIndex: parseFloat(area.shannon_index),
+            soilQualityValue: parseFloat(area.soil_quality_value),
+            ndvi: parseFloat(area.ndvi),
           }));
           setAreas(convertedData);
         })
@@ -121,7 +124,10 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
         setSelectedArea({
             name: selectedAreas.length > 0 ? areaNames : "Ingen områder valgt",
             natureValue: averageNatureValue,
-            areaSize: totalAreaSize,
+          areaSize: totalAreaSize,
+          shannonIndex: selectedAreas.length > 0 ? selectedAreas[0].shannonIndex : null,
+          soilQualityValue: selectedAreas.length > 0 ? selectedAreas[0].soilQualityValue : null,
+          ndvi: selectedAreas.length > 0 ? selectedAreas[0].ndvi : null,
         });
     }, [selectedAreas, setSelectedArea]);
 
@@ -242,6 +248,9 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
                 <Tooltip direction="top" offset={[0, -10]} opacity={1}>
                   <div>
                     <strong>{area.name}</strong>
+                    <p>Shannon Index: {area.shannonIndex}</p>
+                    <p>NDVI: {area.ndvi}</p>
+                    <p>Jordkvalitet: {area.soilQualityValue}</p>
                     <p>Naturværdi: {area.nature_value}</p>
                   </div>
                 </Tooltip>
