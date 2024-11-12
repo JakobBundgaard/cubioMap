@@ -1,20 +1,19 @@
 import PropTypes from 'prop-types';
 import { BsPencilSquare } from "react-icons/bs";
 import { TbPointerPlus } from "react-icons/tb";
-// import { IoSettingsOutline } from "react-icons/io5";
-// import { FaBug } from "react-icons/fa";
-// import { BsBug } from "react-icons/bs";
 import { BsBinoculars } from "react-icons/bs";
 
 function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive, isDrawActive, setIsDrawActive, toggleInsectMarkers, isInsectMarkersVisible }) {
+  const isAverageLabelNeeded = selectedArea && (selectedArea.name.includes(",") || selectedArea.name === "Brugerdefineret område");
+  
   return (
-      <aside className="bg-white w-80 p-4 border-l border-gray-300 shadow-lg">
+    <aside className="bg-white w-80 p-4 border-l border-gray-300 shadow-lg">
           
         <div className="flex space-x-4 mb-4">
             <div
                 title="Tegn område"
                 className={`cursor-pointer ${isDrawActive ? "text-blue-500" : "hover:text-blue-500"}`}
-                onClick={() => setIsDrawActive(!isDrawActive)} // Aktiver/deaktiver tegnefunktionen
+                onClick={() => setIsDrawActive(!isDrawActive)}
             >
                 <BsPencilSquare size={20} />
             </div>
@@ -32,24 +31,30 @@ function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive, is
             >
                 <BsBinoculars size={20} />
             </div>
-              {/* <div title="Indstillinger" className="cursor-pointer hover:text-blue-500">
-                  <IoSettingsOutline size={20} />
-              </div> */}
-          </div>
+        </div>
 
       <h2 className="text-lg font-bold mb-4">Detaljeret Information</h2>
 
-          {/* Detaljer om det valgte område */}
-          {selectedArea ? (
+      {selectedArea ? (
         <div>
           <p><strong>Område:</strong> {selectedArea.name}</p>
           <p><strong>Størrelse:</strong> {selectedArea.areaSize.toFixed(2)} m²</p>
+          
+          
+          {selectedArea.shannonIndex !== null && (
+            <p><strong>{isAverageLabelNeeded ? "Gennemsnitlig " : ""}Shannon Index:</strong> {selectedArea.shannonIndex}</p>
+          )}
+          {selectedArea.ndvi !== null && (
+            <p><strong>{isAverageLabelNeeded ? "Gennemsnitlig " : ""}NDVI:</strong> {selectedArea.ndvi}</p>
+          )}
+          {selectedArea.soilQualityValue !== null && (
+            <p><strong>{isAverageLabelNeeded ? "Gennemsnitlig " : ""}Jordkvalitet:</strong> {selectedArea.soilQualityValue}</p>
+          )}
+
+          
           <p>
-            {/* Ændrer etiketten til "Gennemsnitlig Naturværdi" for flere områder eller brugerdefinerede områder */}
             <strong>
-              {selectedArea.name.includes(",") || selectedArea.name === "Brugerdefineret område" 
-                ? "Gennemsnitlig Naturværdi" 
-                : "Naturværdi"}
+              {isAverageLabelNeeded ? "Gennemsnitlig Naturværdi" : "Naturværdi"}
               :
             </strong>{" "}
             {selectedArea.natureValue}
@@ -68,6 +73,9 @@ Sidebar.propTypes = {
       name: PropTypes.string.isRequired,
       natureValue: PropTypes.number.isRequired,
       areaSize: PropTypes.number.isRequired,
+      shannonIndex: PropTypes.number,
+      ndvi: PropTypes.number,
+      soilQualityValue: PropTypes.number,
     }),
     isMultiSelectActive: PropTypes.bool.isRequired,
     setIsMultiSelectActive: PropTypes.func.isRequired,
@@ -75,6 +83,9 @@ Sidebar.propTypes = {
     setIsDrawActive: PropTypes.func.isRequired,
     toggleInsectMarkers: PropTypes.func.isRequired,
     isInsectMarkersVisible: PropTypes.bool.isRequired,
-  };
+};
 
 export default Sidebar;
+
+
+

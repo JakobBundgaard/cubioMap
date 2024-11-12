@@ -1,10 +1,14 @@
 from rest_framework import viewsets
-from .models import Area, GBIFData
-from .serializers import AreaSerializer, GBIFDataSerializer
+from .models import Area, GBIFData, EnhancedCubioArea
+from .serializers import AreaSerializer, GBIFDataSerializer, EnhancedCubioAreaSerializer
 
 class AreaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
+
+class EnhancedCubioAreaViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = EnhancedCubioArea.objects.all()
+    serializer_class = EnhancedCubioAreaSerializer
 
 
 class GBIFDataViewSet(viewsets.ReadOnlyModelViewSet): 
