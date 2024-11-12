@@ -2,8 +2,9 @@ import PropTypes from 'prop-types';
 import { BsPencilSquare } from "react-icons/bs";
 import { TbPointerPlus } from "react-icons/tb";
 import { BsBinoculars } from "react-icons/bs";
+import { GoProjectSymlink } from "react-icons/go";
 
-function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive, isDrawActive, setIsDrawActive, toggleInsectMarkers, isInsectMarkersVisible }) {
+function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive, isDrawActive, setIsDrawActive, toggleInsectMarkers, isInsectMarkersVisible, toggleProjectMarkers, isProjectMarkersVisible }) {
   const isAverageLabelNeeded = selectedArea && (selectedArea.name.includes(",") || selectedArea.name === "Brugerdefineret område");
   
   return (
@@ -30,6 +31,15 @@ function Sidebar({ selectedArea, isMultiSelectActive, setIsMultiSelectActive, is
                 onClick={toggleInsectMarkers}
             >
                 <BsBinoculars size={20} />
+            </div>
+            <div
+              title="Vis projekter"
+              className={`cursor-pointer ${isProjectMarkersVisible ? "text-blue-500" : "hover:text-blue-500"}`}
+              onClick={() => {
+                toggleProjectMarkers();
+              }}
+            >
+              <GoProjectSymlink size={20} />
             </div>
         </div>
 
@@ -83,6 +93,8 @@ Sidebar.propTypes = {
     setIsDrawActive: PropTypes.func.isRequired,
     toggleInsectMarkers: PropTypes.func.isRequired,
     isInsectMarkersVisible: PropTypes.bool.isRequired,
+    toggleProjectMarkers: PropTypes.func.isRequired,
+    isProjectMarkersVisible: PropTypes.bool.isRequired,
 };
 
 export default Sidebar;

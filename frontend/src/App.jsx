@@ -9,9 +9,14 @@ function App() {
   const [isMultiSelectActive, setIsMultiSelectActive] = useState(false);
   const [isDrawActive, setIsDrawActive] = useState(false);
   const [isInsectMarkersVisible, setIsInsectMarkersVisible] = useState(false);
+  const [isProjectMarkersVisible, setIsProjectMarkersVisible] = useState(false);
 
   const toggleInsectMarkers = () => {
     setIsInsectMarkersVisible(!isInsectMarkersVisible);
+  };
+
+  const toggleProjectMarkers = () => {
+    setIsProjectMarkersVisible(!isProjectMarkersVisible);
   };
 
   return (
@@ -28,6 +33,8 @@ function App() {
           setIsDrawActive={setIsDrawActive}
           toggleInsectMarkers={toggleInsectMarkers}
           isInsectMarkersVisible={isInsectMarkersVisible}
+          isProjectMarkersVisible={isProjectMarkersVisible} 
+          toggleProjectMarkers={toggleProjectMarkers}
         />
 
         
@@ -37,6 +44,7 @@ function App() {
             isMultiSelectActive={isMultiSelectActive}
             isDrawActive={isDrawActive}
             isInsectMarkersVisible={isInsectMarkersVisible}
+            isProjectMarkersVisible={isProjectMarkersVisible}
           />
         </div> 
       </div>

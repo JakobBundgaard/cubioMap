@@ -7,6 +7,8 @@ import * as L from "leaflet";
 import PropTypes from 'prop-types';
 import { wktToBounds } from "../utils/wktUtils";
 import "leaflet/dist/leaflet.css";
+import ProjectPopup from "./ProjectPopup";
+import projectsData from "../data/projectsData.json";
 
 async function fetchDanishName(scientificName) {
   try {
@@ -35,14 +37,13 @@ async function fetchDanishName(scientificName) {
   }
 }
 
-function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isInsectMarkersVisible }) {
+function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isInsectMarkersVisible, isProjectMarkersVisible }) {
     const [zoomLevel, setZoomLevel] = useState(8);
     const [selectedAreas, setSelectedAreas] = useState([]);
     const [areas, setAreas] = useState([]); // Tilføj state til API-data
     const [gbifData, setGbifData] = useState([]);
     const rectangleClicked = useRef(false);
     const featureGroupRef = useRef(null);
-    
   
     useEffect(() => {
       // Hent områder fra API
@@ -65,7 +66,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
       fetch('http://127.0.0.1:8000/api/gbif-data/') 
         .then((response) => response.json())
         .then((data) => {
-          console.log("GBIF Data:", data);
+          // console.log("GBIF Data:", data);
           setGbifData(data);
         })
         .catch((error) => console.error('Error fetching GBIF data:', error));
@@ -79,6 +80,10 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
     useEffect(() => {
       console.log("Current Zoom Level:", zoomLevel);
     }, [zoomLevel]);
+  
+    useEffect(() => {
+      console.log("MapComponent mounted. Project Markers Visibility:", isProjectMarkersVisible);
+    }, [isProjectMarkersVisible]);
   
 
     // Beregn kvadratets areal baseret på koordinaterne i bounds
@@ -188,10 +193,10 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
         setSelectedArea({
             name: "Brugerdefineret område",
             natureValue: averages.natureValue,
-          areaSize: parseFloat(areaSize.toFixed(2)),
-          shannonIndex: averages.shannonIndex,
-          ndvi: averages.ndvi,
-          soilQualityValue: averages.soilQualityValue,
+            areaSize: parseFloat(areaSize.toFixed(2)),
+            shannonIndex: averages.shannonIndex,
+            ndvi: averages.ndvi,
+            soilQualityValue: averages.soilQualityValue,
         });
     };
 
@@ -236,6 +241,20 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
 
         <ZoomWatcher />
         <MapClickListener />
+
+        {zoomLevel > 12 && isProjectMarkersVisible && (
+          <MarkerClusterGroup>
+            {projectsData.map(project => {
+              return (
+                <Marker key={project.id} position={project.location}>
+                  <Popup>
+                    <ProjectPopup project={project} />
+                  </Popup>
+                </Marker>
+              );
+            })}
+          </MarkerClusterGroup>
+        )}
 
         <FeatureGroup ref={featureGroupRef}>
             {isDrawActive && (
@@ -332,7 +351,8 @@ MapComponent.propTypes = {
     setSelectedArea: PropTypes.func.isRequired,
     isMultiSelectActive: PropTypes.bool.isRequired,
     isDrawActive: PropTypes.bool.isRequired,
-    isInsectMarkersVisible: PropTypes.bool.isRequired
+  isInsectMarkersVisible: PropTypes.bool.isRequired,
+  isProjectMarkersVisible: PropTypes.bool.isRequired,
 };
   
 DanishNamePopup.propTypes = {
