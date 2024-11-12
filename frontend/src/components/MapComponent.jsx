@@ -114,44 +114,64 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
         }
     };
     
-  
     useEffect(() => {
-        const totalNatureValue = selectedAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
-        const totalAreaSize = selectedAreas.reduce((acc, area) => acc + (parseFloat(area.areaSize) || 0), 0);
-        const areaNames = selectedAreas.map(area => area.name).join(", ");
-        const averageNatureValue = selectedAreas.length > 0 ? parseFloat((totalNatureValue / selectedAreas.length).toFixed(2)) : 0;
-    
-        setSelectedArea({
-            name: selectedAreas.length > 0 ? areaNames : "Ingen områder valgt",
-            natureValue: averageNatureValue,
+      const totalNatureValue = selectedAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
+      const totalShannonIndex = selectedAreas.reduce((acc, area) => acc + (area.shannonIndex || 0), 0);
+      const totalNDVI = selectedAreas.reduce((acc, area) => acc + (area.ndvi || 0), 0);
+      const totalSoilQualityValue = selectedAreas.reduce((acc, area) => acc + (area.soilQualityValue || 0), 0);
+      const totalAreaSize = selectedAreas.reduce((acc, area) => acc + (parseFloat(area.areaSize) || 0), 0);
+      const areaNames = selectedAreas.map(area => area.name).join(", ");
+      
+      const averageNatureValue = selectedAreas.length > 0 ? parseFloat((totalNatureValue / selectedAreas.length).toFixed(2)) : 0;
+      const averageShannonIndex = selectedAreas.length > 0 ? parseFloat((totalShannonIndex / selectedAreas.length).toFixed(2)) : 0;
+      const averageNDVI = selectedAreas.length > 0 ? parseFloat((totalNDVI / selectedAreas.length).toFixed(2)) : 0;
+      const averageSoilQualityValue = selectedAreas.length > 0 ? parseFloat((totalSoilQualityValue / selectedAreas.length).toFixed(2)) : 0;
+  
+      setSelectedArea({
+          name: selectedAreas.length > 0 ? areaNames : "Ingen områder valgt",
+          natureValue: averageNatureValue,
           areaSize: totalAreaSize,
-          shannonIndex: selectedAreas.length > 0 ? selectedAreas[0].shannonIndex : null,
-          soilQualityValue: selectedAreas.length > 0 ? selectedAreas[0].soilQualityValue : null,
-          ndvi: selectedAreas.length > 0 ? selectedAreas[0].ndvi : null,
-        });
-    }, [selectedAreas, setSelectedArea]);
+          shannonIndex: averageShannonIndex,
+          ndvi: averageNDVI,
+          soilQualityValue: averageSoilQualityValue,
+      });
+  }, [selectedAreas, setSelectedArea]);
+  
 
-    // Beregn overlap med brugerdefineret område
-    const calculateAverageNatureValueForDrawnArea = (layer) => {
-        const overlappingAreas = areas.filter((area) => {
-            const areaBounds = L.latLngBounds(area.bounds);
-    
-            if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
-                const drawnBounds = L.latLngBounds(layer.getLatLngs()[0]);
-                return areaBounds.overlaps(drawnBounds) || drawnBounds.contains(areaBounds);
-            } else if (layer instanceof L.Circle) {
-                const center = layer.getLatLng();
-                const radius = layer.getRadius();
-                return areaBounds.contains(center) || areaBounds.distanceTo(center) <= radius || areaBounds.within(layer.getBounds()); 
-            }
-            
-            return false;
-        });
-    
-        const totalNatureValue = overlappingAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
-        const averageNatureValue = overlappingAreas.length > 0 ? (totalNatureValue / overlappingAreas.length) : 0;
-        return parseFloat(averageNatureValue.toFixed(2));
+  // Beregn overlap med brugerdefineret område
+  const calculateAverageValuesForDrawnArea = (layer) => {
+    const overlappingAreas = areas.filter((area) => {
+        const areaBounds = L.latLngBounds(area.bounds);
+
+        if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+            const drawnBounds = L.latLngBounds(layer.getLatLngs()[0]);
+            return areaBounds.overlaps(drawnBounds) || drawnBounds.contains(areaBounds);
+        } else if (layer instanceof L.Circle) {
+            const center = layer.getLatLng();
+            const radius = layer.getRadius();
+            return areaBounds.contains(center) || areaBounds.distanceTo(center) <= radius || areaBounds.within(layer.getBounds()); 
+        }
+        
+        return false;
+    });
+
+    const totalNatureValue = overlappingAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
+    const totalShannonIndex = overlappingAreas.reduce((acc, area) => acc + (area.shannonIndex || 0), 0);
+    const totalNDVI = overlappingAreas.reduce((acc, area) => acc + (area.ndvi || 0), 0);
+    const totalSoilQualityValue = overlappingAreas.reduce((acc, area) => acc + (area.soilQualityValue || 0), 0);
+    const averageNatureValue = overlappingAreas.length > 0 ? parseFloat((totalNatureValue / overlappingAreas.length).toFixed(2)) : 0;
+    const averageShannonIndex = overlappingAreas.length > 0 ? parseFloat((totalShannonIndex / overlappingAreas.length).toFixed(2)) : 0;
+    const averageNDVI = overlappingAreas.length > 0 ? parseFloat((totalNDVI / overlappingAreas.length).toFixed(2)) : 0;
+    const averageSoilQualityValue = overlappingAreas.length > 0 ? parseFloat((totalSoilQualityValue / overlappingAreas.length).toFixed(2)) : 0;
+
+    return {
+        natureValue: averageNatureValue,
+        shannonIndex: averageShannonIndex,
+        ndvi: averageNDVI,
+        soilQualityValue: averageSoilQualityValue,
     };
+};
+
 
     const onCreated = (e) => {
         const layer = e.layer;
@@ -163,12 +183,15 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
             areaSize = Math.PI * Math.pow(layer.getRadius(), 2);
         }
 
-        const averageNatureValue = calculateAverageNatureValueForDrawnArea(layer);
+        const averages  = calculateAverageValuesForDrawnArea(layer);
 
         setSelectedArea({
             name: "Brugerdefineret område",
-            natureValue: averageNatureValue,
-            areaSize: parseFloat(areaSize.toFixed(2)),
+            natureValue: averages.natureValue,
+          areaSize: parseFloat(areaSize.toFixed(2)),
+          shannonIndex: averages.shannonIndex,
+          ndvi: averages.ndvi,
+          soilQualityValue: averages.soilQualityValue,
         });
     };
 
@@ -248,9 +271,9 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
                 <Tooltip direction="top" offset={[0, -10]} opacity={1}>
                   <div>
                     <strong>{area.name}</strong>
-                    <p>Shannon Index: {area.shannonIndex}</p>
+                    {/* <p>Shannon Index: {area.shannonIndex}</p>
                     <p>NDVI: {area.ndvi}</p>
-                    <p>Jordkvalitet: {area.soilQualityValue}</p>
+                    <p>Jordkvalitet: {area.soilQualityValue}</p> */}
                     <p>Naturværdi: {area.nature_value}</p>
                   </div>
                 </Tooltip>
