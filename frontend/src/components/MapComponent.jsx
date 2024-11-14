@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 import { wktToBounds } from "../utils/wktUtils";
 import "leaflet/dist/leaflet.css";
 import ProjectPopup from "./ProjectPopup";
-import projectsData from "../data/projectsData.json";
+// import projectsData from "../data/projectsData.json";
 
 async function fetchDanishName(scientificName) {
   try {
@@ -37,11 +37,23 @@ async function fetchDanishName(scientificName) {
   }
 }
 
+// Funktion til at konvertere en WKT-streng til et objekt med lat/lng
+function parseLocation(wktString) {
+  const match = /POINT \(([^ ]+) ([^ ]+)\)/.exec(wktString);
+  if (match) {
+    const lon = parseFloat(match[1]);
+    const lat = parseFloat(match[2]);
+    return { lat, lng: lon };
+  }
+  return { lat: undefined, lng: undefined }; // Returner undefined hvis ikke i forventet format
+}
+
 function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isInsectMarkersVisible, isProjectMarkersVisible }) {
     const [zoomLevel, setZoomLevel] = useState(8);
     const [selectedAreas, setSelectedAreas] = useState([]);
     const [areas, setAreas] = useState([]); // Tilføj state til API-data
     const [gbifData, setGbifData] = useState([]);
+    const [projectsData, setProjectsData] = useState([]);
     const rectangleClicked = useRef(false);
     const featureGroupRef = useRef(null);
   
@@ -52,7 +64,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
         .then((data) => {
           const convertedData = data.map((area) => ({
             ...area,
-            bounds: wktToBounds(area.geom),  // Konverter geom til bounds
+            bounds: wktToBounds(area.geom),
             natureValue: parseFloat(area.nature_value),
             shannonIndex: parseFloat(area.shannon_index),
             soilQualityValue: parseFloat(area.soil_quality_value),
@@ -66,11 +78,50 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
       fetch('http://127.0.0.1:8000/api/gbif-data/') 
         .then((response) => response.json())
         .then((data) => {
-          // console.log("GBIF Data:", data);
           setGbifData(data);
         })
         .catch((error) => console.error('Error fetching GBIF data:', error));
+      
+      // Hent projektdata fra API
+      fetch('http://127.0.0.1:8000/api/projects/')
+    .then((response) => response.json())
+    .then((data) => {
+      const convertedData = data.map((project) => ({
+        ...project,
+        location: parseLocation(project.location) // Konverter location til { lat, lng }
+      }));
+      console.log("Converted Projects Data:", convertedData); // Log for at tjekke formatet
+      setProjectsData(convertedData);
+    })
+        .catch((error) => console.error('Error fetching projects data:', error));
     }, []);
+  
+    // useEffect(() => {
+    //   // Hent områder fra API
+    //   fetch('http://127.0.0.1:8000/api/enhanced-areas/')
+    //     .then((response) => response.json())
+    //     .then((data) => {
+    //       const convertedData = data.map((area) => ({
+    //         ...area,
+    //         bounds: wktToBounds(area.geom),  // Konverter geom til bounds
+    //         natureValue: parseFloat(area.nature_value),
+    //         shannonIndex: parseFloat(area.shannon_index),
+    //         soilQualityValue: parseFloat(area.soil_quality_value),
+    //         ndvi: parseFloat(area.ndvi),
+    //       }));
+    //       setAreas(convertedData);
+    //     })
+    //     .catch((error) => console.error('Error fetching area data:', error));
+      
+    //   // Hent GBIF-data fra API
+    //   fetch('http://127.0.0.1:8000/api/gbif-data/') 
+    //     .then((response) => response.json())
+    //     .then((data) => {
+    //       // console.log("GBIF Data:", data);
+    //       setGbifData(data);
+    //     })
+    //     .catch((error) => console.error('Error fetching GBIF data:', error));
+    // }, []);
   
     // For bug fixing. Delete later
     useEffect(() => {
@@ -244,15 +295,19 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
 
         {zoomLevel > 12 && isProjectMarkersVisible && (
           <MarkerClusterGroup>
-            {projectsData.map(project => {
-              return (
-                <Marker key={project.id} position={project.location}>
-                  <Popup>
-                    <ProjectPopup project={project} />
-                  </Popup>
-                </Marker>
-              );
-            })}
+            {projectsData.map((project) => {
+      const { lat, lng } = project.location;
+      if (lat !== undefined && lng !== undefined) {
+        return (
+          <Marker key={project.id} position={[lat, lng]}>
+            <Popup>
+              <ProjectPopup project={project} />
+            </Popup>
+          </Marker>
+        );
+      }
+      return null; // Spring markøren over hvis lat eller lng er undefined
+    })}
           </MarkerClusterGroup>
         )}
 
