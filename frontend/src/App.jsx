@@ -54,6 +54,10 @@ function App() {
     setProjectLocation(null);
   };
 
+  useEffect(() => {
+    console.log("Updated projectLocation in App:", projectLocation);
+  }, [projectLocation]);
+
   return (
     <div className="h-screen flex flex-col overflow-hidden">
       
@@ -91,6 +95,7 @@ function App() {
         {projectLocation && (
           <ProjectForm
             project={{ location: projectLocation }}
+            projectLocation={projectLocation}
             onSave={async (data) => {
               try {
                 const response = await fetch("http://127.0.0.1:8000/api/projects/", {

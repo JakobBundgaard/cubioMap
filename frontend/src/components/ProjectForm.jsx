@@ -7,22 +7,22 @@ function ProjectForm({ project, projectLocation, onSave, onCancel }) {
   const [formData, setFormData] = useState({
     name: project?.name || "",
     description: project?.description || "",
-    latitude: projectLocation ? projectLocation.lat : project?.location?.coordinates?.[1] || "",
-    longitude: projectLocation ? projectLocation.lng : project?.location?.coordinates?.[0] || "",
+    latitude: projectLocation?.lat || "",
+    longitude: projectLocation?.lng || "",
     initiatedBy: project?.initiatedBy || "",
   });
 
   // Brug useEffect til at opdatere formData, hvis projekt- eller koordinatdata ændrer sig
-  useEffect(() => {
-    setFormData((prevData) => ({
-      ...prevData,
-      name: project?.name || "",
-      description: project?.description || "",
-      latitude: projectLocation?.lat || project?.location?.coordinates?.[1] || "",
-      longitude: projectLocation?.lng || project?.location?.coordinates?.[0] || "",
-      initiatedBy: project?.initiatedBy || "",
-    }));
-  }, [project, projectLocation]);
+    useEffect(() => {
+        console.log("Received projectLocation in ProjectForm:", projectLocation);
+    if (projectLocation) {
+      setFormData((prevData) => ({
+        ...prevData,
+        latitude: projectLocation.lat,
+        longitude: projectLocation.lng,
+      }));
+    }
+  }, [projectLocation]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -66,7 +66,7 @@ function ProjectForm({ project, projectLocation, onSave, onCancel }) {
         <input
           type="number"
           name="latitude"
-          value={formData.latitude || ""} // Sørg for, at værdi altid er en streng eller et tal
+          value={formData.latitude} // Sørg for, at værdi altid er en streng eller et tal
           onChange={handleChange}
           required
           className="w-full border p-2"
@@ -77,7 +77,7 @@ function ProjectForm({ project, projectLocation, onSave, onCancel }) {
         <input
           type="number"
           name="longitude"
-          value={formData.longitude || ""} // Sørg for, at værdi altid er en streng eller et tal
+          value={formData.longitude} // Sørg for, at værdi altid er en streng eller et tal
           onChange={handleChange}
           required
           className="w-full border p-2"
