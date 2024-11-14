@@ -1,7 +1,9 @@
 import MapComponent from "./components/MapComponent";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import ProjectForm from "./components/ProjectForm";
+import { parseLocation } from "./utils/wktUtils";
 
 
 function App() {
@@ -11,12 +13,45 @@ function App() {
   const [isInsectMarkersVisible, setIsInsectMarkersVisible] = useState(false);
   const [isProjectMarkersVisible, setIsProjectMarkersVisible] = useState(false);
 
+  const [isCreatingProject, setIsCreatingProject] = useState(false);
+  const [projectLocation, setProjectLocation] = useState(null);
+  const [projectsData, setProjectsData] = useState([]);
+
+  useEffect(() => {
+    console.log("isCreatingProject ændret til:", isCreatingProject);
+  }, [isCreatingProject]);
+
+
   const toggleInsectMarkers = () => {
     setIsInsectMarkersVisible(!isInsectMarkersVisible);
   };
 
   const toggleProjectMarkers = () => {
     setIsProjectMarkersVisible(!isProjectMarkersVisible);
+  };
+
+ 
+  
+  useEffect(() => {
+    fetch("http://127.0.0.1:8000/api/projects/")
+      .then((response) => response.json())
+      .then((data) => {
+        const convertedData = data.map((project) => ({
+          ...project,
+          location: parseLocation(project.location),
+        }));
+        setProjectsData(convertedData);
+      })
+      .catch((error) => console.error("Error fetching projects data:", error));
+  }, []);
+
+  const addProject = (newProject) => {
+    setProjectsData((prevProjects) => [...prevProjects, newProject]);
+  };
+
+  const startCreatingProject = () => {
+    setIsCreatingProject(true);
+    setProjectLocation(null);
   };
 
   return (
@@ -35,6 +70,7 @@ function App() {
           isInsectMarkersVisible={isInsectMarkersVisible}
           isProjectMarkersVisible={isProjectMarkersVisible} 
           toggleProjectMarkers={toggleProjectMarkers}
+          startCreatingProject={startCreatingProject}
         />
 
         
@@ -45,11 +81,67 @@ function App() {
             isDrawActive={isDrawActive}
             isInsectMarkersVisible={isInsectMarkersVisible}
             isProjectMarkersVisible={isProjectMarkersVisible}
+            isCreatingProject={isCreatingProject} 
+            setIsCreatingProject={setIsCreatingProject}  
+            setProjectLocation={setProjectLocation}
+            projectsData={projectsData}
           />
         </div> 
+
+        {projectLocation && (
+          <ProjectForm
+            project={{ location: projectLocation }}
+            onSave={async (data) => {
+              try {
+                const response = await fetch("http://127.0.0.1:8000/api/projects/", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  body: JSON.stringify({
+                    ...data,
+                    location: `POINT(${projectLocation.lng} ${projectLocation.lat})`,
+                  }),
+                });
+
+                if (response.ok) {
+                  const newProject = await response.json();
+                  addProject(newProject); // Tilføj projekt til state i App.jsx
+                  setProjectLocation(null); // Luk formen
+                  setIsCreatingProject(false); // Nulstil isCreatingProject
+                } else {
+                  console.error("Fejl ved oprettelse af projekt:", response.statusText);
+                }
+              } catch (error) {
+                console.error("Fejl ved API-kald:", error);
+              }
+            }}
+            onCancel={() => {
+              setProjectLocation(null);
+              setIsCreatingProject(false);
+            }}
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "white",
+              padding: "20px",
+              border: "1px solid #ccc",
+              zIndex: 10000,
+              width: "400px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          />
+        )}
+
+
       </div>
     </div>
   )
 }
+
+
 
 export default App
