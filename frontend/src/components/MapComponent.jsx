@@ -72,7 +72,6 @@ function MapComponent({
     const [selectedAreas, setSelectedAreas] = useState([]);
     const [areas, setAreas] = useState([]); // Tilføj state til API-data
     const [gbifData, setGbifData] = useState([]);
-    // const [projectsData, setProjectsData] = useState([]);
     const rectangleClicked = useRef(false);
     const featureGroupRef = useRef(null);
   
@@ -106,32 +105,6 @@ function MapComponent({
       
     }, []);
   
-    // useEffect(() => {
-    //   // Hent områder fra API
-    //   fetch('http://127.0.0.1:8000/api/enhanced-areas/')
-    //     .then((response) => response.json())
-    //     .then((data) => {
-    //       const convertedData = data.map((area) => ({
-    //         ...area,
-    //         bounds: wktToBounds(area.geom),  // Konverter geom til bounds
-    //         natureValue: parseFloat(area.nature_value),
-    //         shannonIndex: parseFloat(area.shannon_index),
-    //         soilQualityValue: parseFloat(area.soil_quality_value),
-    //         ndvi: parseFloat(area.ndvi),
-    //       }));
-    //       setAreas(convertedData);
-    //     })
-    //     .catch((error) => console.error('Error fetching area data:', error));
-      
-    //   // Hent GBIF-data fra API
-    //   fetch('http://127.0.0.1:8000/api/gbif-data/') 
-    //     .then((response) => response.json())
-    //     .then((data) => {
-    //       // console.log("GBIF Data:", data);
-    //       setGbifData(data);
-    //     })
-    //     .catch((error) => console.error('Error fetching GBIF data:', error));
-    // }, []);
   
     // For bug fixing. Delete later
     useEffect(() => {
@@ -146,16 +119,6 @@ function MapComponent({
       console.log("MapComponent mounted. Project Markers Visibility:", isProjectMarkersVisible);
     }, [isProjectMarkersVisible]);
   
-  // const handleMapClickForProject = (e) => {
-  //   console.log("Kort klik:", e.latlng, "isCreatingProject:", isCreatingProject);
-  //     if (isCreatingProject) {
-  //       const { lat, lng } = e.latlng;
-  //       setProjectLocation({ lat, lng });
-  //       setIsCreatingProject(false); // Slut med at oprette projekt
-  //     }
-  //   };
-  
-    
   
     // Beregn kvadratets areal baseret på koordinaterne i bounds
     const calculateAreaSize = (bounds) => {
@@ -304,7 +267,6 @@ function MapComponent({
             zoom={8}
             maxZoom={20}
             style={{ height: "100vh", width: "100%", zIndex: 1 }}
-            // onClick={handleMapClickForProject}
         >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

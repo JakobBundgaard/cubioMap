@@ -33,24 +33,24 @@ function App() {
     setIsProjectMarkersVisible(!isProjectMarkersVisible);
   };
 
- 
-  
-  useEffect(() => {
-    fetch("http://127.0.0.1:8000/api/projects/")
-      .then((response) => response.json())
-      .then((data) => {
-        const convertedData = data.map((project) => ({
-          ...project,
-          location: parseLocation(project.location),
-        }));
-        setProjectsData(convertedData);
-      })
-      .catch((error) => console.error("Error fetching projects data:", error));
-  }, []);
-
-  const addProject = (newProject) => {
-    setProjectsData((prevProjects) => [...prevProjects, newProject]);
+  const fetchProjects = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/projects/");
+      const data = await response.json();
+      const convertedData = data.map((project) => ({
+        ...project,
+        location: parseLocation(project.location), // Konverter til Leaflet's format
+      }));
+      setProjectsData(convertedData);
+    } catch (error) {
+      console.error("Error fetching projects data:", error);
+    }
   };
+
+  useEffect(() => {
+    fetchProjects();
+  }, []);
+  
 
   const startCreatingProject = () => {
     setIsCreatingProject(true);
@@ -81,12 +81,7 @@ function App() {
       );
 
       if (response.ok) {
-        const updatedProject = await response.json();
-        setProjectsData((prevProjects) =>
-          prevProjects.map((project) =>
-            project.id === updatedProject.id ? updatedProject : project
-          )
-        );
+        fetchProjects();
         setSelectedProject(null);
         setIsEditingProject(false);
       } else {
@@ -109,7 +104,7 @@ function App() {
         method: "DELETE",
       });
       if (response.ok) {
-        setProjectsData((prevProjects) => prevProjects.filter((p) => p.id !== projectId));
+        fetchProjects();
       } else {
         console.error("Fejl ved sletning:", response.statusText);
       }
@@ -176,10 +171,9 @@ function App() {
                 });
 
                 if (response.ok) {
-                  const newProject = await response.json();
-                  addProject(newProject); // Tilføj projekt til state i App.jsx
-                  setProjectLocation(null); // Luk formen
-                  setIsCreatingProject(false); // Nulstil isCreatingProject
+                  fetchProjects();
+                  setProjectLocation(null); 
+                  setIsCreatingProject(false); 
                 } else {
                   console.error("Fejl ved oprettelse af projekt:", response.statusText);
                 }
@@ -228,8 +222,6 @@ function App() {
                   }}
                 />
             )}
-
-
       </div>
     </div>
   )
