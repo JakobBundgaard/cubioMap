@@ -21,6 +21,7 @@
     "react-leaflet-draw": "^0.20.4",
     "react-leaflet-markercluster": "^4.1.1",
     "tailwindcss": "^3.4.14",
+    "terraformer-wkt-parser": "^1.2.1",
     "wkt-parser-helper": "^4.2.0"
   },
   "devDependencies": {

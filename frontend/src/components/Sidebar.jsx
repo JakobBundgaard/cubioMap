@@ -3,6 +3,7 @@ import { BsPencilSquare } from "react-icons/bs";
 import { TbPointerPlus } from "react-icons/tb";
 import { BsBinoculars } from "react-icons/bs";
 import { GoProjectSymlink } from "react-icons/go";
+import { FaFolderOpen } from "react-icons/fa";
 
 function Sidebar({
   selectedArea,
@@ -17,6 +18,8 @@ function Sidebar({
   startCreatingProject,
   onSaveSelectedAreas, // Ny funktion til at gemme valgte områder
   selectedAreas, // De valgte kvadrater
+  toggleSavedAreas, // Ny prop
+  isSavedAreasVisible,
 }) {
   const isAverageLabelNeeded = selectedArea && (selectedArea.name.includes(",") || selectedArea.name === "Brugerdefineret område");
   
@@ -54,7 +57,13 @@ function Sidebar({
             >
               <GoProjectSymlink size={20} />
             </div>
-            
+            <div
+              title="Vis Gemte Områder"
+              className={`cursor-pointer ${isSavedAreasVisible ? "text-blue-500" : "hover:text-blue-500"}`}
+              onClick={toggleSavedAreas}
+            >
+              <FaFolderOpen size={20} />
+            </div>
         </div>
 
       <h2 className="text-lg font-bold mb-4">Detaljeret Information</h2>
@@ -129,9 +138,11 @@ Sidebar.propTypes = {
     isInsectMarkersVisible: PropTypes.bool.isRequired,
     toggleProjectMarkers: PropTypes.func.isRequired,
     isProjectMarkersVisible: PropTypes.bool.isRequired,
-  startCreatingProject: PropTypes.func.isRequired,
-  onSaveSelectedAreas: PropTypes.func.isRequired, // Ny prop
-  selectedAreas: PropTypes.array.isRequired,
+    startCreatingProject: PropTypes.func.isRequired,
+    onSaveSelectedAreas: PropTypes.func.isRequired, // Ny prop
+    selectedAreas: PropTypes.array.isRequired,
+    toggleSavedAreas: PropTypes.func.isRequired,
+    isSavedAreasVisible: PropTypes.bool.isRequired,
 };
 
 export default Sidebar;

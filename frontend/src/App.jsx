@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import { useState, useEffect } from "react";
 import ProjectForm from "./components/ProjectForm";
 import { parseLocation } from "./utils/wktUtils";
+import { parse as parseWKT } from "terraformer-wkt-parser";
 // import * as turf from "@turf/turf";
 
 
@@ -23,10 +24,49 @@ function App() {
 
   const [selectedAreas, setSelectedAreas] = useState([]);
 
+  const [isSavedAreasVisible, setIsSavedAreasVisible] = useState(false); // Ny state
+  const [savedAreas, setSavedAreas] = useState([]); // Ny state til gemte områder
+
   useEffect(() => {
     console.log("isCreatingProject ændret til:", isCreatingProject);
   }, [isCreatingProject]);
 
+  useEffect(() => {
+    console.log("Saved Areas:", savedAreas);
+    console.log("Saved Areas Visibility:", isSavedAreasVisible);
+  }, [savedAreas, isSavedAreasVisible]);
+
+  // Funktion til at hente gemte områder
+  const fetchSavedAreas = async () => {
+    try {
+        const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/by_user/?user_id=1");
+        const data = await response.json();
+
+        const formattedData = data.map((area) => {
+            // Fjern SRID=4326; fra geom-strengen
+            const cleanedGeom = area.geom.replace(/^SRID=\d+;/, ""); // Fjerner SRID=XXXX;
+            return {
+                ...area,
+                nature_value: parseFloat(area.nature_value), // Konverter naturværdi til tal
+                area_size: parseFloat(area.area_size), // Konverter areal til tal
+                geom: parseWKT(cleanedGeom), // Konverter WKT til GeoJSON
+            };
+        });
+
+        setSavedAreas(formattedData);
+    } catch (error) {
+        console.error("Error fetching saved areas:", error);
+    }
+};
+
+
+  // Toggle-funktion
+  const toggleSavedAreas = () => {
+    setIsSavedAreasVisible((prev) => !prev);
+    if (!isSavedAreasVisible) {
+      fetchSavedAreas();
+    }
+  };
 
   const toggleInsectMarkers = () => {
     setIsInsectMarkersVisible(!isInsectMarkersVisible);
@@ -234,6 +274,8 @@ function App() {
           startCreatingProject={startCreatingProject}
           onSaveSelectedAreas={saveSelectedAreas} // Ny prop
           selectedAreas={selectedAreas} // Ny prop
+          toggleSavedAreas={toggleSavedAreas} // Ny prop
+          isSavedAreasVisible={isSavedAreasVisible} // Ny prop
         />
 
         
@@ -252,6 +294,8 @@ function App() {
             onDelete={handleDelete}
             selectedAreas={selectedAreas} // Ny prop
             setSelectedAreas={setSelectedAreas} // Ny prop
+            savedAreas={savedAreas} // Ny prop
+            isSavedAreasVisible={isSavedAreasVisible} // Ny prop
           />
         </div> 
 

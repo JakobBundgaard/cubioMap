@@ -69,6 +69,8 @@ function MapComponent({
   onDelete,
   selectedAreas, // Props, ingen lokal state
   setSelectedAreas, // Props, ingen lokal state
+  savedAreas, // Ny prop
+  isSavedAreasVisible, // Ny prop
 }) {
     const [zoomLevel, setZoomLevel] = useState(8);
     // const [selectedAreas, setSelectedAreas] = useState([]);
@@ -120,6 +122,10 @@ function MapComponent({
     useEffect(() => {
       console.log("MapComponent mounted. Project Markers Visibility:", isProjectMarkersVisible);
     }, [isProjectMarkersVisible]);
+  
+    useEffect(() => {
+      console.log("Rendering Saved Areas:", savedAreas);
+    }, [savedAreas]);
   
   
     // Beregn kvadratets areal baseret på koordinaterne i bounds
@@ -284,6 +290,23 @@ function MapComponent({
         <ZoomWatcher />
         <MapClickListener />
 
+        {/* Gemte områder */}
+      {isSavedAreasVisible &&
+        savedAreas.map((area) => (
+          <Rectangle
+            key={area.id}
+            bounds={L.geoJSON(area.geom).getBounds()} // Beregn bounds fra GeoJSON
+            pathOptions={{ color: "red", weight: 1 }}
+          >
+            <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+              <div>
+                <strong>{area.name}</strong>
+                <p>Naturværdi: {area.nature_value}</p>
+              </div>
+            </Tooltip>
+          </Rectangle>
+        ))}
+
         {zoomLevel > 12 && isProjectMarkersVisible && (
           <MarkerClusterGroup>
             {projectsData.map((project) => {
@@ -399,6 +422,15 @@ function DanishNamePopup({ data }) {
 }
 
 MapComponent.propTypes = {
+    savedAreas: PropTypes.arrayOf(
+      PropTypes.shape({
+        id: PropTypes.number.isRequired,
+        name: PropTypes.string.isRequired,
+        nature_value: PropTypes.number.isRequired,
+        geom: PropTypes.object.isRequired, // GeoJSON-geometri som objekt
+      })
+    ).isRequired,
+    isSavedAreasVisible: PropTypes.bool.isRequired,
     setSelectedArea: PropTypes.func.isRequired,
     isMultiSelectActive: PropTypes.bool.isRequired,
     isDrawActive: PropTypes.bool.isRequired,
@@ -409,9 +441,9 @@ MapComponent.propTypes = {
     setProjectLocation: PropTypes.func.isRequired,
     projectsData: PropTypes.array.isRequired,
     onUpdate: PropTypes.func.isRequired,
-  onDelete: PropTypes.func.isRequired,
-  selectedAreas: PropTypes.array.isRequired,
-  setSelectedAreas: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
+    selectedAreas: PropTypes.array.isRequired,
+    setSelectedAreas: PropTypes.func.isRequired,
 };
   
 DanishNamePopup.propTypes = {
