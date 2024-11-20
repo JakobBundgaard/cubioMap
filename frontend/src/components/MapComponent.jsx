@@ -64,7 +64,9 @@ function MapComponent({
   isCreatingProject, 
   setIsCreatingProject,
   setProjectLocation,
-  projectsData
+  projectsData,
+  onUpdate,
+  onDelete,
 }) {
     const [zoomLevel, setZoomLevel] = useState(8);
     const [selectedAreas, setSelectedAreas] = useState([]);
@@ -326,7 +328,11 @@ function MapComponent({
                   return (
                     <Marker key={project.id} position={[lat, lng]}>
                       <Popup>
-                        <ProjectPopup project={project} />
+                        <ProjectPopup
+                          project={project}
+                          onUpdate={() => onUpdate(project)} 
+                          onDelete={() => onDelete(project.id)}
+                        />
                       </Popup>
                     </Marker>
                   );
@@ -436,8 +442,10 @@ MapComponent.propTypes = {
     isProjectMarkersVisible: PropTypes.bool.isRequired,
     isCreatingProject: PropTypes.bool.isRequired,
     setIsCreatingProject: PropTypes.func.isRequired,
-  setProjectLocation: PropTypes.func.isRequired,
-  projectsData: PropTypes.array.isRequired,
+    setProjectLocation: PropTypes.func.isRequired,
+    projectsData: PropTypes.array.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
 };
   
 DanishNamePopup.propTypes = {

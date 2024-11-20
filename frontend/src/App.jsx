@@ -17,6 +17,9 @@ function App() {
   const [projectLocation, setProjectLocation] = useState(null);
   const [projectsData, setProjectsData] = useState([]);
 
+  const [selectedProject, setSelectedProject] = useState(null);
+  const [isEditingProject, setIsEditingProject] = useState(false);
+
   useEffect(() => {
     console.log("isCreatingProject ændret til:", isCreatingProject);
   }, [isCreatingProject]);
@@ -54,6 +57,67 @@ function App() {
     setProjectLocation(null);
   };
 
+  // Funktion til at starte redigering
+  const startEditingProject = (project) => {
+    setSelectedProject(project);
+    setIsEditingProject(true);
+  };
+
+  // Funktion til at gemme opdateringer
+  const saveUpdatedProject = async (updatedData) => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/api/projects/${selectedProject.id}/`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ...updatedData,
+            location: `POINT(${updatedData.longitude} ${updatedData.latitude})`,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        const updatedProject = await response.json();
+        setProjectsData((prevProjects) =>
+          prevProjects.map((project) =>
+            project.id === updatedProject.id ? updatedProject : project
+          )
+        );
+        setSelectedProject(null);
+        setIsEditingProject(false);
+      } else {
+        console.error("Failed to update project:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Error updating project:", error);
+    }
+  };
+
+  // Funktion til at annullere redigering
+  const cancelEditingProject = () => {
+    setSelectedProject(null);
+    setIsEditingProject(false);
+  };
+
+  const handleDelete = async (projectId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/projects/${projectId}/`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        setProjectsData((prevProjects) => prevProjects.filter((p) => p.id !== projectId));
+      } else {
+        console.error("Fejl ved sletning:", response.statusText);
+      }
+    } catch (error) {
+      console.error("Fejl ved API-kald:", error);
+    }
+  };
+
   useEffect(() => {
     console.log("Updated projectLocation in App:", projectLocation);
   }, [projectLocation]);
@@ -89,6 +153,8 @@ function App() {
             setIsCreatingProject={setIsCreatingProject}  
             setProjectLocation={setProjectLocation}
             projectsData={projectsData}
+            onUpdate={startEditingProject}
+            onDelete={handleDelete}
           />
         </div> 
 
@@ -140,6 +206,28 @@ function App() {
             }}
           />
         )}
+
+        {isEditingProject && selectedProject && (
+                  <ProjectForm
+                    project={selectedProject}
+                    projectLocation={selectedProject.location}
+                    onSave={saveUpdatedProject}
+                    onCancel={cancelEditingProject}
+                    style={{
+                      position: "fixed",
+                      top: "50%",
+                      left: "50%",
+                      transform: "translate(-50%, -50%)",
+                      backgroundColor: "white",
+                      padding: "20px",
+                      border: "1px solid #ccc",
+                      zIndex: 10000,
+                      width: "400px",
+                      maxHeight: "80vh",
+                      overflowY: "auto",
+                  }}
+                />
+            )}
 
 
       </div>
