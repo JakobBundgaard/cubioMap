@@ -14,7 +14,9 @@ function Sidebar({
   isInsectMarkersVisible,
   toggleProjectMarkers,
   isProjectMarkersVisible,
-  startCreatingProject
+  startCreatingProject,
+  onSaveSelectedAreas, // Ny funktion til at gemme valgte områder
+  selectedAreas, // De valgte kvadrater
 }) {
   const isAverageLabelNeeded = selectedArea && (selectedArea.name.includes(",") || selectedArea.name === "Brugerdefineret område");
   
@@ -93,6 +95,18 @@ function Sidebar({
           Opret Projekt
       </button>
 
+      <button
+        onClick={onSaveSelectedAreas}
+        disabled={selectedAreas.length === 0} // Deaktiver, hvis ingen områder er valgt
+        className={`p-2 mt-4 rounded-md ${
+          selectedAreas.length === 0
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-blue-500 text-white hover:bg-blue-600"
+        }`}
+      >
+        Gem Valgte Kvadrater
+      </button>
+
     </aside>
   );
 };
@@ -115,7 +129,9 @@ Sidebar.propTypes = {
     isInsectMarkersVisible: PropTypes.bool.isRequired,
     toggleProjectMarkers: PropTypes.func.isRequired,
     isProjectMarkersVisible: PropTypes.bool.isRequired,
-    startCreatingProject: PropTypes.func.isRequired,
+  startCreatingProject: PropTypes.func.isRequired,
+  onSaveSelectedAreas: PropTypes.func.isRequired, // Ny prop
+  selectedAreas: PropTypes.array.isRequired,
 };
 
 export default Sidebar;

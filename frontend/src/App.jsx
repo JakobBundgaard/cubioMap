@@ -20,6 +20,8 @@ function App() {
   const [selectedProject, setSelectedProject] = useState(null);
   const [isEditingProject, setIsEditingProject] = useState(false);
 
+  const [selectedAreas, setSelectedAreas] = useState([]);
+
   useEffect(() => {
     console.log("isCreatingProject ændret til:", isCreatingProject);
   }, [isCreatingProject]);
@@ -50,6 +52,29 @@ function App() {
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  const saveSelectedAreas = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ areas: selectedAreas }), // Send de valgte kvadrater til backend
+      });
+
+      if (response.ok) {
+        alert("Valgte kvadrater gemt!");
+        setSelectedAreas([]); // Ryd valgte kvadrater efter succes
+      } else {
+        alert("Kunne ikke gemme de valgte kvadrater. Prøv igen.");
+        console.error("Fejl ved gemning af områder:", response.statusText);
+      }
+    } catch (error) {
+      alert("Noget gik galt. Tjek din forbindelse og prøv igen.");
+      console.error("API-kald fejlede:", error);
+    }
+  };
   
 
   const startCreatingProject = () => {
@@ -134,6 +159,8 @@ function App() {
           isProjectMarkersVisible={isProjectMarkersVisible} 
           toggleProjectMarkers={toggleProjectMarkers}
           startCreatingProject={startCreatingProject}
+          onSaveSelectedAreas={saveSelectedAreas} // Ny prop
+          selectedAreas={selectedAreas} // Ny prop
         />
 
         
@@ -150,6 +177,8 @@ function App() {
             projectsData={projectsData}
             onUpdate={startEditingProject}
             onDelete={handleDelete}
+            selectedAreas={selectedAreas} // Ny prop
+            setSelectedAreas={setSelectedAreas} // Ny prop
           />
         </div> 
 

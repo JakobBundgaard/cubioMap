@@ -67,9 +67,11 @@ function MapComponent({
   projectsData,
   onUpdate,
   onDelete,
+  selectedAreas, // Props, ingen lokal state
+  setSelectedAreas, // Props, ingen lokal state
 }) {
     const [zoomLevel, setZoomLevel] = useState(8);
-    const [selectedAreas, setSelectedAreas] = useState([]);
+    // const [selectedAreas, setSelectedAreas] = useState([]);
     const [areas, setAreas] = useState([]); // Tilføj state til API-data
     const [gbifData, setGbifData] = useState([]);
     const rectangleClicked = useRef(false);
@@ -407,7 +409,9 @@ MapComponent.propTypes = {
     setProjectLocation: PropTypes.func.isRequired,
     projectsData: PropTypes.array.isRequired,
     onUpdate: PropTypes.func.isRequired,
-    onDelete: PropTypes.func.isRequired,
+  onDelete: PropTypes.func.isRequired,
+  selectedAreas: PropTypes.array.isRequired,
+  setSelectedAreas: PropTypes.func.isRequired,
 };
   
 DanishNamePopup.propTypes = {
