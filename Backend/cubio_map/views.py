@@ -36,7 +36,7 @@ class UserSelectedAreaViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         geom_data = request.data.get('geom', None)
         user_id = request.data.get('user_id', None)
-        name = request.data.get('name', 'Kombineret Område')
+        name = request.data.get('name')
         nature_value = request.data.get('natureValue', 0)
         area_size = request.data.get('areaSize', 0)
 
@@ -48,6 +48,11 @@ class UserSelectedAreaViewSet(viewsets.ModelViewSet):
             combined_geom = GEOSGeometry(geom_data)
             if combined_geom.geom_type != "MultiPolygon":
                 combined_geom = MultiPolygon(combined_geom)  # Konverter til MultiPolygon hvis nødvendigt
+
+            # Hvis navn ikke er angivet, generér det
+            if not name:
+                next_id = UserSelectedArea.objects.count() + 1
+                name = f"Område {next_id}"
 
             # Gem det samlede område
             user_area = UserSelectedArea.objects.create(

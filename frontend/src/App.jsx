@@ -142,7 +142,7 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          name: "Kombineret område",
+          name: "",
           natureValue: selectedArea?.natureValue || 0,
           areaSize: selectedArea?.areaSize || 0,
           geom: JSON.stringify(geoJSON), // Send samlet geometri som GeoJSON
