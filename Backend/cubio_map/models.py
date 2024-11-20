@@ -47,7 +47,7 @@ class UserSelectedArea(models.Model):
     name = models.CharField(max_length=100)
     nature_value = models.DecimalField(max_digits=5, decimal_places=4)
     area_size = models.DecimalField(max_digits=10, decimal_places=2)
-    geom = models.PolygonField(srid=4326)  # Valgfri geometri
+    geom = models.MultiPolygonField(srid=4326)  # Valgfri geometri
     user_id = models.IntegerField()  # Brugertilpasning: Brugeren, der har gemt området
 
     def __str__(self):

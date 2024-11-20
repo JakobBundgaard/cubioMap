@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import { useState, useEffect } from "react";
 import ProjectForm from "./components/ProjectForm";
 import { parseLocation } from "./utils/wktUtils";
+// import * as turf from "@turf/turf";
 
 
 function App() {
@@ -54,27 +55,99 @@ function App() {
   }, []);
 
   const saveSelectedAreas = async () => {
+    if (selectedAreas.length === 0) {
+      alert("Ingen kvadrater valgt!");
+      return;
+    }
+  
     try {
+      // Tjek og luk polygonerne
+      const polygons = selectedAreas.map((area) => {
+        console.log("Behandler område:", area.name, area.bounds);
+  
+        // Kontroller, at bounds findes og har præcis 2 punkter (sydvest og nordøst)
+        if (!area.bounds || area.bounds.length !== 2) {
+          throw new Error(`Området "${area.name}" har ugyldige koordinater.`);
+        }
+  
+        const [southWest, northEast] = area.bounds;
+  
+        // Generér fire hjørnepunkter for rektanglet (mod uret: sydvest, sydøst, nordøst, nordvest)
+        const closedBounds = [
+          [southWest[1], southWest[0]], // Sydvest (lng, lat)
+          [northEast[1], southWest[0]], // Sydøst (lng, lat)
+          [northEast[1], northEast[0]], // Nordøst (lng, lat)
+          [southWest[1], northEast[0]], // Nordvest (lng, lat)
+          [southWest[1], southWest[0]], // Luk polygonen ved at gentage sydvest
+        ];
+  
+        console.log("Lukket rektangel for område:", area.name, closedBounds);
+  
+        return closedBounds; // Returnér kun koordinater
+      });
+  
+      console.log("Genererede polygon-koordinater:", polygons);
+  
+      // Kombiner alle polygoner i en GeoJSON MultiPolygon
+      const geoJSON = {
+        type: "MultiPolygon",
+        coordinates: polygons.map((coords) => [coords]), // Hver polygon tilføjes som en del af MultiPolygon
+      };
+  
+      console.log("Kombineret GeoJSON MultiPolygon:", geoJSON);
+  
       const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ areas: selectedAreas }), // Send de valgte kvadrater til backend
+        body: JSON.stringify({
+          name: "Kombineret område",
+          natureValue: selectedArea?.natureValue || 0,
+          areaSize: selectedArea?.areaSize || 0,
+          geom: JSON.stringify(geoJSON), // Send samlet geometri som GeoJSON
+          user_id: 1, // Tilføj bruger-id (kan ændres baseret på login-systemet)
+        }),
       });
-
+  
       if (response.ok) {
-        alert("Valgte kvadrater gemt!");
-        setSelectedAreas([]); // Ryd valgte kvadrater efter succes
+        alert("Området blev gemt som et samlet område!");
+        setSelectedAreas([]); // Nulstil valgte områder
       } else {
-        alert("Kunne ikke gemme de valgte kvadrater. Prøv igen.");
-        console.error("Fejl ved gemning af områder:", response.statusText);
+        alert("Kunne ikke gemme det valgte område. Prøv igen.");
       }
     } catch (error) {
-      alert("Noget gik galt. Tjek din forbindelse og prøv igen.");
-      console.error("API-kald fejlede:", error);
+      console.error("Fejl ved behandling af geometrier:", error);
+      alert(`Noget gik galt: ${error.message}`);
     }
   };
+  
+  
+  
+  
+
+  // const saveSelectedAreas = async () => {
+  //   try {
+  //     const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({ areas: selectedAreas }), // Send de valgte kvadrater til backend
+  //     });
+
+  //     if (response.ok) {
+  //       alert("Valgte kvadrater gemt!");
+  //       setSelectedAreas([]); // Ryd valgte kvadrater efter succes
+  //     } else {
+  //       alert("Kunne ikke gemme de valgte kvadrater. Prøv igen.");
+  //       console.error("Fejl ved gemning af områder:", response.statusText);
+  //     }
+  //   } catch (error) {
+  //     alert("Noget gik galt. Tjek din forbindelse og prøv igen.");
+  //     console.error("API-kald fejlede:", error);
+  //   }
+  // };
   
 
   const startCreatingProject = () => {
