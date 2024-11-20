@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Area, GBIFData, EnhancedCubioArea
+from .models import Area, GBIFData, EnhancedCubioArea, Project
 
 class AreaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -16,3 +16,9 @@ class GBIFDataSerializer(serializers.ModelSerializer):  # Tilføj serializer for
     class Meta:
         model = GBIFData
         fields = ['id', 'species', 'occurrence_date', 'coordinates', 'source_id']
+
+
+class ProjectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Project
+        fields = ['id', 'name', 'location', 'description', 'image', 'initiatedBy']

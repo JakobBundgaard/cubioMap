@@ -1,0 +1,19 @@
+[
+    {
+      "id": 1,
+      "name": "Projekt Skovrejsning",
+      "location": [56.355, 10.355],
+      "description": "Genopretning af skovområde i Jylland.",
+      "image": "/images/skovrejsning.jpg",
+      "initiatedBy": "Miljøstyrelsen"
+    },
+    {
+      "id": 2,
+      "name": "Projekt Vandløbsrestaurering",
+      "location": [56.358, 10.395],
+      "description": "Forbedring af biodiversitet i vandløb.",
+      "image": "/images/vandloeb.jpg",
+      "initiatedBy": "Naturstyrelsen"
+    }
+  ]
+  

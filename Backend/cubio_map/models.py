@@ -33,3 +33,12 @@ class GBIFData(models.Model):
     def __str__(self):
         return f"{self.species} at {self.coordinates}"
 
+class Project(models.Model):
+    name = models.CharField(max_length=100)
+    location = models.PointField()  # Bruger PointField til at gemme lat/lng
+    description = models.TextField()
+    image = models.ImageField(upload_to='project_images/', blank=True, null=True)  # Billedupload
+    initiatedBy = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name

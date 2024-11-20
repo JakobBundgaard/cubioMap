@@ -7,6 +7,9 @@ import * as L from "leaflet";
 import PropTypes from 'prop-types';
 import { wktToBounds } from "../utils/wktUtils";
 import "leaflet/dist/leaflet.css";
+import ProjectPopup from "./ProjectPopup";
+
+
 
 async function fetchDanishName(scientificName) {
   try {
@@ -35,13 +38,43 @@ async function fetchDanishName(scientificName) {
   }
 }
 
-function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isInsectMarkersVisible }) {
+
+
+// Kortklik-håndteringskomponent
+const MapClickHandler = ({ isCreatingProject, setProjectLocation }) => {
+  useMapEvents({
+    click(e) {
+      console.log("Kort klik:", e.latlng, "isCreatingProject:", isCreatingProject);
+      if (isCreatingProject) {
+        const { lat, lng } = e.latlng;
+        setProjectLocation({ lat, lng });
+        console.log("Project Location set to:", { lat, lng });
+      }
+    },
+  });
+  return null;
+};
+
+function MapComponent({
+  setSelectedArea,
+  isMultiSelectActive,
+  isDrawActive,
+  isInsectMarkersVisible,
+  isProjectMarkersVisible,
+  isCreatingProject, 
+  setIsCreatingProject,
+  setProjectLocation,
+  projectsData,
+  onUpdate,
+  onDelete,
+}) {
     const [zoomLevel, setZoomLevel] = useState(8);
     const [selectedAreas, setSelectedAreas] = useState([]);
     const [areas, setAreas] = useState([]); // Tilføj state til API-data
     const [gbifData, setGbifData] = useState([]);
     const rectangleClicked = useRef(false);
     const featureGroupRef = useRef(null);
+  
     
   
     useEffect(() => {
@@ -51,7 +84,7 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
         .then((data) => {
           const convertedData = data.map((area) => ({
             ...area,
-            bounds: wktToBounds(area.geom),  // Konverter geom til bounds
+            bounds: wktToBounds(area.geom),
             natureValue: parseFloat(area.nature_value),
             shannonIndex: parseFloat(area.shannon_index),
             soilQualityValue: parseFloat(area.soil_quality_value),
@@ -65,11 +98,13 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
       fetch('http://127.0.0.1:8000/api/gbif-data/') 
         .then((response) => response.json())
         .then((data) => {
-          console.log("GBIF Data:", data);
           setGbifData(data);
         })
         .catch((error) => console.error('Error fetching GBIF data:', error));
+      
+      
     }, []);
+  
   
     // For bug fixing. Delete later
     useEffect(() => {
@@ -80,7 +115,11 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
       console.log("Current Zoom Level:", zoomLevel);
     }, [zoomLevel]);
   
-
+    useEffect(() => {
+      console.log("MapComponent mounted. Project Markers Visibility:", isProjectMarkersVisible);
+    }, [isProjectMarkersVisible]);
+  
+  
     // Beregn kvadratets areal baseret på koordinaterne i bounds
     const calculateAreaSize = (bounds) => {
         if (!bounds || bounds.length !== 2) return 0;
@@ -188,10 +227,10 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
         setSelectedArea({
             name: "Brugerdefineret område",
             natureValue: averages.natureValue,
-          areaSize: parseFloat(areaSize.toFixed(2)),
-          shannonIndex: averages.shannonIndex,
-          ndvi: averages.ndvi,
-          soilQualityValue: averages.soilQualityValue,
+            areaSize: parseFloat(areaSize.toFixed(2)),
+            shannonIndex: averages.shannonIndex,
+            ndvi: averages.ndvi,
+            soilQualityValue: averages.soilQualityValue,
         });
     };
 
@@ -227,15 +266,47 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
             center={[56.2639, 9.5018]}
             zoom={8}
             maxZoom={20}
-            style={{ height: "100vh", width: "100%" }}
+            style={{ height: "100vh", width: "100%", zIndex: 1 }}
         >
         <TileLayer
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
 
+        <MapClickHandler
+            isCreatingProject={isCreatingProject}
+            setProjectLocation={setProjectLocation}
+            setIsCreatingProject={setIsCreatingProject}
+          />
+
         <ZoomWatcher />
         <MapClickListener />
+
+        {zoomLevel > 12 && isProjectMarkersVisible && (
+          <MarkerClusterGroup>
+            {projectsData.map((project) => {
+                const { lat, lng } = project.location;
+                if (lat !== undefined && lng !== undefined) {
+                  return (
+                    <Marker key={project.id} position={[lat, lng]}>
+                      <Popup>
+                        <ProjectPopup
+                          project={project}
+                          onUpdate={() => onUpdate(project)} 
+                          onDelete={() => onDelete(project.id)}
+                        />
+                      </Popup>
+                    </Marker>
+                  );
+                }
+                return null; // Spring markøren over hvis lat eller lng er undefined
+              })}
+          </MarkerClusterGroup>
+        )}
+
+        
+
+
 
         <FeatureGroup ref={featureGroupRef}>
             {isDrawActive && (
@@ -271,9 +342,6 @@ function MapComponent({ setSelectedArea, isMultiSelectActive, isDrawActive, isIn
                 <Tooltip direction="top" offset={[0, -10]} opacity={1}>
                   <div>
                     <strong>{area.name}</strong>
-                    {/* <p>Shannon Index: {area.shannonIndex}</p>
-                    <p>NDVI: {area.ndvi}</p>
-                    <p>Jordkvalitet: {area.soilQualityValue}</p> */}
                     <p>Naturværdi: {area.nature_value}</p>
                   </div>
                 </Tooltip>
@@ -332,7 +400,14 @@ MapComponent.propTypes = {
     setSelectedArea: PropTypes.func.isRequired,
     isMultiSelectActive: PropTypes.bool.isRequired,
     isDrawActive: PropTypes.bool.isRequired,
-    isInsectMarkersVisible: PropTypes.bool.isRequired
+    isInsectMarkersVisible: PropTypes.bool.isRequired,
+    isProjectMarkersVisible: PropTypes.bool.isRequired,
+    isCreatingProject: PropTypes.bool.isRequired,
+    setIsCreatingProject: PropTypes.func.isRequired,
+    setProjectLocation: PropTypes.func.isRequired,
+    projectsData: PropTypes.array.isRequired,
+    onUpdate: PropTypes.func.isRequired,
+    onDelete: PropTypes.func.isRequired,
 };
   
 DanishNamePopup.propTypes = {
@@ -341,6 +416,12 @@ DanishNamePopup.propTypes = {
       occurrence_date: PropTypes.string,   
       coordinates: PropTypes.string        
   }).isRequired
+};
+
+MapClickHandler.propTypes = {
+  isCreatingProject: PropTypes.bool.isRequired,
+  setProjectLocation: PropTypes.func.isRequired,
+  setIsCreatingProject: PropTypes.func.isRequired,
 };
 
 export default MapComponent;
