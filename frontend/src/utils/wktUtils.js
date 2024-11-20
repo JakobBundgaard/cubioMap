@@ -10,3 +10,14 @@ export const wktToBounds = (wkt) => {
   }
   return null;
 };
+
+// Funktion til at konvertere en WKT-streng til et objekt med lat/lng
+export function parseLocation(wktString) {
+  const match = /POINT \(([^ ]+) ([^ ]+)\)/.exec(wktString);
+  if (match) {
+    const lon = parseFloat(match[1]);
+    const lat = parseFloat(match[2]);
+    return { lat, lng: lon };
+  }
+  return { lat: undefined, lng: undefined }; // Returner undefined hvis ikke i forventet format
+}
