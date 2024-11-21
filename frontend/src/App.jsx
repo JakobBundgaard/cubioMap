@@ -163,31 +163,28 @@ function App() {
   };
   
   
-  
+  const deleteSavedArea = async (areaId) => {
+    try {
+        const response = await fetch(`http://127.0.0.1:8000/api/user-selected-areas/${areaId}/`, {
+            method: "DELETE",
+        });
+
+        if (response.ok) {
+            setSavedAreas((prevSavedAreas) =>
+                prevSavedAreas.filter((area) => area.id !== areaId)
+            );
+            alert("Området blev slettet.");
+        } else {
+            alert("Kunne ikke slette området. Prøv igen.");
+        }
+    } catch (error) {
+        console.error("Fejl ved sletning af området:", error);
+        alert("Noget gik galt. Prøv igen.");
+    }
+};
+ 
   
 
-  // const saveSelectedAreas = async () => {
-  //   try {
-  //     const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({ areas: selectedAreas }), // Send de valgte kvadrater til backend
-  //     });
-
-  //     if (response.ok) {
-  //       alert("Valgte kvadrater gemt!");
-  //       setSelectedAreas([]); // Ryd valgte kvadrater efter succes
-  //     } else {
-  //       alert("Kunne ikke gemme de valgte kvadrater. Prøv igen.");
-  //       console.error("Fejl ved gemning af områder:", response.statusText);
-  //     }
-  //   } catch (error) {
-  //     alert("Noget gik galt. Tjek din forbindelse og prøv igen.");
-  //     console.error("API-kald fejlede:", error);
-  //   }
-  // };
   
 
   const startCreatingProject = () => {
@@ -277,6 +274,7 @@ function App() {
           toggleSavedAreas={toggleSavedAreas} // Ny prop
           isSavedAreasVisible={isSavedAreasVisible} // Ny prop
           savedAreas={savedAreas}
+          deleteSavedArea={deleteSavedArea}
         />
 
         

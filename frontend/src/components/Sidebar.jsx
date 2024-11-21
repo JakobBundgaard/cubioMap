@@ -6,6 +6,7 @@ import { TbPointerPlus } from "react-icons/tb";
 import { BsBinoculars } from "react-icons/bs";
 import { GoProjectSymlink } from "react-icons/go";
 import { FaRegFolderOpen } from "react-icons/fa";
+import { GoTrash } from "react-icons/go";
 
 
 function Sidebar({
@@ -24,6 +25,7 @@ function Sidebar({
   toggleSavedAreas, // Ny prop
   isSavedAreasVisible,
   savedAreas,
+  deleteSavedArea,
 }) {
   const isAverageLabelNeeded = selectedArea && (selectedArea.name.includes(",") || selectedArea.name === "Brugerdefineret område");
   
@@ -102,23 +104,35 @@ function Sidebar({
       )}
 
 {isSavedAreasVisible && (
-        <div className="mt-4">
-          <h3 className="font-semibold">Gemte Områder</h3>
-          <ul className="mt-2">
+    <div className="mt-4">
+        <h3 className="font-semibold">Gemte Områder</h3>
+        <ul className="mt-2">
             {savedAreas.length > 0 ? (
-              savedAreas.map((area) => (
-                <li key={area.id} className="p-2 border-b border-gray-200">
-                  <p><strong>{area.name}</strong></p>
-                  <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
-                  <p>Værdi: {area.nature_value.toFixed(2)}</p>
-                </li>
-              ))
+                savedAreas.map((area) => (
+                    <li key={area.id} className="p-2 border-b border-gray-200 flex justify-between items-center">
+                        <div>
+                            <p><strong>{area.name}</strong></p>
+                            <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
+                            <p>Værdi: {area.nature_value.toFixed(2)}</p>
+                        </div>
+                        <GoTrash
+                            onClick={() => {
+                                if (window.confirm(`Er du sikker på, at du vil slette området "${area.name}"?`)) {
+                                    deleteSavedArea(area.id);
+                                }
+                            }} // Popup for bekræftelse
+                            className="text-red-500 cursor-pointer hover:text-red-700"
+                            size={20} // Juster størrelsen på ikonet
+                            title="Slet område" // Tooltip, når musen holdes over
+                        />
+                    </li>
+                ))
             ) : (
-              <p>Ingen gemte områder.</p>
+                <p>Ingen gemte områder.</p>
             )}
-          </ul>
-        </div>
-      )}
+        </ul>
+    </div>
+)}
 
       <div>
         <button
@@ -172,7 +186,8 @@ Sidebar.propTypes = {
     selectedAreas: PropTypes.array.isRequired,
     toggleSavedAreas: PropTypes.func.isRequired,
     isSavedAreasVisible: PropTypes.bool.isRequired,
-    savedAreas: PropTypes.array.isRequired, 
+    savedAreas: PropTypes.array.isRequired,
+    deleteSavedArea: PropTypes.func.isRequired,
 };
 
 export default Sidebar;
