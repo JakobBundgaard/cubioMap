@@ -1,4 +1,6 @@
 import PropTypes from 'prop-types';
+import { Tooltip as ReactTooltip } from "react-tooltip";
+import 'react-tooltip/dist/react-tooltip.css';
 import { BsPencilSquare } from "react-icons/bs";
 import { TbPointerPlus } from "react-icons/tb";
 import { BsBinoculars } from "react-icons/bs";
@@ -96,13 +98,18 @@ function Sidebar({
       ) : (
         <p>Vælg et område på kortet for detaljer.</p>
       )}
-
-      <button 
-          onClick={startCreatingProject}
-          className="bg-green-500 text-white p-2 mt-4 rounded-md"
-        >
-          Opret Projekt
-      </button>
+      <div>
+        <button
+            data-tooltip-id="create-project-tooltip"
+            data-tooltip-content="Klik på knappen og derefter på kortet"  
+            onClick={startCreatingProject}
+            className="bg-green-500 hover:bg-green-600 text-white p-2 mt-4 rounded-md"
+          >
+            Opret Projekt
+        </button>
+        <ReactTooltip id="create-project-tooltip" place="top-end" />
+      </div>
+      
 
       <button
         onClick={onSaveSelectedAreas}
@@ -113,7 +120,7 @@ function Sidebar({
             : "bg-blue-500 text-white hover:bg-blue-600"
         }`}
       >
-        Gem Valgte Kvadrater
+        Gem område
       </button>
 
     </aside>
