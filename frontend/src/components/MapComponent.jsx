@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MapContainer, TileLayer, Rectangle, Tooltip, FeatureGroup, Marker, Popup, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Rectangle, Tooltip, FeatureGroup, Marker, Popup, Polygon, useMapEvents } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -230,6 +230,8 @@ function MapComponent({
             areaSize = Math.PI * Math.pow(layer.getRadius(), 2);
         }
 
+        const geom = layer.toGeoJSON().geometry;
+      
         const averages  = calculateAverageValuesForDrawnArea(layer);
 
         setSelectedArea({
@@ -239,7 +241,13 @@ function MapComponent({
             shannonIndex: averages.shannonIndex,
             ndvi: averages.ndvi,
             soilQualityValue: averages.soilQualityValue,
+            geom: geom,
         });
+      
+      // Fjern laget, hvis ikke længere aktiv
+    if (!isDrawActive && featureGroupRef.current) {
+      featureGroupRef.current.clearLayers();
+  }
     };
 
     useEffect(() => {
@@ -290,8 +298,45 @@ function MapComponent({
         <ZoomWatcher />
         <MapClickListener />
 
-        {/* Gemte områder */}
-      {isSavedAreasVisible &&
+        {isSavedAreasVisible &&
+          savedAreas.map((area) => {
+            const geoJSONLayer = L.geoJSON(area.geom); // Konverter gemt geometri til GeoJSON
+            const bounds = geoJSONLayer.getBounds(); // Hent bounds fra GeoJSON
+            const isPolygon = area.geom.type === "Polygon";
+
+            return isPolygon ? (
+              <Polygon
+                key={area.id}
+                positions={geoJSONLayer.getLayers()[0].getLatLngs()} // Hent LatLngs fra GeoJSON
+                pathOptions={{ color: "red", weight: 2 }}
+              >
+                <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+                  <div>
+                    <strong>{area.name}</strong>
+                    <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
+                    <p>Gennemsnitlig Naturværdi: {area.nature_value.toFixed(2)}</p>
+                  </div>
+                </Tooltip>
+              </Polygon>
+            ) : (
+              <Rectangle
+                key={area.id}
+                bounds={bounds} // Beregn bounds fra GeoJSON
+                pathOptions={{ color: "blue", weight: 1 }}
+              >
+                <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+                  <div>
+                    <strong>{area.name}</strong>
+                    <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
+                    <p>Gennemsnitlig Naturværdi: {area.nature_value.toFixed(2)}</p>
+                  </div>
+                </Tooltip>
+              </Rectangle>
+            );
+          })}
+        
+
+      {/* {isSavedAreasVisible &&
         savedAreas.map((area) => (
           <Rectangle
             key={area.id}
@@ -305,7 +350,7 @@ function MapComponent({
               </div>
             </Tooltip>
           </Rectangle>
-        ))}
+        ))} */}
 
         {zoomLevel > 12 && isProjectMarkersVisible && (
           <MarkerClusterGroup>

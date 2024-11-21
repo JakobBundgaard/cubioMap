@@ -149,9 +149,9 @@ function Sidebar({
 
       <button
         onClick={onSaveSelectedAreas}
-        disabled={selectedAreas.length === 0} // Deaktiver, hvis ingen områder er valgt
+        disabled={selectedAreas.length === 0 && !isDrawActive} // Deaktiver, hvis ingen områder er valgt
         className={`p-2 mt-4 rounded-md ${
-          selectedAreas.length === 0
+          selectedAreas.length === 0 && !isDrawActive
             ? "bg-gray-400 cursor-not-allowed"
             : "bg-blue-500 text-white hover:bg-blue-600"
         }`}
