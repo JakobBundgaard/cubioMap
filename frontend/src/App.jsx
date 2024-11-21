@@ -153,6 +153,7 @@ function App() {
       if (response.ok) {
         alert("Området blev gemt som et samlet område!");
         setSelectedAreas([]); // Nulstil valgte områder
+        fetchSavedAreas();
       } else {
         alert("Kunne ikke gemme det valgte område. Prøv igen.");
       }
