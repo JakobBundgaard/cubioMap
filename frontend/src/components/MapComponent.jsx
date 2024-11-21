@@ -235,7 +235,7 @@ function MapComponent({
         const averages  = calculateAverageValuesForDrawnArea(layer);
 
         setSelectedArea({
-            name: "Brugerdefineret område",
+            name: "",
             natureValue: averages.natureValue,
             areaSize: parseFloat(areaSize.toFixed(2)),
             shannonIndex: averages.shannonIndex,

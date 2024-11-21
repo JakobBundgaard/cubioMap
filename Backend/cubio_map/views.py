@@ -56,8 +56,11 @@ class UserSelectedAreaViewSet(viewsets.ModelViewSet):
 
             # Generér et navn hvis det ikke er angivet
             if not name:
-                next_id = UserSelectedArea.objects.count() + 1
-                name = f"Område {next_id}"
+                existing_count = UserSelectedArea.objects.filter(user_id=user_id or 1).count() + 1
+                name = f"Brugerdefineret område {existing_count}"
+            # if not name:
+            #     next_id = UserSelectedArea.objects.count() + 1
+            #     name = f"Område {next_id}"
 
             # Gem det nye brugerdefinerede område
             user_area = UserSelectedArea.objects.create(

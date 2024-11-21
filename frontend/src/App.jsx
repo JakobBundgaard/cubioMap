@@ -136,7 +136,7 @@ function App() {
                 "Content-Type": "application/json",
             },
             body: JSON.stringify({
-                name: selectedArea?.name || "Område",
+              ...(selectedArea?.name ? { name: selectedArea.name } : {}),
                 natureValue: selectedArea?.natureValue || 0,
                 areaSize: selectedArea?.areaSize || 0,
                 geom: JSON.stringify(geoJSON),
