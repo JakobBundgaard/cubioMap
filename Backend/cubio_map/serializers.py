@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Area, GBIFData, EnhancedCubioArea, Project
+from .models import Area, GBIFData, EnhancedCubioArea, Project, UserSelectedArea
 
 class AreaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -22,3 +22,9 @@ class ProjectSerializer(serializers.ModelSerializer):
     class Meta:
         model = Project
         fields = ['id', 'name', 'location', 'description', 'image', 'initiatedBy']
+
+
+class UserSelectedAreaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserSelectedArea
+        fields = ['id', 'name', 'nature_value', 'area_size', 'geom', 'user_id']
