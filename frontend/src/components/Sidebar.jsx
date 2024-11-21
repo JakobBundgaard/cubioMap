@@ -113,7 +113,7 @@ function Sidebar({
                         <div>
                             <p><strong>{area.name}</strong></p>
                             <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
-                            <p>Værdi: {area.nature_value.toFixed(2)}</p>
+                            <p>Gennemsnitlig Naturværdi: {area.nature_value.toFixed(2)}</p>
                         </div>
                         <GoTrash
                             onClick={() => {
