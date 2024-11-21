@@ -5,7 +5,8 @@ import { BsPencilSquare } from "react-icons/bs";
 import { TbPointerPlus } from "react-icons/tb";
 import { BsBinoculars } from "react-icons/bs";
 import { GoProjectSymlink } from "react-icons/go";
-import { FaFolderOpen } from "react-icons/fa";
+import { FaRegFolderOpen } from "react-icons/fa";
+
 
 function Sidebar({
   selectedArea,
@@ -22,6 +23,7 @@ function Sidebar({
   selectedAreas, // De valgte kvadrater
   toggleSavedAreas, // Ny prop
   isSavedAreasVisible,
+  savedAreas,
 }) {
   const isAverageLabelNeeded = selectedArea && (selectedArea.name.includes(",") || selectedArea.name === "Brugerdefineret område");
   
@@ -64,7 +66,7 @@ function Sidebar({
               className={`cursor-pointer ${isSavedAreasVisible ? "text-blue-500" : "hover:text-blue-500"}`}
               onClick={toggleSavedAreas}
             >
-              <FaFolderOpen size={20} />
+              <FaRegFolderOpen size={20} />
             </div>
         </div>
 
@@ -98,6 +100,26 @@ function Sidebar({
       ) : (
         <p>Vælg et område på kortet for detaljer.</p>
       )}
+
+{isSavedAreasVisible && (
+        <div className="mt-4">
+          <h3 className="font-semibold">Gemte Områder</h3>
+          <ul className="mt-2">
+            {savedAreas.length > 0 ? (
+              savedAreas.map((area) => (
+                <li key={area.id} className="p-2 border-b border-gray-200">
+                  <p><strong>{area.name}</strong></p>
+                  <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
+                  <p>Værdi: {area.nature_value.toFixed(2)}</p>
+                </li>
+              ))
+            ) : (
+              <p>Ingen gemte områder.</p>
+            )}
+          </ul>
+        </div>
+      )}
+
       <div>
         <button
             data-tooltip-id="create-project-tooltip"
@@ -150,6 +172,7 @@ Sidebar.propTypes = {
     selectedAreas: PropTypes.array.isRequired,
     toggleSavedAreas: PropTypes.func.isRequired,
     isSavedAreasVisible: PropTypes.bool.isRequired,
+    savedAreas: PropTypes.array.isRequired, 
 };
 
 export default Sidebar;

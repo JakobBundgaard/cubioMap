@@ -276,6 +276,7 @@ function App() {
           selectedAreas={selectedAreas} // Ny prop
           toggleSavedAreas={toggleSavedAreas} // Ny prop
           isSavedAreasVisible={isSavedAreasVisible} // Ny prop
+          savedAreas={savedAreas}
         />
 
         
