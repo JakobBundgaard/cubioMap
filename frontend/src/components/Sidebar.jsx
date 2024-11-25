@@ -26,6 +26,8 @@ function Sidebar({
   isSavedAreasVisible,
   savedAreas,
   deleteSavedArea,
+  activeLayer, // Ny prop
+  setActiveLayer, // Ny prop
 }) {
   const isAverageLabelNeeded = selectedArea && (selectedArea.name.includes(",") || selectedArea.name === "Brugerdefineret område");
   
@@ -71,7 +73,27 @@ function Sidebar({
                 >
                   <FaRegFolderOpen size={24} />
                 </div>
-          </div>
+        </div>
+        
+        <h2 className="text-xl font-semibold text-gray-800">Lag</h2>
+        <div className="space-y-2 mt-4">
+          {["Shannon Index", "NDVI", "Jordkvalitet", "Naturværdi"].map((layer) => (
+            <div key={layer} className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id={layer}
+                name="activeLayer"
+                value={layer}
+                checked={activeLayer === layer}
+                onChange={() => setActiveLayer(layer)}
+                className="cursor-pointer"
+              />
+              <label htmlFor={layer} className="cursor-pointer">
+                {layer}
+              </label>
+            </div>
+          ))}
+        </div>
 
           <h2 className="text-xl font-semibold text-gray-800">Detaljeret Information</h2>
       </div>
@@ -207,7 +229,9 @@ Sidebar.propTypes = {
     toggleSavedAreas: PropTypes.func.isRequired,
     isSavedAreasVisible: PropTypes.bool.isRequired,
     savedAreas: PropTypes.array.isRequired,
-    deleteSavedArea: PropTypes.func.isRequired,
+  deleteSavedArea: PropTypes.func.isRequired,
+  activeLayer: PropTypes.string.isRequired,
+  setActiveLayer: PropTypes.func.isRequired,
 };
 
 export default Sidebar;
