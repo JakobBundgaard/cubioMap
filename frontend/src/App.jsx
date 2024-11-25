@@ -27,7 +27,7 @@ function App() {
   const [isSavedAreasVisible, setIsSavedAreasVisible] = useState(false); // Ny state
   const [savedAreas, setSavedAreas] = useState([]); // Ny state til gemte områder
 
-  const [activeLayer, setActiveLayer] = useState("Naturværdi");
+  const [activeLayer, setActiveLayer] = useState(null);
 
   useEffect(() => {
     console.log("isCreatingProject ændret til:", isCreatingProject);

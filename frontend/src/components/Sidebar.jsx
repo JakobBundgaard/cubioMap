@@ -77,6 +77,18 @@ function Sidebar({
         
         <h2 className="text-xl font-semibold text-gray-800">Lag</h2>
         <div className="space-y-2 mt-4">
+        <div>
+          <input
+            type="radio"
+            id="none"
+            name="activeLayer"
+            value=""
+            checked={activeLayer === null}
+            onChange={() => setActiveLayer(null)} // Nulstil lag
+            className="cursor-pointer"
+          />
+          <label htmlFor="none" className="cursor-pointer">Ingen lag</label>
+        </div>
           {["Shannon Index", "NDVI", "Jordkvalitet", "Naturværdi"].map((layer) => (
             <div key={layer} className="flex items-center space-x-2">
               <input
@@ -229,9 +241,9 @@ Sidebar.propTypes = {
     toggleSavedAreas: PropTypes.func.isRequired,
     isSavedAreasVisible: PropTypes.bool.isRequired,
     savedAreas: PropTypes.array.isRequired,
-  deleteSavedArea: PropTypes.func.isRequired,
-  activeLayer: PropTypes.string.isRequired,
-  setActiveLayer: PropTypes.func.isRequired,
+    deleteSavedArea: PropTypes.func.isRequired,
+    activeLayer: PropTypes.string,
+    setActiveLayer: PropTypes.func.isRequired,
 };
 
 export default Sidebar;
