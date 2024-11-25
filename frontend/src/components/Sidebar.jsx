@@ -20,9 +20,9 @@ function Sidebar({
   toggleProjectMarkers,
   isProjectMarkersVisible,
   startCreatingProject,
-  onSaveSelectedAreas, // Ny funktion til at gemme valgte områder
-  selectedAreas, // De valgte kvadrater
-  toggleSavedAreas, // Ny prop
+  onSaveSelectedAreas, 
+  selectedAreas, 
+  toggleSavedAreas, 
   isSavedAreasVisible,
   savedAreas,
   deleteSavedArea,
@@ -120,10 +120,10 @@ function Sidebar({
                                 if (window.confirm(`Er du sikker på, at du vil slette området "${area.name}"?`)) {
                                     deleteSavedArea(area.id);
                                 }
-                            }} // Popup for bekræftelse
+                            }} 
                             className="text-red-500 cursor-pointer hover:text-red-700"
-                            size={20} // Juster størrelsen på ikonet
-                            title="Slet område" // Tooltip, når musen holdes over
+                            size={20} 
+                            title="Slet område" 
                         />
                     </li>
                 ))
@@ -163,7 +163,7 @@ function Sidebar({
   );
 };
 
-// Props validation med PropTypes
+
 Sidebar.propTypes = {
     selectedArea: PropTypes.shape({
       name: PropTypes.string.isRequired,
