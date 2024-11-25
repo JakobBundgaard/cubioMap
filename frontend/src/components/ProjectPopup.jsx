@@ -11,25 +11,31 @@ function ProjectPopup({ project, onUpdate, onDelete }) {
 
 
   return (
-    <div>
-      <h3>{project.name}</h3>
-      <p><strong>Initiativtager:</strong> {project.initiatedBy}</p>
-      <p>{project.description}</p>
+    <div className="max-w-sm p-4 bg-white rounded-lg shadow-md">
+      <h3 className="text-lg font-bold text-gray-800">{project.name}</h3>
+      <p className="mt-2 text-sm text-gray-500">
+        <strong className="text-gray-700">Initiativtager:</strong> {project.initiatedBy}
+      </p>
+      <p className="mt-2 text-gray-600">{project.description}</p>
       {project.image_url && (
-        <img src={project.image_url} alt={`${project.name} billede`} style={{ width: '100%', height: 'auto' }} />
+        <img
+          src={project.image_url}
+          alt={`${project.name} billede`}
+          className="mt-4 w-full h-48 object-cover rounded-md border border-gray-200"
+        />
       )}
-      <div className="flex space-x-2 mt-2">
+      <div className="flex justify-between mt-4">
         {/* Update knap */}
         <button
           onClick={() => onUpdate(project)}
-          className="bg-blue-500 text-white p-1 rounded"
+          className="px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 focus:outline-none focus:ring focus:ring-blue-300"
         >
           Update
         </button>
         {/* Delete knap */}
         <button
           onClick={handleDeleteClick}
-          className="bg-red-500 text-white p-1 rounded"
+          className="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:ring focus:ring-red-300"
         >
           Delete
         </button>
