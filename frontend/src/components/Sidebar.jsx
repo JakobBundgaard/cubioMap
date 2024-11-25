@@ -75,7 +75,7 @@ function Sidebar({
                 </div>
         </div>
         
-        <h2 className="text-xl font-semibold text-gray-800">Lag</h2>
+        <h2 className="text-xl font-semibold text-gray-800">Kortlag</h2>
         <div className="space-y-2 mt-4">
         <div className="flex items-center space-x-2">
           <input
@@ -107,7 +107,7 @@ function Sidebar({
           ))}
         </div>
 
-          <h2 className="text-xl font-semibold text-gray-800">Detaljeret Information</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mt-4">Detaljeret område information</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto px-6">
