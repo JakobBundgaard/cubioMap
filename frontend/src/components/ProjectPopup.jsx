@@ -15,8 +15,8 @@ function ProjectPopup({ project, onUpdate, onDelete }) {
       <h3>{project.name}</h3>
       <p><strong>Initiativtager:</strong> {project.initiatedBy}</p>
       <p>{project.description}</p>
-      {project.image && (
-        <img src={project.image} alt={`${project.name} billede`} style={{ width: '100%', height: 'auto' }} />
+      {project.image_url && (
+        <img src={project.image_url} alt={`${project.name} billede`} style={{ width: '100%', height: 'auto' }} />
       )}
       <div className="flex space-x-2 mt-2">
         {/* Update knap */}
@@ -44,7 +44,7 @@ ProjectPopup.propTypes = {
     name: PropTypes.string.isRequired,
     initiatedBy: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
-    image: PropTypes.string,
+    image_url: PropTypes.string,
     location: PropTypes.shape({
       lat: PropTypes.number.isRequired,
       lng: PropTypes.number.isRequired,

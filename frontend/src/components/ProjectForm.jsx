@@ -10,6 +10,7 @@ function ProjectForm({ project, projectLocation, onSave, onCancel }) {
     latitude: projectLocation?.lat || "",
     longitude: projectLocation?.lng || "",
     initiatedBy: project?.initiatedBy || "",
+    image: null,
   });
 
   // Brug useEffect til at opdatere formData, hvis projekt- eller koordinatdata ændrer sig
@@ -25,18 +26,37 @@ function ProjectForm({ project, projectLocation, onSave, onCancel }) {
   }, [projectLocation]);
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, files } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      [name]: value,
+      [name]: files ? files[0] : value,
     }));
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Kald onSave for at gemme projektdata
-    onSave(formData);
+    const data = new FormData(); // Multipart-formdata
+  
+    // Konvertér latitude og longitude til WKT-format
+    const wktLocation = `POINT(${formData.longitude} ${formData.latitude})`;
+  
+    // Tilføj de andre felter
+    data.append("name", formData.name);
+    data.append("description", formData.description);
+    data.append("location", wktLocation); // Tilføj WKT-geometri
+    data.append("initiatedBy", formData.initiatedBy);
+    if (formData.image) {
+      data.append("image", formData.image); // Tilføj billede hvis det findes
+    }
+  
+    onSave(data);
   };
+
+  // const handleSubmit = (e) => {
+  //   e.preventDefault();
+  //   // Kald onSave for at gemme projektdata
+  //   onSave(formData);
+  // };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -93,6 +113,10 @@ function ProjectForm({ project, projectLocation, onSave, onCancel }) {
           required
           className="w-full border p-2"
         />
+      </div>
+      <div>
+        <label>Image:</label>
+        <input type="file" name="image" onChange={handleChange} className="w-full border p-2" />
       </div>
       <div className="flex space-x-4">
         <button type="submit" className="bg-blue-500 text-white p-2">Save</button>
