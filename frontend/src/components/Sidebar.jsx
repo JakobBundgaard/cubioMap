@@ -79,7 +79,11 @@ function Sidebar({
       <div className="flex-1 overflow-y-auto px-6">
         {selectedArea ? (
           <div className="bg-white rounded-lg p-4 shadow-sm">
-            <p><strong>Område:</strong> {selectedArea.name}</p>
+            <p
+              className='truncate overflow-hidden whitespace-nowrap max-w-[16rem]'
+              title={selectedArea.name}
+            ><strong>Område:</strong> {selectedArea.name}
+            </p>
             <p><strong>Størrelse:</strong> {selectedArea.areaSize.toFixed(2)} m²</p>
             
             
