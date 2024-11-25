@@ -35,7 +35,7 @@ function Sidebar({
       <div className="p-6">
           <div className="flex space-x-4 mb-6">
                 <div
-                    title="Tegn område"
+                    title="Marker område"
                     className={`cursor-pointer ${isDrawActive ? "text-blue-500" : "hover:text-blue-500"}`}
                     onClick={() => setIsDrawActive(!isDrawActive)}
                 >
@@ -73,7 +73,7 @@ function Sidebar({
                 </div>
           </div>
 
-          <h2 className="text-xl font-semibold text-gray-800 mb-4">Detaljeret Information</h2>
+          <h2 className="text-xl font-semibold text-gray-800">Detaljeret Information</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto px-6">
