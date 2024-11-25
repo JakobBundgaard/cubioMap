@@ -1,4 +1,3 @@
-// src/components/ProjectForm.jsx
 import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 
@@ -53,68 +52,88 @@ function ProjectForm({ project, projectLocation, onSave, onCancel }) {
 
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 bg-white shadow-md rounded-lg p-6 max-w-lg mx-auto">
       <div>
-        <label>Project Name:</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Project Name:</label>
         <input
           type="text"
           name="name"
           value={formData.name}
           onChange={handleChange}
           required
-          className="w-full border p-2"
+          className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
       <div>
-        <label>Description:</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Description:</label>
         <textarea
           name="description"
           value={formData.description}
           onChange={handleChange}
           required
-          className="w-full border p-2"
+          className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
-      <div>
-        <label>Latitude:</label>
-        <input
-          type="number"
-          name="latitude"
-          value={formData.latitude} 
-          onChange={handleChange}
-          required
-          className="w-full border p-2"
-        />
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Latitude:</label>
+          <input
+            type="number"
+            name="latitude"
+            value={formData.latitude} 
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Longitude:</label>
+          <input
+            type="number"
+            name="longitude"
+            value={formData.longitude}
+            onChange={handleChange}
+            required
+            className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+        </div>
       </div>
       <div>
-        <label>Longitude:</label>
-        <input
-          type="number"
-          name="longitude"
-          value={formData.longitude}
-          onChange={handleChange}
-          required
-          className="w-full border p-2"
-        />
-      </div>
-      <div>
-        <label>Initiated By:</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Initiated By:</label>
         <input
           type="text"
           name="initiatedBy"
           value={formData.initiatedBy}
           onChange={handleChange}
           required
-          className="w-full border p-2"
+          className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
       </div>
       <div>
-        <label>Image:</label>
-        <input type="file" name="image" onChange={handleChange} className="w-full border p-2" />
+        <label className="block text-sm font-medium text-gray-700 mb-1">Image:</label>
+        <input
+          type="file"
+          name="image"
+          onChange={handleChange}
+          className="w-full border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
       </div>
       <div className="flex space-x-4">
-        <button type="submit" className="bg-blue-500 text-white p-2">Save</button>
-        <button type="button" onClick={onCancel} className="bg-gray-500 text-white p-2">Cancel</button>
+        <button
+          type="submit"
+          className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md shadow-md"
+        >
+          Save
+        </button>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 bg-gray-400 hover:bg-gray-500 text-white py-2 px-4 rounded-md shadow-md"
+        >
+          Cancel
+        </button>
       </div>
     </form>
   );
