@@ -30,135 +30,151 @@ function Sidebar({
   const isAverageLabelNeeded = selectedArea && (selectedArea.name.includes(",") || selectedArea.name === "Brugerdefineret område");
   
   return (
-    <aside className="bg-white w-80 p-4 border-l border-gray-300 shadow-lg">
+    <aside className="bg-gray-50 w-96 p-6 border-r border-gray-200 shadow-md flex flex-col">
           
-        <div className="flex space-x-4 mb-4">
-            <div
-                title="Tegn område"
-                className={`cursor-pointer ${isDrawActive ? "text-blue-500" : "hover:text-blue-500"}`}
-                onClick={() => setIsDrawActive(!isDrawActive)}
-            >
-                <BsPencilSquare size={20} />
-            </div>
-            <div
-                title="Vælg flere kvadrater"
-                className={`cursor-pointer ${isMultiSelectActive ? "text-blue-500" : "hover:text-blue-500"}`}
-                onClick={() => setIsMultiSelectActive(!isMultiSelectActive)}
-            >
-                <TbPointerPlus size={20} />
-            </div>
-            <div
-                title="Vis detektioner"
-                className={`cursor-pointer ${isInsectMarkersVisible ? "text-blue-500" : "hover:text-blue-500"}`}
-                onClick={toggleInsectMarkers}
-            >
-                <BsBinoculars size={20} />
-            </div>
-            <div
-              title="Vis projekter"
-              className={`cursor-pointer ${isProjectMarkersVisible ? "text-blue-500" : "hover:text-blue-500"}`}
-              onClick={() => {
-                toggleProjectMarkers();
-              }}
-            >
-              <GoProjectSymlink size={20} />
-            </div>
-            <div
-              title="Vis Gemte Områder"
-              className={`cursor-pointer ${isSavedAreasVisible ? "text-blue-500" : "hover:text-blue-500"}`}
-              onClick={toggleSavedAreas}
-            >
-              <FaRegFolderOpen size={20} />
-            </div>
-        </div>
+      <div className="p-6">
+          <div className="flex space-x-4 mb-6">
+                <div
+                    title="Tegn område"
+                    className={`cursor-pointer ${isDrawActive ? "text-blue-500" : "hover:text-blue-500"}`}
+                    onClick={() => setIsDrawActive(!isDrawActive)}
+                >
+                    <BsPencilSquare size={24} />
+                </div>
+                <div
+                    title="Vælg flere kvadrater"
+                    className={`cursor-pointer ${isMultiSelectActive ? "text-blue-500" : "hover:text-blue-500"}`}
+                    onClick={() => setIsMultiSelectActive(!isMultiSelectActive)}
+                >
+                    <TbPointerPlus size={24} />
+                </div>
+                <div
+                    title="Vis detektioner"
+                    className={`cursor-pointer ${isInsectMarkersVisible ? "text-blue-500" : "hover:text-blue-500"}`}
+                    onClick={toggleInsectMarkers}
+                >
+                    <BsBinoculars size={24} />
+                </div>
+                <div
+                  title="Vis projekter"
+                  className={`cursor-pointer ${isProjectMarkersVisible ? "text-blue-500" : "hover:text-blue-500"}`}
+                  onClick={() => {
+                    toggleProjectMarkers();
+                  }}
+                >
+                  <GoProjectSymlink size={24} />
+                </div>
+                <div
+                  title="Vis Gemte Områder"
+                  className={`cursor-pointer ${isSavedAreasVisible ? "text-blue-500" : "hover:text-blue-500"}`}
+                  onClick={toggleSavedAreas}
+                >
+                  <FaRegFolderOpen size={24} />
+                </div>
+          </div>
 
-      <h2 className="text-lg font-bold mb-4">Detaljeret Information</h2>
-
-      {selectedArea ? (
-        <div>
-          <p><strong>Område:</strong> {selectedArea.name}</p>
-          <p><strong>Størrelse:</strong> {selectedArea.areaSize.toFixed(2)} m²</p>
-          
-          
-          {selectedArea.shannonIndex !== null && (
-            <p><strong>{isAverageLabelNeeded ? "Gennemsnitlig " : ""}Shannon Index:</strong> {selectedArea.shannonIndex}</p>
-          )}
-          {selectedArea.ndvi !== null && (
-            <p><strong>{isAverageLabelNeeded ? "Gennemsnitlig " : ""}NDVI:</strong> {selectedArea.ndvi}</p>
-          )}
-          {selectedArea.soilQualityValue !== null && (
-            <p><strong>{isAverageLabelNeeded ? "Gennemsnitlig " : ""}Jordkvalitet:</strong> {selectedArea.soilQualityValue}</p>
-          )}
-
-          
-          <p>
-            <strong>
-              {isAverageLabelNeeded ? "Gennemsnitlig Naturværdi" : "Naturværdi"}
-              :
-            </strong>{" "}
-            {selectedArea.natureValue}
-          </p>
-        </div>
-      ) : (
-        <p>Vælg et område på kortet for detaljer.</p>
-      )}
-
-{isSavedAreasVisible && (
-    <div className="mt-4">
-        <h3 className="font-semibold">Gemte Områder</h3>
-        <ul className="mt-2">
-            {savedAreas.length > 0 ? (
-                savedAreas.map((area) => (
-                    <li key={area.id} className="p-2 border-b border-gray-200 flex justify-between items-center">
-                        <div>
-                            <p><strong>{area.name}</strong></p>
-                            <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
-                            <p>Gennemsnitlig Naturværdi: {area.nature_value.toFixed(2)}</p>
-                        </div>
-                        <GoTrash
-                            onClick={() => {
-                                if (window.confirm(`Er du sikker på, at du vil slette området "${area.name}"?`)) {
-                                    deleteSavedArea(area.id);
-                                }
-                            }} 
-                            className="text-red-500 cursor-pointer hover:text-red-700"
-                            size={20} 
-                            title="Slet område" 
-                        />
-                    </li>
-                ))
-            ) : (
-                <p>Ingen gemte områder.</p>
-            )}
-        </ul>
-    </div>
-)}
-
-      <div>
-        <button
-            data-tooltip-id="create-project-tooltip"
-            data-tooltip-content="Klik på knappen og derefter på kortet"  
-            onClick={startCreatingProject}
-            className="bg-green-500 hover:bg-green-600 text-white p-2 mt-4 rounded-md"
-          >
-            Opret Projekt
-        </button>
-        <ReactTooltip id="create-project-tooltip" place="top-end" />
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Detaljeret Information</h2>
       </div>
-      
 
-      <button
-        onClick={onSaveSelectedAreas}
-        disabled={selectedAreas.length === 0 && !isDrawActive} // Deaktiver, hvis ingen områder er valgt
-        className={`p-2 mt-4 rounded-md ${
-          selectedAreas.length === 0 && !isDrawActive
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-blue-500 text-white hover:bg-blue-600"
-        }`}
-      >
-        Gem område
-      </button>
+      <div className="flex-1 overflow-y-auto px-6">
+        {selectedArea ? (
+          <div className="bg-white rounded-lg p-4 shadow-sm">
+            <p><strong>Område:</strong> {selectedArea.name}</p>
+            <p><strong>Størrelse:</strong> {selectedArea.areaSize.toFixed(2)} m²</p>
+            
+            
+            {selectedArea.shannonIndex !== null && (
+              <p><strong>{isAverageLabelNeeded ? "Gns. " : ""}Shannon Index:</strong> {selectedArea.shannonIndex}</p>
+            )}
+            {selectedArea.ndvi !== null && (
+              <p><strong>{isAverageLabelNeeded ? "Gns. " : ""}NDVI:</strong> {selectedArea.ndvi}</p>
+            )}
+            {selectedArea.soilQualityValue !== null && (
+              <p><strong>{isAverageLabelNeeded ? "Gns. " : ""}Jordkvalitet:</strong> {selectedArea.soilQualityValue}</p>
+            )}
 
+            
+            <p>
+              <strong>
+                {isAverageLabelNeeded ? "Gns. Naturværdi" : "Naturværdi"}
+                :
+              </strong>{" "}
+              {selectedArea.natureValue}
+            </p>
+          </div>
+        ) : (
+          <p className="text-gray-500 italic">Vælg et område på kortet for detaljer.</p>
+        )}
+
+        {isSavedAreasVisible && (
+            <div className="mt-6">
+                <h3 className="text-lg font-semibold text-gray-800">Gemte Områder</h3>
+                <ul className="mt-4 space-y-4">
+                    {savedAreas.length > 0 ? (
+                        savedAreas.map((area) => (
+                          <li
+                            key={area.id}
+                            className="bg-white rounded-lg p-4 shadow-sm flex justify-between items-center space-x-4">
+                                <div>
+                              <p
+                                className="font-semibold truncate overflow-hidden whitespace-nowrap max-w-[12rem]"
+                                title={area.name}
+                              >
+                                {area.name}
+                              </p>
+                                    <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
+                                    <p>Gns. Naturværdi: {area.nature_value.toFixed(2)}</p>
+                                </div>
+                                <div className="flex items-center justify-center w-10 h-10">
+                                  <GoTrash
+                                    onClick={() => {
+                                      if (
+                                        window.confirm(
+                                          `Er du sikker på, at du vil slette området "${area.name}"?`
+                                        )
+                                      ) {
+                                        deleteSavedArea(area.id);
+                                      }
+                                    }}
+                                    className="text-red-500 cursor-pointer hover:text-red-700"
+                                    size={24} // Gør størrelsen ens
+                                    title="Slet område"
+                                  />
+                                </div>
+                            </li>
+                        ))
+                    ) : (
+                        <p className="text-gray-500 italic">Ingen gemte områder.</p>
+                    )}
+                </ul>
+            </div>
+        )}
+      </div>
+        <div className="p-6">
+          <button
+              data-tooltip-id="create-project-tooltip"
+              data-tooltip-content="Klik på knappen og derefter på kortet"  
+              onClick={startCreatingProject}
+              className="w-full bg-green-500 hover:bg-green-600 text-white py-2 rounded-md text-sm font-medium"
+            >
+              Opret Projekt
+          </button>
+          <ReactTooltip id="create-project-tooltip" place="top-end" />
+        
+        
+
+        <button
+          onClick={onSaveSelectedAreas}
+          disabled={selectedAreas.length === 0 && !isDrawActive} // Deaktiver, hvis ingen områder er valgt
+          className={`w-full mt-4 py-2 rounded-md text-sm font-medium ${
+            selectedAreas.length === 0 && !isDrawActive
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-blue-500 text-white hover:bg-blue-600"
+          }`}
+        >
+          Gem område
+        </button>
+      </div>
     </aside>
   );
 };
