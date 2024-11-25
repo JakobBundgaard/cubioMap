@@ -67,14 +67,13 @@ function MapComponent({
   projectsData,
   onUpdate,
   onDelete,
-  selectedAreas, // Props, ingen lokal state
-  setSelectedAreas, // Props, ingen lokal state
-  savedAreas, // Ny prop
-  isSavedAreasVisible, // Ny prop
+  selectedAreas, 
+  setSelectedAreas, 
+  savedAreas, 
+  isSavedAreasVisible, 
 }) {
     const [zoomLevel, setZoomLevel] = useState(8);
-    // const [selectedAreas, setSelectedAreas] = useState([]);
-    const [areas, setAreas] = useState([]); // Tilføj state til API-data
+    const [areas, setAreas] = useState([]); 
     const [gbifData, setGbifData] = useState([]);
     const rectangleClicked = useRef(false);
     const featureGroupRef = useRef(null);
@@ -336,23 +335,7 @@ function MapComponent({
           })}
         
 
-      {/* {isSavedAreasVisible &&
-        savedAreas.map((area) => (
-          <Rectangle
-            key={area.id}
-            bounds={L.geoJSON(area.geom).getBounds()} // Beregn bounds fra GeoJSON
-            pathOptions={{ color: "red", weight: 1 }}
-          >
-            <Tooltip direction="top" offset={[0, -10]} opacity={1}>
-              <div>
-                <strong>{area.name}</strong>
-                <p>Naturværdi: {area.nature_value}</p>
-              </div>
-            </Tooltip>
-          </Rectangle>
-        ))} */}
-
-        {zoomLevel > 12 && isProjectMarkersVisible && (
+        {zoomLevel > 8 && isProjectMarkersVisible && (
           <MarkerClusterGroup>
             {projectsData.map((project) => {
                 const { lat, lng } = project.location;
@@ -375,9 +358,6 @@ function MapComponent({
         )}
 
         
-
-
-
         <FeatureGroup ref={featureGroupRef}>
             {isDrawActive && (
                 <EditControl

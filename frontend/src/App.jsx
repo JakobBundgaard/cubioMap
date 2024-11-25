@@ -267,20 +267,11 @@ function App() {
   // Funktion til at gemme opdateringer
   const saveUpdatedProject = async (updatedData) => {
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/api/projects/${selectedProject.id}/`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...updatedData,
-            location: `POINT(${updatedData.longitude} ${updatedData.latitude})`,
-          }),
-        }
-      );
-
+      const response = await fetch(`http://127.0.0.1:8000/api/projects/${selectedProject.id}/`, {
+        method: "PUT",
+        body: updatedData, // Multipart-formdata sendes direkte
+      });
+  
       if (response.ok) {
         fetchProjects();
         setSelectedProject(null);
@@ -292,6 +283,8 @@ function App() {
       console.error("Error updating project:", error);
     }
   };
+
+
 
   // Funktion til at annullere redigering
   const cancelEditingProject = () => {
@@ -368,23 +361,18 @@ function App() {
           <ProjectForm
             project={{ location: projectLocation }}
             projectLocation={projectLocation}
+
             onSave={async (data) => {
               try {
                 const response = await fetch("http://127.0.0.1:8000/api/projects/", {
                   method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  body: JSON.stringify({
-                    ...data,
-                    location: `POINT(${projectLocation.lng} ${projectLocation.lat})`,
-                  }),
+                  body: data, // Multipart-formdata sendes direkte
                 });
-
+            
                 if (response.ok) {
                   fetchProjects();
-                  setProjectLocation(null); 
-                  setIsCreatingProject(false); 
+                  setProjectLocation(null);
+                  setIsCreatingProject(false);
                 } else {
                   console.error("Fejl ved oprettelse af projekt:", response.statusText);
                 }
@@ -392,6 +380,7 @@ function App() {
                 console.error("Fejl ved API-kald:", error);
               }
             }}
+
             onCancel={() => {
               setProjectLocation(null);
               setIsCreatingProject(false);

@@ -25,6 +25,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
+    def create(self, request, *args, **kwargs):
+        print("FILES:", request.FILES)  # Debugging
+        return super().create(request, *args, **kwargs)
+
 
 class UserSelectedAreaViewSet(viewsets.ModelViewSet):
     queryset = UserSelectedArea.objects.all()
