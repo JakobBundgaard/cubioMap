@@ -26,6 +26,8 @@ function Sidebar({
   isSavedAreasVisible,
   savedAreas,
   deleteSavedArea,
+  activeLayer, // Ny prop
+  setActiveLayer, // Ny prop
 }) {
   const isAverageLabelNeeded = selectedArea && (selectedArea.name.includes(",") || selectedArea.name === "Brugerdefineret område");
   
@@ -71,9 +73,41 @@ function Sidebar({
                 >
                   <FaRegFolderOpen size={24} />
                 </div>
-          </div>
+        </div>
+        
+        <h2 className="text-xl font-semibold text-gray-800">Kortlag</h2>
+        <div className="space-y-2 mt-4">
+        <div className="flex items-center space-x-2">
+          <input
+            type="radio"
+            id="none"
+            name="activeLayer"
+            value=""
+            checked={activeLayer === null}
+            onChange={() => setActiveLayer(null)} // Nulstil lag
+            className="cursor-pointer"
+          />
+          <label htmlFor="none" className="cursor-pointer">Ingen lag</label>
+        </div>
+          {["Shannon Index", "NDVI", "Jordkvalitet", "Naturværdi"].map((layer) => (
+            <div key={layer} className="flex items-center space-x-2">
+              <input
+                type="radio"
+                id={layer}
+                name="activeLayer"
+                value={layer}
+                checked={activeLayer === layer}
+                onChange={() => setActiveLayer(layer)}
+                className="cursor-pointer"
+              />
+              <label htmlFor={layer} className="cursor-pointer">
+                {layer}
+              </label>
+            </div>
+          ))}
+        </div>
 
-          <h2 className="text-xl font-semibold text-gray-800">Detaljeret Information</h2>
+          <h2 className="text-xl font-semibold text-gray-800 mt-4">Detaljeret område information</h2>
       </div>
 
       <div className="flex-1 overflow-y-auto px-6">
@@ -208,6 +242,8 @@ Sidebar.propTypes = {
     isSavedAreasVisible: PropTypes.bool.isRequired,
     savedAreas: PropTypes.array.isRequired,
     deleteSavedArea: PropTypes.func.isRequired,
+    activeLayer: PropTypes.string,
+    setActiveLayer: PropTypes.func.isRequired,
 };
 
 export default Sidebar;

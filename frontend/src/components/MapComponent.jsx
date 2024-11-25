@@ -71,6 +71,7 @@ function MapComponent({
   setSelectedAreas, 
   savedAreas, 
   isSavedAreasVisible, 
+  activeLayer,
 }) {
     const [zoomLevel, setZoomLevel] = useState(8);
     const [areas, setAreas] = useState([]); 
@@ -275,6 +276,28 @@ function MapComponent({
     return null;
   };
 
+  const getColorForValue = (value, maxValue) => {
+    if (!activeLayer || value === null || value === undefined) return "green";
+    const ratio = value / maxValue;
+    return `rgb(${255 - ratio * 255}, ${255 - ratio * 100}, ${100 + ratio * 100})`; // Dynamisk RGB-farve
+  };
+
+  const getMaxValue = () => {
+    if (!activeLayer) return null; // Ingen lag valgt
+    const values = areas.map((area) =>
+        activeLayer === "Shannon Index"
+            ? area.shannonIndex
+            : activeLayer === "NDVI"
+            ? area.ndvi
+            : activeLayer === "Jordkvalitet"
+            ? area.soilQualityValue
+            : area.natureValue
+    );
+    return Math.max(...values.filter((v) => v !== undefined && v !== null), 0); // Undgå NaN
+};
+
+  const maxValue = getMaxValue();
+
     return (
       
         <MapContainer
@@ -376,12 +399,41 @@ function MapComponent({
         {zoomLevel > 12 &&
           areas.map((area) => {
             const isSelected = selectedAreas.some(selected => selected.id === area.id);
+
+            // Vælg værdi og beregn farve for aktivt lag
+            
+            activeLayer === "Shannon Index"
+              ? area.shannonIndex
+              : activeLayer === "NDVI"
+              ? area.ndvi
+              : activeLayer === "Jordkvalitet"
+              ? area.soilQualityValue
+              : area.natureValue; // Default til Naturværdi
+
+              const color = getColorForValue(
+                area[
+                  activeLayer === "Shannon Index"
+                    ? "shannonIndex"
+                    : activeLayer === "NDVI"
+                    ? "ndvi"
+                    : activeLayer === "Jordkvalitet"
+                    ? "soilQualityValue"
+                    : "natureValue"
+                ],
+                maxValue
+              );
             
             return (
               <Rectangle
                 key={area.id}
                 bounds={area.bounds}
-                pathOptions={{ color: isSelected ? "blue" : "green", weight: 0.5 }}
+                pathOptions={{
+                  color: isSelected ? "blue" : color, // Grænsefarve
+                  fillColor: isSelected ? "blue" : color, // Udfyldningsfarve
+                  fillOpacity: 0.5, // Øg farveintensiteten
+                  opacity: 0.5, // Grænsefarveintensitet
+                  weight: 0.3, // Kantens tykkelse
+                }}
                 eventHandlers={{
                   click: (e) => {
                     e.originalEvent.stopPropagation();
@@ -390,10 +442,25 @@ function MapComponent({
                 }}
               >
                 <Tooltip direction="top" offset={[0, -10]} opacity={1}>
-                  <div>
+                <div>
                     <strong>{area.name}</strong>
-                    <p>Naturværdi: {area.nature_value}</p>
-                  </div>
+                    {activeLayer ? (
+                        <p>
+                            {activeLayer}:{" "}
+                            {area[
+                                activeLayer === "Shannon Index"
+                                    ? "shannonIndex"
+                                    : activeLayer === "NDVI"
+                                    ? "ndvi"
+                                    : activeLayer === "Jordkvalitet"
+                                    ? "soilQualityValue"
+                                    : "natureValue"
+                            ] || "Ingen data"}
+                        </p>
+                    ) : (
+                        <p>Naturværdi: {area.natureValue || "Ingen data"}</p> // Default til naturværdi
+                    )}
+                </div>
                 </Tooltip>
               </Rectangle>
             );
@@ -469,6 +536,7 @@ MapComponent.propTypes = {
     onDelete: PropTypes.func.isRequired,
     selectedAreas: PropTypes.array.isRequired,
     setSelectedAreas: PropTypes.func.isRequired,
+    activeLayer: PropTypes.string,
 };
   
 DanishNamePopup.propTypes = {

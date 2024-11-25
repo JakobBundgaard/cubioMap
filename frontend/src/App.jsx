@@ -5,7 +5,7 @@ import { useState, useEffect } from "react";
 import ProjectForm from "./components/ProjectForm";
 import { parseLocation } from "./utils/wktUtils";
 import { parse as parseWKT } from "terraformer-wkt-parser";
-// import * as turf from "@turf/turf";
+
 
 
 function App() {
@@ -26,6 +26,8 @@ function App() {
 
   const [isSavedAreasVisible, setIsSavedAreasVisible] = useState(false); // Ny state
   const [savedAreas, setSavedAreas] = useState([]); // Ny state til gemte områder
+
+  const [activeLayer, setActiveLayer] = useState(null);
 
   useEffect(() => {
     console.log("isCreatingProject ændret til:", isCreatingProject);
@@ -334,6 +336,8 @@ function App() {
           isSavedAreasVisible={isSavedAreasVisible} // Ny prop
           savedAreas={savedAreas}
           deleteSavedArea={deleteSavedArea}
+          activeLayer={activeLayer} // Ny prop
+          setActiveLayer={setActiveLayer} // Ny prop
         />
 
         
@@ -354,6 +358,7 @@ function App() {
             setSelectedAreas={setSelectedAreas} // Ny prop
             savedAreas={savedAreas} // Ny prop
             isSavedAreasVisible={isSavedAreasVisible} // Ny prop
+            activeLayer={activeLayer}
           />
         </div> 
 
