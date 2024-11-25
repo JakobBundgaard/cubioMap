@@ -77,7 +77,7 @@ function Sidebar({
         
         <h2 className="text-xl font-semibold text-gray-800">Lag</h2>
         <div className="space-y-2 mt-4">
-        <div>
+        <div className="flex items-center space-x-2">
           <input
             type="radio"
             id="none"
