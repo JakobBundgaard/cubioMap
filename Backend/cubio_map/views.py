@@ -79,6 +79,50 @@ class UserSelectedAreaViewSet(viewsets.ModelViewSet):
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
+
+    @action(detail=False, methods=['post'], url_path='save-polygon')
+    def save_polygon(self, request, *args, **kwargs):
+        """
+        Gem polygoner i databasen.
+        """
+        user_id = request.data.get('user_id', None)
+        name = request.data.get('name')
+        nature_value = request.data.get('natureValue', 0)
+        area_size = request.data.get('areaSize', 0)
+        geom_data = request.data.get('geom', None)
+
+        if not geom_data:
+            return Response({"error": "Ingen geometri fundet."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Konverter geometri til GEOSGeometry
+            combined_geom = GEOSGeometry(geom_data)
+            if combined_geom.geom_type not in ["Polygon", "MultiPolygon"]:
+                return Response({"error": "Kun polygoner er tilladt."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Konverter til MultiPolygon hvis nødvendigt
+            if combined_geom.geom_type == "Polygon":
+                combined_geom = MultiPolygon(combined_geom)
+
+            # Generér et navn, hvis det ikke er angivet
+            if not name:
+                existing_count = UserSelectedArea.objects.filter(user_id=user_id or 1).count() + 1
+                name = f"Brugerdefineret polygon {existing_count}"
+
+            # Gem området
+            user_area = UserSelectedArea.objects.create(
+                name=name,
+                nature_value=nature_value,
+                area_size=area_size,
+                geom=combined_geom,
+                user_id=user_id or 1,  # Standard user_id
+            )
+
+            serializer = self.get_serializer(user_area)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
     @action(detail=False, methods=['get'])
     def by_user(self, request, *args, **kwargs):
         """
