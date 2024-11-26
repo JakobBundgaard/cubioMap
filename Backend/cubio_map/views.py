@@ -107,7 +107,7 @@ class UserSelectedAreaViewSet(viewsets.ModelViewSet):
             # Generér et navn, hvis det ikke er angivet
             if not name:
                 existing_count = UserSelectedArea.objects.filter(user_id=user_id or 1).count() + 1
-                name = f"Brugerdefineret polygon {existing_count}"
+                name = f"Polygon {existing_count}"
 
             # Gem området
             user_area = UserSelectedArea.objects.create(

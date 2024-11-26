@@ -175,7 +175,7 @@ const savePolygonAreas = async () => {
               "Content-Type": "application/json",
           },
           body: JSON.stringify({
-              name: selectedArea.name || "Nyt polygon",
+              name: selectedArea.name,
               natureValue: selectedArea.natureValue || 0,
               areaSize: selectedArea.areaSize || 0,
               geom: JSON.stringify(selectedArea.geom),
