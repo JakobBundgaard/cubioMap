@@ -28,6 +28,7 @@ function Sidebar({
   deleteSavedArea,
   activeLayer, // Ny prop
   setActiveLayer, // Ny prop
+  onSavePolygonAreas,
 }) {
   const isAverageLabelNeeded = selectedArea && (selectedArea.name.includes(",") || selectedArea.name === "Brugerdefineret område");
   
@@ -201,17 +202,31 @@ function Sidebar({
         
         
 
-        <button
-          onClick={onSaveSelectedAreas}
-          disabled={selectedAreas.length === 0 && !isDrawActive} // Deaktiver, hvis ingen områder er valgt
-          className={`w-full mt-4 py-2 rounded-md text-sm font-medium ${
-            selectedAreas.length === 0 && !isDrawActive
-              ? "bg-gray-400 cursor-not-allowed"
-              : "bg-blue-500 text-white hover:bg-blue-600"
-          }`}
-        >
-          Gem område
-        </button>
+          <button
+            onClick={onSaveSelectedAreas}
+            disabled={!isMultiSelectActive || selectedAreas.length === 0} // Deaktiver, hvis ingen områder er valgt
+            className={`w-full mt-4 py-2 rounded-md text-sm font-medium ${
+              !isMultiSelectActive || selectedAreas.length === 0
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-blue-500 text-white hover:bg-blue-600"
+            }`}
+          >
+            Gem Rektangel
+          </button>
+
+          <button
+              onClick={onSavePolygonAreas}
+              disabled={!isDrawActive || !selectedArea || !selectedArea.geom}
+              className={`w-full mt-4 py-2 rounded-md text-sm font-medium ${
+                  !isDrawActive || !selectedArea || !selectedArea.geom
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-blue-500 text-white hover:bg-blue-600"
+              }`}
+          >
+              Gem Polygon
+          </button>
+
+
       </div>
     </aside>
   );
@@ -226,6 +241,7 @@ Sidebar.propTypes = {
       shannonIndex: PropTypes.number,
       ndvi: PropTypes.number,
       soilQualityValue: PropTypes.number,
+      geom: PropTypes.object,
     }),
     isMultiSelectActive: PropTypes.bool.isRequired,
     setIsMultiSelectActive: PropTypes.func.isRequired,
@@ -243,7 +259,8 @@ Sidebar.propTypes = {
     savedAreas: PropTypes.array.isRequired,
     deleteSavedArea: PropTypes.func.isRequired,
     activeLayer: PropTypes.string,
-    setActiveLayer: PropTypes.func.isRequired,
+  setActiveLayer: PropTypes.func.isRequired,
+  onSavePolygonAreas: PropTypes.func.isRequired,
 };
 
 export default Sidebar;

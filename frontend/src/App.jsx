@@ -159,6 +159,42 @@ function App() {
     }
 };
 
+const savePolygonAreas = async () => {
+  if (!selectedArea || !selectedArea.geom) {
+      alert("Ingen polygon valgt!");
+      return;
+  }
+
+  // Log geometriens data for debugging
+  console.log("GeoJSON for polygon:", selectedArea.geom);
+
+  try {
+      const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/save-polygon/", {
+          method: "POST",
+          headers: {
+              "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+              name: selectedArea.name,
+              natureValue: selectedArea.natureValue || 0,
+              areaSize: selectedArea.areaSize || 0,
+              geom: JSON.stringify(selectedArea.geom),
+              user_id: 1,
+          }),
+      });
+
+      if (response.ok) {
+          alert("Polygon blev gemt!");
+          setSelectedArea(null); // Nulstil valgt område
+          fetchSavedAreas(); // Opdater liste over gemte områder
+      } else {
+          alert("Kunne ikke gemme polygonet.");
+      }
+  } catch (error) {
+      console.error("Fejl ved gemning af polygon:", error);
+      alert("Noget gik galt. Prøv igen.");
+  }
+};
 
 
   // const saveSelectedAreas = async () => {
@@ -338,6 +374,7 @@ function App() {
           deleteSavedArea={deleteSavedArea}
           activeLayer={activeLayer} // Ny prop
           setActiveLayer={setActiveLayer} // Ny prop
+          onSavePolygonAreas={savePolygonAreas}
         />
 
         
