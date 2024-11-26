@@ -366,7 +366,7 @@ function MapComponent({
                   <Polygon
                     key={area.id}
                     positions={positions} // Brug LatLngs fra GeoJSON
-                    pathOptions={{ color: geometryType === "Polygon" ? "blue" : "red", weight: 2 }}
+                    pathOptions={{ color: "blue", weight: 2 }}
                   >
                     <Tooltip direction="top" offset={[0, -10]} opacity={1}>
                       <div>
