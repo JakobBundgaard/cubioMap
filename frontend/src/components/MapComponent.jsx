@@ -384,46 +384,6 @@ function MapComponent({
             })}
 
 
-
-
-        {/* {isSavedAreasVisible &&
-          savedAreas.map((area) => {
-            const geoJSONLayer = L.geoJSON(area.geom); // Konverter gemt geometri til GeoJSON
-            const bounds = geoJSONLayer.getBounds(); // Hent bounds fra GeoJSON
-            const isPolygon = area.geom.type === "Polygon";
-
-            return isPolygon ? (
-              <Polygon
-                key={area.id}
-                positions={geoJSONLayer.getLayers()[0].getLatLngs()} // Hent LatLngs fra GeoJSON
-                pathOptions={{ color: "red", weight: 2 }}
-              >
-                <Tooltip direction="top" offset={[0, -10]} opacity={1}>
-                  <div>
-                    <strong>{area.name}</strong>
-                    <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
-                    <p>Gennemsnitlig Naturværdi: {area.nature_value.toFixed(2)}</p>
-                  </div>
-                </Tooltip>
-              </Polygon>
-            ) : (
-              <Rectangle
-                key={area.id}
-                bounds={bounds} // Beregn bounds fra GeoJSON
-                pathOptions={{ color: "blue", weight: 1 }}
-              >
-                <Tooltip direction="top" offset={[0, -10]} opacity={1}>
-                  <div>
-                    <strong>{area.name}</strong>
-                    <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
-                    <p>Gennemsnitlig Naturværdi: {area.nature_value.toFixed(2)}</p>
-                  </div>
-                </Tooltip>
-              </Rectangle>
-            );
-          })} */}
-        
-
         {zoomLevel > 8 && isProjectMarkersVisible && (
           <MarkerClusterGroup>
             {projectsData.map((project) => {
