@@ -20,9 +20,10 @@ class GBIFDataSerializer(serializers.ModelSerializer):  # Tilføj serializer for
 
 class ProjectSerializer(serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
+    user_selected_area = serializers.PrimaryKeyRelatedField(queryset=UserSelectedArea.objects.all(), required=False)
     class Meta:
         model = Project
-        fields = ['id', 'name', 'location', 'description', 'image', 'image_url', 'initiatedBy']
+        fields = ['id', 'name', 'location', 'description', 'image', 'image_url', 'initiatedBy', 'user_selected_area']
 
     def get_image_url(self, obj):
         request = self.context.get('request')

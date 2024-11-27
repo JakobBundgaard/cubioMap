@@ -26,8 +26,36 @@ class ProjectViewSet(viewsets.ModelViewSet):
     serializer_class = ProjectSerializer
 
     def create(self, request, *args, **kwargs):
-        print("FILES:", request.FILES)  # Debugging
-        return super().create(request, *args, **kwargs)
+        user_selected_area_id = request.data.get('user_selected_area')
+        user_selected_area = None
+        if user_selected_area_id:
+            try:
+                user_selected_area = UserSelectedArea.objects.get(pk=user_selected_area_id)
+            except UserSelectedArea.DoesNotExist:
+                return Response({"error": "Invalid area ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+        project = Project.objects.create(
+            name=request.data.get('name'),
+            location=GEOSGeometry(request.data.get('location')),
+            description=request.data.get('description'),
+            initiatedBy=request.data.get('initiatedBy'),
+            user_selected_area=user_selected_area,
+        )
+        if 'image' in request.FILES:
+            project.image = request.FILES['image']
+            project.save()
+
+        serializer = self.get_serializer(project)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+# class ProjectViewSet(viewsets.ModelViewSet):
+#     queryset = Project.objects.all()
+#     serializer_class = ProjectSerializer
+
+#     def create(self, request, *args, **kwargs):
+#         print("FILES:", request.FILES)  # Debugging
+#         return super().create(request, *args, **kwargs)
 
 
 class UserSelectedAreaViewSet(viewsets.ModelViewSet):
