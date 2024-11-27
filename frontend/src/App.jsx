@@ -3,9 +3,16 @@ import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import { useState, useEffect } from "react";
 import ProjectForm from "./components/ProjectForm";
-import { parseLocation } from "./utils/wktUtils";
-import { parse as parseWKT } from "terraformer-wkt-parser";
-
+import {
+  fetchSavedAreas,
+  fetchProjects,
+  saveSelectedAreasAPI,
+  savePolygonAreasAPI,
+  deleteSavedAreaAPI,
+  createProjectAPI, 
+  updateProjectAPI, 
+  deleteProjectAPI  
+} from "./utils/api";
 
 
 function App() {
@@ -39,34 +46,26 @@ function App() {
   }, [savedAreas, isSavedAreasVisible]);
 
   // Funktion til at hente gemte områder
-  const fetchSavedAreas = async () => {
+  const fetchSavedAreasInApp = async () => {
     try {
-        const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/by_user/?user_id=1");
-        const data = await response.json();
-
-        const formattedData = data.map((area) => {
-            // Fjern SRID=4326; fra geom-strengen
-            const cleanedGeom = area.geom.replace(/^SRID=\d+;/, ""); // Fjerner SRID=XXXX;
-            return {
-                ...area,
-                nature_value: parseFloat(area.nature_value), // Konverter naturværdi til tal
-                area_size: parseFloat(area.area_size), // Konverter areal til tal
-                geom: parseWKT(cleanedGeom), // Konverter WKT til GeoJSON
-            };
-        });
-
-        setSavedAreas(formattedData);
+        const areas = await fetchSavedAreas(1); // Brug userId = 1 (eller det relevante userId)
+        setSavedAreas(areas); // Opdater state med de hentede områder
     } catch (error) {
-        console.error("Error fetching saved areas:", error);
+        console.error("Error fetching saved areas in App.jsx:", error);
     }
 };
+
+// Kaldes fx i useEffect:
+useEffect(() => {
+    fetchSavedAreasInApp();
+}, []);
 
 
   // Toggle-funktion
   const toggleSavedAreas = () => {
     setIsSavedAreasVisible((prev) => !prev);
     if (!isSavedAreasVisible) {
-      fetchSavedAreas();
+      fetchSavedAreasInApp();
     }
   };
 
@@ -78,219 +77,103 @@ function App() {
     setIsProjectMarkersVisible(!isProjectMarkersVisible);
   };
 
-  const fetchProjects = async () => {
+  const fetchProjectsInApp = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/projects/");
-      const data = await response.json();
-      const convertedData = data.map((project) => ({
-        ...project,
-        location: parseLocation(project.location), // Konverter til Leaflet's format
-      }));
-      setProjectsData(convertedData);
+      const projects = await fetchProjects(); // Kald den eksterne funktion
+      setProjectsData(projects); // Opdater state
     } catch (error) {
-      console.error("Error fetching projects data:", error);
+      console.error("Error fetching projects in App.jsx:", error);
     }
   };
-
+  
   useEffect(() => {
-    fetchProjects();
+    fetchProjectsInApp(); // Kald den opdaterede funktion
   }, []);
 
   const saveSelectedAreas = async () => {
     if (selectedAreas.length === 0 && (!selectedArea || !selectedArea.geom)) {
-        alert("Ingen områder valgt!");
-        return;
+      alert("Ingen områder valgt!");
+      return;
     }
-
+  
     try {
-        let geoJSON;
-
-        // Hvis det er kvadrater (multiple selection)
-        if (selectedAreas.length > 0) {
-            const polygons = selectedAreas.map((area) => {
-                if (!area.bounds || area.bounds.length !== 2) {
-                    throw new Error(`Området "${area.name}" har ugyldige koordinater.`);
-                }
-                const [southWest, northEast] = area.bounds;
-                return [
-                    [southWest[1], southWest[0]],
-                    [northEast[1], southWest[0]],
-                    [northEast[1], northEast[0]],
-                    [southWest[1], northEast[0]],
-                    [southWest[1], southWest[0]],
-                ];
-            });
-
-            geoJSON = {
-                type: "MultiPolygon",
-                coordinates: polygons.map((coords) => [coords]),
-            };
-        } else if (selectedArea?.geom) {
-            // Hvis det er en tegning, brug GeoJSON direkte
-            geoJSON = selectedArea.geom;
-        }
-
-        console.log("Kombineret GeoJSON:", geoJSON);
-
-        const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              ...(selectedArea?.name ? { name: selectedArea.name } : {}),
-                natureValue: selectedArea?.natureValue || 0,
-                areaSize: selectedArea?.areaSize || 0,
-                geom: JSON.stringify(geoJSON),
-                user_id: 1,
-            }),
+      let geoJSON;
+  
+      // Hvis det er kvadrater (multiple selection)
+      if (selectedAreas.length > 0) {
+        const polygons = selectedAreas.map((area) => {
+          if (!area.bounds || area.bounds.length !== 2) {
+            throw new Error(`Området "${area.name}" har ugyldige koordinater.`);
+          }
+          const [southWest, northEast] = area.bounds;
+          return [
+            [southWest[1], southWest[0]],
+            [northEast[1], southWest[0]],
+            [northEast[1], northEast[0]],
+            [southWest[1], northEast[0]],
+            [southWest[1], southWest[0]],
+          ];
         });
-
-        if (response.ok) {
-            alert("Området blev gemt!");
-            setSelectedAreas([]);
-            fetchSavedAreas();
-        } else {
-            alert("Kunne ikke gemme området. Prøv igen.");
-        }
+  
+        geoJSON = {
+          type: "MultiPolygon",
+          coordinates: polygons.map((coords) => [coords]),
+        };
+      } else if (selectedArea?.geom) {
+        // Hvis det er en tegning, brug GeoJSON direkte
+        geoJSON = selectedArea.geom;
+      }
+  
+      console.log("Kombineret GeoJSON:", geoJSON);
+  
+      // Brug den nye saveSelectedAreasAPI-funktion
+      await saveSelectedAreasAPI(geoJSON, selectedArea, 1); // userId = 1
+      alert("Området blev gemt!");
+      setSelectedAreas([]);
+      fetchSavedAreasInApp(); // Opdater listen over gemte områder
     } catch (error) {
-        console.error("Fejl ved gemning af området:", error);
-        alert("Noget gik galt. Prøv igen.");
+      console.error("Fejl ved gemning af området:", error);
+      alert("Noget gik galt. Prøv igen.");
     }
-};
+  };
+  
 
-const savePolygonAreas = async () => {
-  if (!selectedArea || !selectedArea.geom) {
+  const savePolygonAreas = async () => {
+    if (!selectedArea || !selectedArea.geom) {
       alert("Ingen polygon valgt!");
       return;
-  }
-
-  // Log geometriens data for debugging
-  console.log("GeoJSON for polygon:", selectedArea.geom);
-
-  try {
-      const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/save-polygon/", {
-          method: "POST",
-          headers: {
-              "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-              name: selectedArea.name,
-              natureValue: selectedArea.natureValue || 0,
-              areaSize: selectedArea.areaSize || 0,
-              geom: JSON.stringify(selectedArea.geom),
-              user_id: 1,
-          }),
-      });
-
-      if (response.ok) {
-          alert("Polygon blev gemt!");
-          setSelectedArea(null); // Nulstil valgt område
-          fetchSavedAreas(); // Opdater liste over gemte områder
-      } else {
-          alert("Kunne ikke gemme polygonet.");
-      }
-  } catch (error) {
+    }
+  
+    try {
+      // Brug den nye savePolygonAreasAPI-funktion
+      await savePolygonAreasAPI(selectedArea, 1); // userId = 1
+      alert("Polygon blev gemt!");
+      setSelectedArea(null); // Nulstil valgt område
+      fetchSavedAreasInApp(); // Opdater liste over gemte områder
+    } catch (error) {
       console.error("Fejl ved gemning af polygon:", error);
       alert("Noget gik galt. Prøv igen.");
-  }
-};
+    }
+  };
 
 
-  // const saveSelectedAreas = async () => {
-  //   if (selectedAreas.length === 0) {
-  //     alert("Ingen kvadrater valgt!");
-  //     return;
-  //   }
-  
-  //   try {
-  //     // Tjek og luk polygonerne
-  //     const polygons = selectedAreas.map((area) => {
-  //       console.log("Behandler område:", area.name, area.bounds);
-  
-  //       // Kontroller, at bounds findes og har præcis 2 punkter (sydvest og nordøst)
-  //       if (!area.bounds || area.bounds.length !== 2) {
-  //         throw new Error(`Området "${area.name}" har ugyldige koordinater.`);
-  //       }
-  
-  //       const [southWest, northEast] = area.bounds;
-  
-  //       // Generér fire hjørnepunkter for rektanglet (mod uret: sydvest, sydøst, nordøst, nordvest)
-  //       const closedBounds = [
-  //         [southWest[1], southWest[0]], // Sydvest (lng, lat)
-  //         [northEast[1], southWest[0]], // Sydøst (lng, lat)
-  //         [northEast[1], northEast[0]], // Nordøst (lng, lat)
-  //         [southWest[1], northEast[0]], // Nordvest (lng, lat)
-  //         [southWest[1], southWest[0]], // Luk polygonen ved at gentage sydvest
-  //       ];
-  
-  //       console.log("Lukket rektangel for område:", area.name, closedBounds);
-  
-  //       return closedBounds; // Returnér kun koordinater
-  //     });
-  
-  //     console.log("Genererede polygon-koordinater:", polygons);
-  
-  //     // Kombiner alle polygoner i en GeoJSON MultiPolygon
-  //     const geoJSON = {
-  //       type: "MultiPolygon",
-  //       coordinates: polygons.map((coords) => [coords]), // Hver polygon tilføjes som en del af MultiPolygon
-  //     };
-  
-  //     console.log("Kombineret GeoJSON MultiPolygon:", geoJSON);
-  
-  //     const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         name: "",
-  //         natureValue: selectedArea?.natureValue || 0,
-  //         areaSize: selectedArea?.areaSize || 0,
-  //         geom: JSON.stringify(geoJSON), // Send samlet geometri som GeoJSON
-  //         user_id: 1, // Tilføj bruger-id (kan ændres baseret på login-systemet)
-  //       }),
-  //     });
-  
-  //     if (response.ok) {
-  //       alert("Området blev gemt som et samlet område!");
-  //       setSelectedAreas([]); // Nulstil valgte områder
-  //       fetchSavedAreas();
-  //     } else {
-  //       alert("Kunne ikke gemme det valgte område. Prøv igen.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Fejl ved behandling af geometrier:", error);
-  //     alert(`Noget gik galt: ${error.message}`);
-  //   }
-  // };
-  
-  
   const deleteSavedArea = async (areaId) => {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/user-selected-areas/${areaId}/`, {
-            method: "DELETE",
-        });
-
-        if (response.ok) {
-            setSavedAreas((prevSavedAreas) =>
-                prevSavedAreas.filter((area) => area.id !== areaId)
-            );
-            alert("Området blev slettet.");
-        } else {
-            alert("Kunne ikke slette området. Prøv igen.");
-        }
+      // Brug den centraliserede API-funktion
+      await deleteSavedAreaAPI(areaId);
+  
+      // Opdater state efter sletning
+      setSavedAreas((prevSavedAreas) =>
+        prevSavedAreas.filter((area) => area.id !== areaId)
+      );
+      alert("Området blev slettet.");
     } catch (error) {
-        console.error("Fejl ved sletning af området:", error);
-        alert("Noget gik galt. Prøv igen.");
+      console.error("Fejl ved sletning af området:", error);
+      alert("Kunne ikke slette området. Prøv igen.");
     }
-};
+  };
  
   
-
-  
-
   const startCreatingProject = () => {
     setIsCreatingProject(true);
     setProjectLocation(null);
@@ -302,27 +185,46 @@ const savePolygonAreas = async () => {
     setIsEditingProject(true);
   };
 
-  // Funktion til at gemme opdateringer
-  const saveUpdatedProject = async (updatedData) => {
-    try {
-      const response = await fetch(`http://127.0.0.1:8000/api/projects/${selectedProject.id}/`, {
-        method: "PUT",
-        body: updatedData, // Multipart-formdata sendes direkte
-      });
-  
-      if (response.ok) {
-        fetchProjects();
-        setSelectedProject(null);
-        setIsEditingProject(false);
-      } else {
-        console.error("Failed to update project:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error updating project:", error);
-    }
+  // Funktion til at oprette projekt
+const createProject = async (projectData) => {
+  try {
+    await createProjectAPI(projectData); // Fjernet `const createdProject`
+    alert("Projekt blev oprettet!");
+    fetchProjectsInApp(); // Opdater listen af projekter
+    setIsCreatingProject(false);
+    setProjectLocation(null);
+  } catch (error) {
+    console.error("Error creating project:", error);
+    alert("Noget gik galt. Prøv igen.");
+  }
+};
+
+  // Funktion til at opdatere projekt
+const saveUpdatedProject = async (updatedData) => {
+  if (!selectedProject) return;
+  try {
+    await updateProjectAPI(selectedProject.id, updatedData);
+    alert("Projekt blev opdateret!");
+    fetchProjectsInApp(); // Opdater listen af projekter
+    setSelectedProject(null);
+    setIsEditingProject(false);
+  } catch (error) {
+    console.error("Error updating project:", error);
+    alert("Noget gik galt. Prøv igen.");
+  }
   };
-
-
+  
+    // Funktion til at slette projekt
+const handleDelete = async (projectId) => {
+  try {
+    await deleteProjectAPI(projectId);
+    alert("Projekt blev slettet!");
+    fetchProjectsInApp(); // Opdater listen af projekter
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    alert("Noget gik galt. Prøv igen.");
+  }
+};
 
   // Funktion til at annullere redigering
   const cancelEditingProject = () => {
@@ -330,20 +232,7 @@ const savePolygonAreas = async () => {
     setIsEditingProject(false);
   };
 
-  const handleDelete = async (projectId) => {
-    try {
-      const response = await fetch(`http://127.0.0.1:8000/api/projects/${projectId}/`, {
-        method: "DELETE",
-      });
-      if (response.ok) {
-        fetchProjects();
-      } else {
-        console.error("Fejl ved sletning:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Fejl ved API-kald:", error);
-    }
-  };
+
 
   useEffect(() => {
     console.log("Updated projectLocation in App:", projectLocation);
@@ -403,29 +292,10 @@ const savePolygonAreas = async () => {
           <ProjectForm
             project={{ location: projectLocation }}
             projectLocation={projectLocation}
-
-            onSave={async (data) => {
-              try {
-                const response = await fetch("http://127.0.0.1:8000/api/projects/", {
-                  method: "POST",
-                  body: data, // Multipart-formdata sendes direkte
-                });
-            
-                if (response.ok) {
-                  fetchProjects();
-                  setProjectLocation(null);
-                  setIsCreatingProject(false);
-                } else {
-                  console.error("Fejl ved oprettelse af projekt:", response.statusText);
-                }
-              } catch (error) {
-                console.error("Fejl ved API-kald:", error);
-              }
-            }}
-
+            onSave={createProject}
             onCancel={() => {
-              setProjectLocation(null);
-              setIsCreatingProject(false);
+            setProjectLocation(null);
+            setIsCreatingProject(false);
             }}
             style={{
               position: "fixed",
