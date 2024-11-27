@@ -59,7 +59,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
 
 
 class UserSelectedAreaViewSet(viewsets.ModelViewSet):
-    queryset = UserSelectedArea.objects.all()
+    queryset = UserSelectedArea.objects.all().order_by('id')
     serializer_class = UserSelectedAreaSerializer
     permission_classes = [AllowAny]  # Midlertidig, indtil autentifikation er på plads
 
@@ -161,7 +161,7 @@ class UserSelectedAreaViewSet(viewsets.ModelViewSet):
             return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
         try:
-            areas = UserSelectedArea.objects.filter(user_id=user_id)
+            areas = UserSelectedArea.objects.filter(user_id=user_id).order_by('id')
             serializer = self.get_serializer(areas, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         except Exception as e:
