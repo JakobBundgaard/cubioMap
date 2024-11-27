@@ -115,3 +115,57 @@ export const deleteSavedAreaAPI = async (areaId) => {
     }
   };
   
+
+  // Opret nyt projekt
+export const createProjectAPI = async (projectData) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/projects/", {
+        method: "POST",
+        body: projectData, // Multipart-formdata
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to create project.");
+      }
+      return response.json(); // Returnér oprettet projekt
+    } catch (error) {
+      console.error("Error creating project:", error);
+      throw error;
+    }
+  };
+  
+  // Opdater eksisterende projekt
+  export const updateProjectAPI = async (projectId, updatedData) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/projects/${projectId}/`, {
+        method: "PUT",
+        body: updatedData, // Multipart-formdata
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to update project.");
+      }
+      return response.json(); // Returnér opdateret projekt
+    } catch (error) {
+      console.error("Error updating project:", error);
+      throw error;
+    }
+  };
+  
+  // Slet projekt
+  export const deleteProjectAPI = async (projectId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/projects/${projectId}/`, {
+        method: "DELETE",
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete project.");
+      }
+      return true; // Returnér true, hvis sletningen lykkes
+    } catch (error) {
+      console.error("Error deleting project:", error);
+      throw error;
+    }
+  };
+  

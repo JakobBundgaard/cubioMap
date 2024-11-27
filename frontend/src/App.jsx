@@ -3,8 +3,16 @@ import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import { useState, useEffect } from "react";
 import ProjectForm from "./components/ProjectForm";
-// import { parseLocation } from "./utils/wktUtils";
-import { fetchSavedAreas, fetchProjects, saveSelectedAreasAPI, savePolygonAreasAPI, deleteSavedAreaAPI } from "./utils/api";
+import {
+  fetchSavedAreas,
+  fetchProjects,
+  saveSelectedAreasAPI,
+  savePolygonAreasAPI,
+  deleteSavedAreaAPI,
+  createProjectAPI, 
+  updateProjectAPI, 
+  deleteProjectAPI  
+} from "./utils/api";
 
 
 function App() {
@@ -182,25 +190,46 @@ useEffect(() => {
     setIsEditingProject(true);
   };
 
-  // Funktion til at gemme opdateringer
-  const saveUpdatedProject = async (updatedData) => {
-    try {
-      const response = await fetch(`http://127.0.0.1:8000/api/projects/${selectedProject.id}/`, {
-        method: "PUT",
-        body: updatedData, // Multipart-formdata sendes direkte
-      });
-  
-      if (response.ok) {
-        fetchProjects();
-        setSelectedProject(null);
-        setIsEditingProject(false);
-      } else {
-        console.error("Failed to update project:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Error updating project:", error);
-    }
+  // Funktion til at oprette projekt
+const createProject = async (projectData) => {
+  try {
+    await createProjectAPI(projectData); // Fjernet `const createdProject`
+    alert("Projekt blev oprettet!");
+    fetchProjectsInApp(); // Opdater listen af projekter
+    setIsCreatingProject(false);
+    setProjectLocation(null);
+  } catch (error) {
+    console.error("Error creating project:", error);
+    alert("Noget gik galt. Prøv igen.");
+  }
+};
+
+  // Funktion til at opdatere projekt
+const saveUpdatedProject = async (updatedData) => {
+  if (!selectedProject) return;
+  try {
+    await updateProjectAPI(selectedProject.id, updatedData);
+    alert("Projekt blev opdateret!");
+    fetchProjectsInApp(); // Opdater listen af projekter
+    setSelectedProject(null);
+    setIsEditingProject(false);
+  } catch (error) {
+    console.error("Error updating project:", error);
+    alert("Noget gik galt. Prøv igen.");
+  }
   };
+  
+    // Funktion til at slette projekt
+const handleDelete = async (projectId) => {
+  try {
+    await deleteProjectAPI(projectId);
+    alert("Projekt blev slettet!");
+    fetchProjectsInApp(); // Opdater listen af projekter
+  } catch (error) {
+    console.error("Error deleting project:", error);
+    alert("Noget gik galt. Prøv igen.");
+  }
+};
 
 
 
@@ -210,20 +239,7 @@ useEffect(() => {
     setIsEditingProject(false);
   };
 
-  const handleDelete = async (projectId) => {
-    try {
-      const response = await fetch(`http://127.0.0.1:8000/api/projects/${projectId}/`, {
-        method: "DELETE",
-      });
-      if (response.ok) {
-        fetchProjects();
-      } else {
-        console.error("Fejl ved sletning:", response.statusText);
-      }
-    } catch (error) {
-      console.error("Fejl ved API-kald:", error);
-    }
-  };
+
 
   useEffect(() => {
     console.log("Updated projectLocation in App:", projectLocation);
@@ -283,29 +299,10 @@ useEffect(() => {
           <ProjectForm
             project={{ location: projectLocation }}
             projectLocation={projectLocation}
-
-            onSave={async (data) => {
-              try {
-                const response = await fetch("http://127.0.0.1:8000/api/projects/", {
-                  method: "POST",
-                  body: data, // Multipart-formdata sendes direkte
-                });
-            
-                if (response.ok) {
-                  fetchProjects();
-                  setProjectLocation(null);
-                  setIsCreatingProject(false);
-                } else {
-                  console.error("Fejl ved oprettelse af projekt:", response.statusText);
-                }
-              } catch (error) {
-                console.error("Fejl ved API-kald:", error);
-              }
-            }}
-
+            onSave={createProject}
             onCancel={() => {
-              setProjectLocation(null);
-              setIsCreatingProject(false);
+            setProjectLocation(null);
+            setIsCreatingProject(false);
             }}
             style={{
               position: "fixed",
