@@ -3,9 +3,8 @@ import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import { useState, useEffect } from "react";
 import ProjectForm from "./components/ProjectForm";
-import { parseLocation } from "./utils/wktUtils";
-// import { parse as parseWKT } from "terraformer-wkt-parser";
-import { fetchSavedAreas } from "./utils/api";
+// import { parseLocation } from "./utils/wktUtils";
+import { fetchSavedAreas, fetchProjects } from "./utils/api";
 
 
 function App() {
@@ -70,22 +69,17 @@ useEffect(() => {
     setIsProjectMarkersVisible(!isProjectMarkersVisible);
   };
 
-  const fetchProjects = async () => {
+  const fetchProjectsInApp = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:8000/api/projects/");
-      const data = await response.json();
-      const convertedData = data.map((project) => ({
-        ...project,
-        location: parseLocation(project.location), // Konverter til Leaflet's format
-      }));
-      setProjectsData(convertedData);
+      const projects = await fetchProjects(); // Kald den eksterne funktion
+      setProjectsData(projects); // Opdater state
     } catch (error) {
-      console.error("Error fetching projects data:", error);
+      console.error("Error fetching projects in App.jsx:", error);
     }
   };
-
+  
   useEffect(() => {
-    fetchProjects();
+    fetchProjectsInApp(); // Kald den opdaterede funktion
   }, []);
 
   const saveSelectedAreas = async () => {
@@ -141,7 +135,7 @@ useEffect(() => {
         if (response.ok) {
             alert("Området blev gemt!");
             setSelectedAreas([]);
-            fetchSavedAreas();
+            fetchSavedAreasInApp();
         } else {
             alert("Kunne ikke gemme området. Prøv igen.");
         }

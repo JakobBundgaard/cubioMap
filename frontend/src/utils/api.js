@@ -1,4 +1,5 @@
 import { parse as parseWKT } from "terraformer-wkt-parser";
+import { parseLocation } from "./wktUtils";
 
 // Funktion til at hente gemte områder
 export const fetchSavedAreas = async (userId) => { // Tilføj 'export'
@@ -23,3 +24,22 @@ export const fetchSavedAreas = async (userId) => { // Tilføj 'export'
         throw error; // Kast fejlen videre, så du kan håndtere den i komponenten
     }
 };
+
+// Funktion til at hente projekter
+export const fetchProjects = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/projects/");
+      const data = await response.json();
+  
+      // Konverter data til Leaflet's format
+      const formattedData = data.map((project) => ({
+        ...project,
+        location: parseLocation(project.location),
+      }));
+  
+      return formattedData; // Returnér de formaterede data
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+      throw error; // Kast fejl videre
+    }
+  };
