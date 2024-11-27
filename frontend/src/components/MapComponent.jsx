@@ -5,9 +5,9 @@ import MarkerClusterGroup from "react-leaflet-markercluster";
 import "leaflet-draw/dist/leaflet.draw.css";
 import * as L from "leaflet";
 import PropTypes from 'prop-types';
-import { wktToBounds } from "../utils/wktUtils";
 import "leaflet/dist/leaflet.css";
 import ProjectPopup from "./ProjectPopup";
+import { useMapData } from "../hooks/useMapData";
 
 
 
@@ -37,8 +37,6 @@ async function fetchDanishName(scientificName) {
       return "Fejl ved API-opslag";
   }
 }
-
-
 
 // Kortklik-håndteringskomponent
 const MapClickHandler = ({ isCreatingProject, setProjectLocation }) => {
@@ -73,59 +71,30 @@ function MapComponent({
   isSavedAreasVisible, 
   activeLayer,
 }) {
-    const [zoomLevel, setZoomLevel] = useState(8);
-    const [areas, setAreas] = useState([]); 
-    const [gbifData, setGbifData] = useState([]);
-    const rectangleClicked = useRef(false);
-    const featureGroupRef = useRef(null);
+  const { areas, gbifData } = useMapData();
+  const [zoomLevel, setZoomLevel] = useState(8);
+  const rectangleClicked = useRef(false);
+  const featureGroupRef = useRef(null);
   
     
-  
-    useEffect(() => {
-      // Hent områder fra API
-      fetch('http://127.0.0.1:8000/api/enhanced-areas/')
-        .then((response) => response.json())
-        .then((data) => {
-          const convertedData = data.map((area) => ({
-            ...area,
-            bounds: wktToBounds(area.geom),
-            natureValue: parseFloat(area.nature_value),
-            shannonIndex: parseFloat(area.shannon_index),
-            soilQualityValue: parseFloat(area.soil_quality_value),
-            ndvi: parseFloat(area.ndvi),
-          }));
-          setAreas(convertedData);
-        })
-        .catch((error) => console.error('Error fetching area data:', error));
-      
-      // Hent GBIF-data fra API
-      fetch('http://127.0.0.1:8000/api/gbif-data/') 
-        .then((response) => response.json())
-        .then((data) => {
-          setGbifData(data);
-        })
-        .catch((error) => console.error('Error fetching GBIF data:', error));
-      
-      
-    }, []);
   
   
     // For bug fixing. Delete later
-    useEffect(() => {
-      console.log("isInsectMarkersVisible:", isInsectMarkersVisible);
-    }, [isInsectMarkersVisible]);
+    // useEffect(() => {
+    //   console.log("isInsectMarkersVisible:", isInsectMarkersVisible);
+    // }, [isInsectMarkersVisible]);
     
-    useEffect(() => {
-      console.log("Current Zoom Level:", zoomLevel);
-    }, [zoomLevel]);
+    // useEffect(() => {
+    //   console.log("Current Zoom Level:", zoomLevel);
+    // }, [zoomLevel]);
   
-    useEffect(() => {
-      console.log("MapComponent mounted. Project Markers Visibility:", isProjectMarkersVisible);
-    }, [isProjectMarkersVisible]);
+    // useEffect(() => {
+    //   console.log("MapComponent mounted. Project Markers Visibility:", isProjectMarkersVisible);
+    // }, [isProjectMarkersVisible]);
   
-    useEffect(() => {
-      console.log("Rendering Saved Areas:", savedAreas);
-    }, [savedAreas]);
+    // useEffect(() => {
+    //   console.log("Rendering Saved Areas:", savedAreas);
+    // }, [savedAreas]);
   
   
     // Beregn kvadratets areal baseret på koordinaterne i bounds
