@@ -4,7 +4,7 @@ import Sidebar from "./components/Sidebar";
 import { useState, useEffect } from "react";
 import ProjectForm from "./components/ProjectForm";
 // import { parseLocation } from "./utils/wktUtils";
-import { fetchSavedAreas, fetchProjects, saveSelectedAreasAPI, savePolygonAreasAPI } from "./utils/api";
+import { fetchSavedAreas, fetchProjects, saveSelectedAreasAPI, savePolygonAreasAPI, deleteSavedAreaAPI } from "./utils/api";
 
 
 function App() {
@@ -153,23 +153,19 @@ useEffect(() => {
   
   const deleteSavedArea = async (areaId) => {
     try {
-        const response = await fetch(`http://127.0.0.1:8000/api/user-selected-areas/${areaId}/`, {
-            method: "DELETE",
-        });
-
-        if (response.ok) {
-            setSavedAreas((prevSavedAreas) =>
-                prevSavedAreas.filter((area) => area.id !== areaId)
-            );
-            alert("Området blev slettet.");
-        } else {
-            alert("Kunne ikke slette området. Prøv igen.");
-        }
+      // Brug den centraliserede API-funktion
+      await deleteSavedAreaAPI(areaId);
+  
+      // Opdater state efter sletning
+      setSavedAreas((prevSavedAreas) =>
+        prevSavedAreas.filter((area) => area.id !== areaId)
+      );
+      alert("Området blev slettet.");
     } catch (error) {
-        console.error("Fejl ved sletning af området:", error);
-        alert("Noget gik galt. Prøv igen.");
+      console.error("Fejl ved sletning af området:", error);
+      alert("Kunne ikke slette området. Prøv igen.");
     }
-};
+  };
  
   
 

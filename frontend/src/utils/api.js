@@ -98,3 +98,20 @@ export const saveSelectedAreasAPI = async (geoJSON, selectedArea, userId) => {
     }
   };
   
+// Slet et gemt område
+export const deleteSavedAreaAPI = async (areaId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/user-selected-areas/${areaId}/`, {
+        method: "DELETE",
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to delete saved area.");
+      }
+      return true; // Return true, hvis sletningen lykkes
+    } catch (error) {
+      console.error("Error deleting saved area:", error);
+      throw error;
+    }
+  };
+  
