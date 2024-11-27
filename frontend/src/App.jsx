@@ -4,8 +4,8 @@ import Sidebar from "./components/Sidebar";
 import { useState, useEffect } from "react";
 import ProjectForm from "./components/ProjectForm";
 import { parseLocation } from "./utils/wktUtils";
-import { parse as parseWKT } from "terraformer-wkt-parser";
-
+// import { parse as parseWKT } from "terraformer-wkt-parser";
+import { fetchSavedAreas } from "./utils/api";
 
 
 function App() {
@@ -39,34 +39,26 @@ function App() {
   }, [savedAreas, isSavedAreasVisible]);
 
   // Funktion til at hente gemte områder
-  const fetchSavedAreas = async () => {
+  const fetchSavedAreasInApp = async () => {
     try {
-        const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/by_user/?user_id=1");
-        const data = await response.json();
-
-        const formattedData = data.map((area) => {
-            // Fjern SRID=4326; fra geom-strengen
-            const cleanedGeom = area.geom.replace(/^SRID=\d+;/, ""); // Fjerner SRID=XXXX;
-            return {
-                ...area,
-                nature_value: parseFloat(area.nature_value), // Konverter naturværdi til tal
-                area_size: parseFloat(area.area_size), // Konverter areal til tal
-                geom: parseWKT(cleanedGeom), // Konverter WKT til GeoJSON
-            };
-        });
-
-        setSavedAreas(formattedData);
+        const areas = await fetchSavedAreas(1); // Brug userId = 1 (eller det relevante userId)
+        setSavedAreas(areas); // Opdater state med de hentede områder
     } catch (error) {
-        console.error("Error fetching saved areas:", error);
+        console.error("Error fetching saved areas in App.jsx:", error);
     }
 };
+
+// Kaldes fx i useEffect:
+useEffect(() => {
+    fetchSavedAreasInApp();
+}, []);
 
 
   // Toggle-funktion
   const toggleSavedAreas = () => {
     setIsSavedAreasVisible((prev) => !prev);
     if (!isSavedAreasVisible) {
-      fetchSavedAreas();
+      fetchSavedAreasInApp();
     }
   };
 
