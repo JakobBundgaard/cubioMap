@@ -157,8 +157,6 @@ useEffect(() => {
   };
 
 
-  
-  
   const deleteSavedArea = async (areaId) => {
     try {
       // Brug den centraliserede API-funktion
@@ -176,9 +174,6 @@ useEffect(() => {
   };
  
   
-
-  
-
   const startCreatingProject = () => {
     setIsCreatingProject(true);
     setProjectLocation(null);
@@ -230,8 +225,6 @@ const handleDelete = async (projectId) => {
     alert("Noget gik galt. Prøv igen.");
   }
 };
-
-
 
   // Funktion til at annullere redigering
   const cancelEditingProject = () => {
