@@ -42,4 +42,59 @@ export const fetchProjects = async () => {
       console.error("Error fetching projects:", error);
       throw error; // Kast fejl videre
     }
+};
+  
+// Gem kvadrater eller flere områder
+export const saveSelectedAreasAPI = async (geoJSON, selectedArea, userId) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...(selectedArea?.name ? { name: selectedArea.name } : {}),
+          natureValue: selectedArea?.natureValue || 0,
+          areaSize: selectedArea?.areaSize || 0,
+          geom: JSON.stringify(geoJSON),
+          user_id: userId,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to save selected areas.");
+      }
+      return response.json(); // Returnér responsen, hvis nødvendigt
+    } catch (error) {
+      console.error("Error saving selected areas:", error);
+      throw error;
+    }
   };
+  
+  // Gem polygon-områder
+  export const savePolygonAreasAPI = async (selectedArea, userId) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/user-selected-areas/save-polygon/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: selectedArea.name,
+          natureValue: selectedArea.natureValue || 0,
+          areaSize: selectedArea.areaSize || 0,
+          geom: JSON.stringify(selectedArea.geom),
+          user_id: userId,
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to save polygon areas.");
+      }
+      return response.json(); // Returnér responsen, hvis nødvendigt
+    } catch (error) {
+      console.error("Error saving polygon areas:", error);
+      throw error;
+    }
+  };
+  
