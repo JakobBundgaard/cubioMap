@@ -10,7 +10,6 @@ import ProjectPopup from "./ProjectPopup";
 import { useMapData } from "../hooks/useMapData";
 
 
-
 async function fetchDanishName(scientificName) {
   try {
       const response = await fetch(`https://api.gbif.org/v1/species?name=${scientificName}`);
@@ -37,6 +36,79 @@ async function fetchDanishName(scientificName) {
       return "Fejl ved API-opslag";
   }
 }
+
+function DanishNamePopup({ data }) {
+  const [danishName, setDanishName] = useState("Henter dansk navn...");
+
+  useEffect(() => {
+      const fetchName = async () => {
+          const name = await fetchDanishName(data.species);
+          setDanishName(name);
+      };
+      fetchName();
+  }, [data.species]);
+
+  return (
+      <div>
+          <strong>Artsnavn (Latin):</strong> {data.species || "Ukendt"}<br />
+          <strong>Dansk navn:</strong> {danishName}<br />
+          <strong>Detektionsdato:</strong> {data.occurrence_date || "Ikke angivet"}
+      </div>
+  );
+}
+
+// Beregn kvadratets areal baseret på koordinaterne i bounds
+const calculateAreaSize = (bounds) => {
+  if (!bounds || bounds.length !== 2) return 0;
+
+  const [southWest, northEast] = bounds;
+  const latDiff = Math.abs(northEast[0] - southWest[0]);
+  const lngDiff = Math.abs(northEast[1] - southWest[1]);
+  const latDistance = latDiff * 111320;
+  const lngDistance = lngDiff * 111320 * Math.cos(southWest[0] * (Math.PI / 180));
+
+  return parseFloat((latDistance * lngDistance).toFixed(2));
+};
+
+// Beregn overlap med brugerdefineret område
+const calculateAverageValuesForDrawnArea = (layer, areas) => {
+  const overlappingAreas = areas.filter((area) => {
+      const areaBounds = L.latLngBounds(area.bounds);
+
+      if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+          const drawnBounds = L.latLngBounds(layer.getLatLngs()[0]);
+          return areaBounds.overlaps(drawnBounds) || drawnBounds.contains(areaBounds);
+      } else if (layer instanceof L.Circle) {
+          const center = layer.getLatLng();
+          const radius = layer.getRadius();
+          return areaBounds.contains(center) || areaBounds.distanceTo(center) <= radius || areaBounds.within(layer.getBounds()); 
+      }
+      
+      return false;
+  });
+
+  const totalNatureValue = overlappingAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
+  const totalShannonIndex = overlappingAreas.reduce((acc, area) => acc + (area.shannonIndex || 0), 0);
+  const totalNDVI = overlappingAreas.reduce((acc, area) => acc + (area.ndvi || 0), 0);
+  const totalSoilQualityValue = overlappingAreas.reduce((acc, area) => acc + (area.soilQualityValue || 0), 0);
+  const averageNatureValue = overlappingAreas.length > 0 ? parseFloat((totalNatureValue / overlappingAreas.length).toFixed(2)) : 0;
+  const averageShannonIndex = overlappingAreas.length > 0 ? parseFloat((totalShannonIndex / overlappingAreas.length).toFixed(2)) : 0;
+  const averageNDVI = overlappingAreas.length > 0 ? parseFloat((totalNDVI / overlappingAreas.length).toFixed(2)) : 0;
+  const averageSoilQualityValue = overlappingAreas.length > 0 ? parseFloat((totalSoilQualityValue / overlappingAreas.length).toFixed(2)) : 0;
+
+  return {
+      natureValue: averageNatureValue,
+      shannonIndex: averageShannonIndex,
+      ndvi: averageNDVI,
+      soilQualityValue: averageSoilQualityValue,
+  };
+};
+
+const getColorForValue = (value, maxValue, activeLayer) => {
+  if (!activeLayer || value === null || value === undefined) return "green";
+  const ratio = value / maxValue;
+  return `rgb(${255 - ratio * 255}, ${255 - ratio * 100}, ${100 + ratio * 100})`; // Dynamisk RGB-farve
+};
 
 // Kortklik-håndteringskomponent
 const MapClickHandler = ({ isCreatingProject, setProjectLocation }) => {
@@ -77,39 +149,7 @@ function MapComponent({
   const featureGroupRef = useRef(null);
   
     
-  
-  
-    // For bug fixing. Delete later
-    // useEffect(() => {
-    //   console.log("isInsectMarkersVisible:", isInsectMarkersVisible);
-    // }, [isInsectMarkersVisible]);
     
-    // useEffect(() => {
-    //   console.log("Current Zoom Level:", zoomLevel);
-    // }, [zoomLevel]);
-  
-    // useEffect(() => {
-    //   console.log("MapComponent mounted. Project Markers Visibility:", isProjectMarkersVisible);
-    // }, [isProjectMarkersVisible]);
-  
-    // useEffect(() => {
-    //   console.log("Rendering Saved Areas:", savedAreas);
-    // }, [savedAreas]);
-  
-  
-    // Beregn kvadratets areal baseret på koordinaterne i bounds
-    const calculateAreaSize = (bounds) => {
-        if (!bounds || bounds.length !== 2) return 0;
-
-        const [southWest, northEast] = bounds;
-        const latDiff = Math.abs(northEast[0] - southWest[0]);
-        const lngDiff = Math.abs(northEast[1] - southWest[1]);
-        const latDistance = latDiff * 111320;
-        const lngDistance = lngDiff * 111320 * Math.cos(southWest[0] * (Math.PI / 180));
-
-        return parseFloat((latDistance * lngDistance).toFixed(2));
-    };
-
     // Håndter klik på rektangel
     const handleAreaClick = (area) => {
         rectangleClicked.current = true;
@@ -154,41 +194,6 @@ function MapComponent({
   }, [selectedAreas, setSelectedArea]);
   
 
-  // Beregn overlap med brugerdefineret område
-  const calculateAverageValuesForDrawnArea = (layer) => {
-    const overlappingAreas = areas.filter((area) => {
-        const areaBounds = L.latLngBounds(area.bounds);
-
-        if (layer instanceof L.Polygon || layer instanceof L.Rectangle) {
-            const drawnBounds = L.latLngBounds(layer.getLatLngs()[0]);
-            return areaBounds.overlaps(drawnBounds) || drawnBounds.contains(areaBounds);
-        } else if (layer instanceof L.Circle) {
-            const center = layer.getLatLng();
-            const radius = layer.getRadius();
-            return areaBounds.contains(center) || areaBounds.distanceTo(center) <= radius || areaBounds.within(layer.getBounds()); 
-        }
-        
-        return false;
-    });
-
-    const totalNatureValue = overlappingAreas.reduce((acc, area) => acc + (area.natureValue || 0), 0);
-    const totalShannonIndex = overlappingAreas.reduce((acc, area) => acc + (area.shannonIndex || 0), 0);
-    const totalNDVI = overlappingAreas.reduce((acc, area) => acc + (area.ndvi || 0), 0);
-    const totalSoilQualityValue = overlappingAreas.reduce((acc, area) => acc + (area.soilQualityValue || 0), 0);
-    const averageNatureValue = overlappingAreas.length > 0 ? parseFloat((totalNatureValue / overlappingAreas.length).toFixed(2)) : 0;
-    const averageShannonIndex = overlappingAreas.length > 0 ? parseFloat((totalShannonIndex / overlappingAreas.length).toFixed(2)) : 0;
-    const averageNDVI = overlappingAreas.length > 0 ? parseFloat((totalNDVI / overlappingAreas.length).toFixed(2)) : 0;
-    const averageSoilQualityValue = overlappingAreas.length > 0 ? parseFloat((totalSoilQualityValue / overlappingAreas.length).toFixed(2)) : 0;
-
-    return {
-        natureValue: averageNatureValue,
-        shannonIndex: averageShannonIndex,
-        ndvi: averageNDVI,
-        soilQualityValue: averageSoilQualityValue,
-    };
-};
-
-
     const onCreated = (e) => {
         const layer = e.layer;
         let areaSize = 0;
@@ -201,7 +206,7 @@ function MapComponent({
 
         const geom = layer.toGeoJSON().geometry;
       
-        const averages  = calculateAverageValuesForDrawnArea(layer);
+        const averages  = calculateAverageValuesForDrawnArea(layer, areas);
 
         setSelectedArea({
             name: "",
@@ -245,11 +250,7 @@ function MapComponent({
     return null;
   };
 
-  const getColorForValue = (value, maxValue) => {
-    if (!activeLayer || value === null || value === undefined) return "green";
-    const ratio = value / maxValue;
-    return `rgb(${255 - ratio * 255}, ${255 - ratio * 100}, ${100 + ratio * 100})`; // Dynamisk RGB-farve
-  };
+  
 
   const getMaxValue = () => {
     if (!activeLayer) return null; // Ingen lag valgt
@@ -352,47 +353,7 @@ function MapComponent({
               return null;
             })}
 
-
-
-
-        {/* {isSavedAreasVisible &&
-          savedAreas.map((area) => {
-            const geoJSONLayer = L.geoJSON(area.geom); // Konverter gemt geometri til GeoJSON
-            const bounds = geoJSONLayer.getBounds(); // Hent bounds fra GeoJSON
-            const isPolygon = area.geom.type === "Polygon";
-
-            return isPolygon ? (
-              <Polygon
-                key={area.id}
-                positions={geoJSONLayer.getLayers()[0].getLatLngs()} // Hent LatLngs fra GeoJSON
-                pathOptions={{ color: "red", weight: 2 }}
-              >
-                <Tooltip direction="top" offset={[0, -10]} opacity={1}>
-                  <div>
-                    <strong>{area.name}</strong>
-                    <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
-                    <p>Gennemsnitlig Naturværdi: {area.nature_value.toFixed(2)}</p>
-                  </div>
-                </Tooltip>
-              </Polygon>
-            ) : (
-              <Rectangle
-                key={area.id}
-                bounds={bounds} // Beregn bounds fra GeoJSON
-                pathOptions={{ color: "blue", weight: 1 }}
-              >
-                <Tooltip direction="top" offset={[0, -10]} opacity={1}>
-                  <div>
-                    <strong>{area.name}</strong>
-                    <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
-                    <p>Gennemsnitlig Naturværdi: {area.nature_value.toFixed(2)}</p>
-                  </div>
-                </Tooltip>
-              </Rectangle>
-            );
-          })} */}
-        
-
+      
         {zoomLevel > 8 && isProjectMarkersVisible && (
           <MarkerClusterGroup>
             {projectsData.map((project) => {
@@ -410,7 +371,7 @@ function MapComponent({
                     </Marker>
                   );
                 }
-                return null; // Spring markøren over hvis lat eller lng er undefined
+                return null; 
               })}
           </MarkerClusterGroup>
         )}
@@ -435,8 +396,7 @@ function MapComponent({
           areas.map((area) => {
             const isSelected = selectedAreas.some(selected => selected.id === area.id);
 
-            // Vælg værdi og beregn farve for aktivt lag
-            
+            // Vælg værdi og beregn farve for aktivt lag           
             activeLayer === "Shannon Index"
               ? area.shannonIndex
               : activeLayer === "NDVI"
@@ -455,7 +415,8 @@ function MapComponent({
                     ? "soilQualityValue"
                     : "natureValue"
                 ],
-                maxValue
+                maxValue,
+                activeLayer
               );
             
             return (
@@ -463,11 +424,11 @@ function MapComponent({
                 key={area.id}
                 bounds={area.bounds}
                 pathOptions={{
-                  color: isSelected ? "blue" : color, // Grænsefarve
-                  fillColor: isSelected ? "blue" : color, // Udfyldningsfarve
-                  fillOpacity: 0.5, // Øg farveintensiteten
-                  opacity: 0.5, // Grænsefarveintensitet
-                  weight: 0.3, // Kantens tykkelse
+                  color: isSelected ? "blue" : color, 
+                  fillColor: isSelected ? "blue" : color, 
+                  fillOpacity: 0.5, 
+                  opacity: 0.5, 
+                  weight: 0.3, 
                 }}
                 eventHandlers={{
                   click: (e) => {
@@ -493,7 +454,7 @@ function MapComponent({
                             ] || "Ingen data"}
                         </p>
                     ) : (
-                        <p>Naturværdi: {area.natureValue || "Ingen data"}</p> // Default til naturværdi
+                        <p>Naturværdi: {area.natureValue || "Ingen data"}</p> 
                     )}
                 </div>
                 </Tooltip>
@@ -528,25 +489,7 @@ function MapComponent({
   );
 }
 
-function DanishNamePopup({ data }) {
-  const [danishName, setDanishName] = useState("Henter dansk navn...");
 
-  useEffect(() => {
-      const fetchName = async () => {
-          const name = await fetchDanishName(data.species);
-          setDanishName(name);
-      };
-      fetchName();
-  }, [data.species]);
-
-  return (
-      <div>
-          <strong>Artsnavn (Latin):</strong> {data.species || "Ukendt"}<br />
-          <strong>Dansk navn:</strong> {danishName}<br />
-          <strong>Detektionsdato:</strong> {data.occurrence_date || "Ikke angivet"}
-      </div>
-  );
-}
 
 MapComponent.propTypes = {
     savedAreas: PropTypes.arrayOf(
@@ -554,7 +497,7 @@ MapComponent.propTypes = {
         id: PropTypes.number.isRequired,
         name: PropTypes.string.isRequired,
         nature_value: PropTypes.number.isRequired,
-        geom: PropTypes.object.isRequired, // GeoJSON-geometri som objekt
+        geom: PropTypes.object.isRequired, 
       })
     ).isRequired,
     isSavedAreasVisible: PropTypes.bool.isRequired,
