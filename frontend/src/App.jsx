@@ -31,8 +31,8 @@ function App() {
 
   const [selectedAreas, setSelectedAreas] = useState([]);
 
-  const [isSavedAreasVisible, setIsSavedAreasVisible] = useState(false); // Ny state
-  const [savedAreas, setSavedAreas] = useState([]); // Ny state til gemte områder
+  const [isSavedAreasVisible, setIsSavedAreasVisible] = useState(false); 
+  const [savedAreas, setSavedAreas] = useState([]);
 
   const [activeLayer, setActiveLayer] = useState(null);
 
@@ -48,14 +48,14 @@ function App() {
   // Funktion til at hente gemte områder
   const fetchSavedAreasInApp = async () => {
     try {
-        const areas = await fetchSavedAreas(1); // Brug userId = 1 (eller det relevante userId)
-        setSavedAreas(areas); // Opdater state med de hentede områder
+        const areas = await fetchSavedAreas(1); 
+        setSavedAreas(areas); 
     } catch (error) {
         console.error("Error fetching saved areas in App.jsx:", error);
     }
 };
 
-// Kaldes fx i useEffect:
+
 useEffect(() => {
     fetchSavedAreasInApp();
 }, []);
@@ -79,15 +79,15 @@ useEffect(() => {
 
   const fetchProjectsInApp = async () => {
     try {
-      const projects = await fetchProjects(); // Kald den eksterne funktion
-      setProjectsData(projects); // Opdater state
+      const projects = await fetchProjects();
+      setProjectsData(projects);
     } catch (error) {
       console.error("Error fetching projects in App.jsx:", error);
     }
   };
   
   useEffect(() => {
-    fetchProjectsInApp(); // Kald den opdaterede funktion
+    fetchProjectsInApp(); 
   }, []);
 
   const saveSelectedAreas = async () => {
@@ -120,17 +120,16 @@ useEffect(() => {
           coordinates: polygons.map((coords) => [coords]),
         };
       } else if (selectedArea?.geom) {
-        // Hvis det er en tegning, brug GeoJSON direkte
         geoJSON = selectedArea.geom;
       }
   
       console.log("Kombineret GeoJSON:", geoJSON);
   
-      // Brug den nye saveSelectedAreasAPI-funktion
-      await saveSelectedAreasAPI(geoJSON, selectedArea, 1); // userId = 1
+      
+      await saveSelectedAreasAPI(geoJSON, selectedArea, 1); 
       alert("Området blev gemt!");
       setSelectedAreas([]);
-      fetchSavedAreasInApp(); // Opdater listen over gemte områder
+      fetchSavedAreasInApp(); 
     } catch (error) {
       console.error("Fejl ved gemning af området:", error);
       alert("Noget gik galt. Prøv igen.");
@@ -145,11 +144,10 @@ useEffect(() => {
     }
   
     try {
-      // Brug den nye savePolygonAreasAPI-funktion
-      await savePolygonAreasAPI(selectedArea, 1); // userId = 1
+      await savePolygonAreasAPI(selectedArea, 1); 
       alert("Polygon blev gemt!");
-      setSelectedArea(null); // Nulstil valgt område
-      fetchSavedAreasInApp(); // Opdater liste over gemte områder
+      setSelectedArea(null); 
+      fetchSavedAreasInApp(); 
     } catch (error) {
       console.error("Fejl ved gemning af polygon:", error);
       alert("Noget gik galt. Prøv igen.");
@@ -159,10 +157,10 @@ useEffect(() => {
 
   const deleteSavedArea = async (areaId) => {
     try {
-      // Brug den centraliserede API-funktion
+      
       await deleteSavedAreaAPI(areaId);
   
-      // Opdater state efter sletning
+      
       setSavedAreas((prevSavedAreas) =>
         prevSavedAreas.filter((area) => area.id !== areaId)
       );
@@ -188,9 +186,9 @@ useEffect(() => {
   // Funktion til at oprette projekt
 const createProject = async (projectData) => {
   try {
-    await createProjectAPI(projectData); // Fjernet `const createdProject`
+    await createProjectAPI(projectData); 
     alert("Projekt blev oprettet!");
-    fetchProjectsInApp(); // Opdater listen af projekter
+    fetchProjectsInApp(); 
     setIsCreatingProject(false);
     setProjectLocation(null);
   } catch (error) {
@@ -205,7 +203,7 @@ const saveUpdatedProject = async (updatedData) => {
   try {
     await updateProjectAPI(selectedProject.id, updatedData);
     alert("Projekt blev opdateret!");
-    fetchProjectsInApp(); // Opdater listen af projekter
+    fetchProjectsInApp(); 
     setSelectedProject(null);
     setIsEditingProject(false);
   } catch (error) {
@@ -219,7 +217,7 @@ const handleDelete = async (projectId) => {
   try {
     await deleteProjectAPI(projectId);
     alert("Projekt blev slettet!");
-    fetchProjectsInApp(); // Opdater listen af projekter
+    fetchProjectsInApp(); 
   } catch (error) {
     console.error("Error deleting project:", error);
     alert("Noget gik galt. Prøv igen.");
@@ -255,14 +253,14 @@ const handleDelete = async (projectId) => {
           isProjectMarkersVisible={isProjectMarkersVisible} 
           toggleProjectMarkers={toggleProjectMarkers}
           startCreatingProject={startCreatingProject}
-          onSaveSelectedAreas={saveSelectedAreas} // Ny prop
-          selectedAreas={selectedAreas} // Ny prop
-          toggleSavedAreas={toggleSavedAreas} // Ny prop
-          isSavedAreasVisible={isSavedAreasVisible} // Ny prop
+          onSaveSelectedAreas={saveSelectedAreas} 
+          selectedAreas={selectedAreas} 
+          toggleSavedAreas={toggleSavedAreas} 
+          isSavedAreasVisible={isSavedAreasVisible} 
           savedAreas={savedAreas}
           deleteSavedArea={deleteSavedArea}
-          activeLayer={activeLayer} // Ny prop
-          setActiveLayer={setActiveLayer} // Ny prop
+          activeLayer={activeLayer} 
+          setActiveLayer={setActiveLayer} 
           onSavePolygonAreas={savePolygonAreas}
         />
 
@@ -280,10 +278,10 @@ const handleDelete = async (projectId) => {
             projectsData={projectsData}
             onUpdate={startEditingProject}
             onDelete={handleDelete}
-            selectedAreas={selectedAreas} // Ny prop
-            setSelectedAreas={setSelectedAreas} // Ny prop
-            savedAreas={savedAreas} // Ny prop
-            isSavedAreasVisible={isSavedAreasVisible} // Ny prop
+            selectedAreas={selectedAreas} 
+            setSelectedAreas={setSelectedAreas}
+            savedAreas={savedAreas} 
+            isSavedAreasVisible={isSavedAreasVisible} 
             activeLayer={activeLayer}
           />
         </div> 
