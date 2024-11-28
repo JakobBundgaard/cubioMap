@@ -12,7 +12,7 @@ import {
   createProjectAPI, 
   updateProjectAPI, 
   deleteProjectAPI  
-} from "./utils/api";
+} from "./services/api";
 
 
 function App() {
@@ -289,8 +289,8 @@ const handleDelete = async (projectId) => {
             projectLocation={projectLocation}
             onSave={createProject}
             onCancel={() => {
-            setProjectLocation(null);
-            setIsCreatingProject(false);
+              setProjectLocation(null);
+              setIsCreatingProject(false);
             }}
             style={{
               position: "fixed",
