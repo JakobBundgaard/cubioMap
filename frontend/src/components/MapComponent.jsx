@@ -12,6 +12,7 @@ import DanishNamePopup from "./DanishNamePopup";
 import { useMapData } from "../hooks/useMapData";
 import { calculateAreaSize, calculateAverageValuesForDrawnArea } from "../utils/areaCalculations";
 import { getColorForValue } from "../utils/colorUtils";
+import { getMaxValue } from "../utils/layerUtils";
 
 
 // Kortklik-håndteringskomponent
@@ -154,23 +155,8 @@ function MapComponent({
     return null;
   };
 
-  
 
-  const getMaxValue = () => {
-    if (!activeLayer) return null; // Ingen lag valgt
-    const values = areas.map((area) =>
-        activeLayer === "Shannon Index"
-            ? area.shannonIndex
-            : activeLayer === "NDVI"
-            ? area.ndvi
-            : activeLayer === "Jordkvalitet"
-            ? area.soilQualityValue
-            : area.natureValue
-    );
-    return Math.max(...values.filter((v) => v !== undefined && v !== null), 0); // Undgå NaN
-};
-
-  const maxValue = getMaxValue();
+  const maxValue = getMaxValue(areas, activeLayer);
 
     return (
       
