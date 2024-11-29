@@ -8,55 +8,9 @@ import PropTypes from 'prop-types';
 import "leaflet/dist/leaflet.css";
 import ProjectPopup from "./ProjectPopup";
 import SavedAreas from "./SavedAreas";
+import DanishNamePopup from "./DanishNamePopup";
 import { useMapData } from "../hooks/useMapData";
 
-
-async function fetchDanishName(scientificName) {
-  try {
-      const response = await fetch(`https://api.gbif.org/v1/species?name=${scientificName}`);
-      const data = await response.json();
-      
-      if (data.results && data.results.length > 0) {
-          const species = data.results[0];
-          
-          // Først, tjek om "vernacularName" findes direkte på rodeniveau
-          if (species.vernacularName) {
-              return species.vernacularName;
-          }
-          
-          // Hvis ikke, forsøg at finde det i "vernacularNames" listen
-          const vernacularNames = species.vernacularNames || [];
-          const danishNameEntry = vernacularNames.find(name => name.language === "dan");
-
-          return danishNameEntry ? danishNameEntry.vernacularName : "Dansk navn ikke tilgængeligt";
-      }
-      
-      return "Dansk navn ikke tilgængeligt";
-  } catch (error) {
-      console.error("Fejl ved hentning af dansk navn:", error);
-      return "Fejl ved API-opslag";
-  }
-}
-
-function DanishNamePopup({ data }) {
-  const [danishName, setDanishName] = useState("Henter dansk navn...");
-
-  useEffect(() => {
-      const fetchName = async () => {
-          const name = await fetchDanishName(data.species);
-          setDanishName(name);
-      };
-      fetchName();
-  }, [data.species]);
-
-  return (
-      <div>
-          <strong>Artsnavn (Latin):</strong> {data.species || "Ukendt"}<br />
-          <strong>Dansk navn:</strong> {danishName}<br />
-          <strong>Detektionsdato:</strong> {data.occurrence_date || "Ikke angivet"}
-      </div>
-  );
-}
 
 // Beregn kvadratets areal baseret på koordinaterne i bounds
 const calculateAreaSize = (bounds) => {
