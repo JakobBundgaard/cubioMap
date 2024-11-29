@@ -11,13 +11,8 @@ import SavedAreas from "./SavedAreas";
 import DanishNamePopup from "./DanishNamePopup";
 import { useMapData } from "../hooks/useMapData";
 import { calculateAreaSize, calculateAverageValuesForDrawnArea } from "../utils/areaCalculations";
+import { getColorForValue } from "../utils/colorUtils";
 
-
-const getColorForValue = (value, maxValue, activeLayer) => {
-  if (!activeLayer || value === null || value === undefined) return "green";
-  const ratio = value / maxValue;
-  return `rgb(${255 - ratio * 255}, ${255 - ratio * 100}, ${100 + ratio * 100})`; // Dynamisk RGB-farve
-};
 
 // Kortklik-håndteringskomponent
 const MapClickHandler = ({ isCreatingProject, setProjectLocation }) => {
