@@ -1,8 +1,8 @@
 import PropTypes from "prop-types";
 import { BsPencilSquare, BsBinoculars } from "react-icons/bs";
 import { TbPointerPlus } from "react-icons/tb";
-import { GoProjectSymlink } from "react-icons/go";
-import { FaRegFolderOpen } from "react-icons/fa";
+import { FiMapPin } from "react-icons/fi";
+import { TfiMapAlt } from "react-icons/tfi";
 
 const ActionButtons = ({
   isDrawActive,
@@ -40,18 +40,18 @@ const ActionButtons = ({
         <BsBinoculars size={24} />
       </div>
       <div
-        title="Vis projekter"
+        title="Vis markører"
         className={`cursor-pointer ${isProjectMarkersVisible ? "text-blue-500" : "hover:text-blue-500"}`}
         onClick={toggleProjectMarkers}
       >
-        <GoProjectSymlink size={24} />
+        <FiMapPin size={24} />
       </div>
       <div
         title="Vis Gemte Områder"
         className={`cursor-pointer ${isSavedAreasVisible ? "text-blue-500" : "hover:text-blue-500"}`}
         onClick={toggleSavedAreas}
       >
-        <FaRegFolderOpen size={24} />
+        <TfiMapAlt size={24} />
       </div>
     </div>
   );
