@@ -37,7 +37,6 @@ function MapComponent({
   isInsectMarkersVisible,
   isProjectMarkersVisible,
   isCreatingProject, 
-  setIsCreatingProject,
   setProjectLocation,
   projectsData,
   onUpdate,
@@ -174,7 +173,7 @@ function MapComponent({
         <MapClickHandler
             isCreatingProject={isCreatingProject}
             setProjectLocation={setProjectLocation}
-            setIsCreatingProject={setIsCreatingProject}
+            // setIsCreatingProject={setIsCreatingProject}
           />
 
         <ZoomWatcher />
@@ -230,7 +229,7 @@ function MapComponent({
               ? area.ndvi
               : activeLayer === "Jordkvalitet"
               ? area.soilQualityValue
-              : area.natureValue; // Default til Naturværdi
+              : area.natureValue; 
 
               const color = getColorForValue(
                 area[
@@ -334,7 +333,6 @@ MapComponent.propTypes = {
     isInsectMarkersVisible: PropTypes.bool.isRequired,
     isProjectMarkersVisible: PropTypes.bool.isRequired,
     isCreatingProject: PropTypes.bool.isRequired,
-    setIsCreatingProject: PropTypes.func.isRequired,
     setProjectLocation: PropTypes.func.isRequired,
     projectsData: PropTypes.array.isRequired,
     onUpdate: PropTypes.func.isRequired,
@@ -355,7 +353,6 @@ DanishNamePopup.propTypes = {
 MapClickHandler.propTypes = {
   isCreatingProject: PropTypes.bool.isRequired,
   setProjectLocation: PropTypes.func.isRequired,
-  setIsCreatingProject: PropTypes.func.isRequired,
 };
 
 export default MapComponent;

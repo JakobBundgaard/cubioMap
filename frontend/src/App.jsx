@@ -1,40 +1,47 @@
 import MapComponent from "./components/MapComponent";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
-import { useState, useEffect } from "react";
 import ProjectForm from "./components/ProjectForm";
+import { useState, useEffect } from "react";
+import { useProjects } from "./hooks/useProjects";
 import {
   fetchSavedAreas,
-  fetchProjects,
   saveSelectedAreasAPI,
   savePolygonAreasAPI,
   deleteSavedAreaAPI,
-  createProjectAPI, 
-  updateProjectAPI, 
-  deleteProjectAPI  
 } from "./services/api";
 
 
 function App() {
+  // State for områder og lag
   const [selectedArea, setSelectedArea] = useState(null);
   const [isMultiSelectActive, setIsMultiSelectActive] = useState(false);
   const [isDrawActive, setIsDrawActive] = useState(false);
   const [isInsectMarkersVisible, setIsInsectMarkersVisible] = useState(false);
   const [isProjectMarkersVisible, setIsProjectMarkersVisible] = useState(false);
 
-  const [isCreatingProject, setIsCreatingProject] = useState(false);
-  const [projectLocation, setProjectLocation] = useState(null);
-  const [projectsData, setProjectsData] = useState([]);
 
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [isEditingProject, setIsEditingProject] = useState(false);
-
+  // Gemte områder
   const [selectedAreas, setSelectedAreas] = useState([]);
-
   const [isSavedAreasVisible, setIsSavedAreasVisible] = useState(false); 
   const [savedAreas, setSavedAreas] = useState([]);
-
   const [activeLayer, setActiveLayer] = useState(null);
+
+  // Projektrelateret logik
+  const {
+    projectsData,
+    selectedProject,
+    isEditingProject, 
+    isCreatingProject, 
+    projectLocation, 
+    setProjectLocation, 
+    createProject,
+    saveUpdatedProject, 
+    deleteProject, 
+    startCreatingProject, 
+    startEditingProject, 
+    cancelEditingProject, 
+  } = useProjects();
 
   useEffect(() => {
     console.log("isCreatingProject ændret til:", isCreatingProject);
@@ -153,82 +160,7 @@ useEffect(() => {
     setIsProjectMarkersVisible(!isProjectMarkersVisible);
   };
 
-  const fetchProjectsInApp = async () => {
-    try {
-      const projects = await fetchProjects();
-      setProjectsData(projects);
-    } catch (error) {
-      console.error("Error fetching projects in App.jsx:", error);
-    }
-  };
-
-  // Funktion til at oprette projekt
-const createProject = async (projectData) => {
-  try {
-    await createProjectAPI(projectData); 
-    alert("Projekt blev oprettet!");
-    fetchProjectsInApp(); 
-    setIsCreatingProject(false);
-    setProjectLocation(null);
-  } catch (error) {
-    console.error("Error creating project:", error);
-    alert("Noget gik galt. Prøv igen.");
-  }
-};
-  
-  useEffect(() => {
-    fetchProjectsInApp(); 
-  }, []);
-
-  
-  const startCreatingProject = () => {
-    setIsCreatingProject(true);
-    setProjectLocation(null);
-  };
-
-  // Funktion til at starte redigering
-  const startEditingProject = (project) => {
-    setSelectedProject(project);
-    setIsEditingProject(true);
-  };
-
-  
-
-  // Funktion til at opdatere projekt
-const saveUpdatedProject = async (updatedData) => {
-  if (!selectedProject) return;
-  try {
-    await updateProjectAPI(selectedProject.id, updatedData);
-    alert("Projekt blev opdateret!");
-    fetchProjectsInApp(); 
-    setSelectedProject(null);
-    setIsEditingProject(false);
-  } catch (error) {
-    console.error("Error updating project:", error);
-    alert("Noget gik galt. Prøv igen.");
-  }
-  };
-  
-    // Funktion til at slette projekt
-const handleDelete = async (projectId) => {
-  try {
-    await deleteProjectAPI(projectId);
-    alert("Projekt blev slettet!");
-    fetchProjectsInApp(); 
-  } catch (error) {
-    console.error("Error deleting project:", error);
-    alert("Noget gik galt. Prøv igen.");
-  }
-};
-
-  // Funktion til at annullere redigering
-  const cancelEditingProject = () => {
-    setSelectedProject(null);
-    setIsEditingProject(false);
-  };
-
-
-
+ 
   useEffect(() => {
     console.log("Updated projectLocation in App:", projectLocation);
   }, [projectLocation]);
@@ -270,11 +202,10 @@ const handleDelete = async (projectId) => {
             isInsectMarkersVisible={isInsectMarkersVisible}
             isProjectMarkersVisible={isProjectMarkersVisible}
             isCreatingProject={isCreatingProject} 
-            setIsCreatingProject={setIsCreatingProject}  
             setProjectLocation={setProjectLocation}
             projectsData={projectsData}
             onUpdate={startEditingProject}
-            onDelete={handleDelete}
+            onDelete={deleteProject}
             selectedAreas={selectedAreas} 
             setSelectedAreas={setSelectedAreas}
             savedAreas={savedAreas} 
@@ -289,8 +220,8 @@ const handleDelete = async (projectId) => {
             projectLocation={projectLocation}
             onSave={createProject}
             onCancel={() => {
-              setProjectLocation(null);
-              setIsCreatingProject(false);
+              cancelEditingProject(); 
+              setProjectLocation(null); 
             }}
             style={{
               position: "fixed",
