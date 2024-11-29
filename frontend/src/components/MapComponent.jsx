@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { MapContainer, TileLayer, Rectangle, Tooltip, FeatureGroup, Marker, Popup, Polygon, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, Rectangle, Tooltip, FeatureGroup, Marker, Popup, useMapEvents } from "react-leaflet";
 import { EditControl } from "react-leaflet-draw";
 import MarkerClusterGroup from "react-leaflet-markercluster";
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -7,6 +7,7 @@ import * as L from "leaflet";
 import PropTypes from 'prop-types';
 import "leaflet/dist/leaflet.css";
 import ProjectPopup from "./ProjectPopup";
+import SavedAreas from "./SavedAreas";
 import { useMapData } from "../hooks/useMapData";
 
 
@@ -289,70 +290,7 @@ function MapComponent({
 
         <ZoomWatcher />
         <MapClickListener />
-
-        {isSavedAreasVisible &&
-            savedAreas.map((area) => {
-              let geomData;
-              try {
-                // Hvis geom allerede er et objekt, brug det direkte
-                geomData = typeof area.geom === "string" ? JSON.parse(area.geom) : area.geom;
-              } catch (error) {
-                console.error("Fejl ved parsing af geom:", error);
-                return null;
-              }
-
-              // Check om geomData er gyldig
-              if (!geomData || !geomData.type) {
-                console.error("Ugyldig geomData:", geomData);
-                return null;
-              }
-
-              let geoJSONLayer;
-              try {
-                geoJSONLayer = L.geoJSON(geomData);
-              } catch (error) {
-                console.error("Fejl ved oprettelse af geoJSONLayer:", error);
-                return null;
-              }
-
-              const layers = geoJSONLayer.getLayers();
-              if (!layers || layers.length === 0) {
-                console.error("Ingen lag fundet i geoJSONLayer:", geoJSONLayer);
-                return null;
-              }
-
-              const firstLayer = layers[0]; // Hent første lag
-              const geometryType = firstLayer.feature?.geometry?.type;
-
-              if (!geometryType) {
-                console.error("Geometry type er ikke defineret:", firstLayer.feature);
-                return null;
-              }
-
-              const positions = firstLayer.getLatLngs();
-
-              if (geometryType === "Polygon" || geometryType === "MultiPolygon") {
-                return (
-                  <Polygon
-                    key={area.id}
-                    positions={positions} // Brug LatLngs fra GeoJSON
-                    pathOptions={{ color: "blue", weight: 2 }}
-                  >
-                    <Tooltip direction="top" offset={[0, -10]} opacity={1}>
-                      <div>
-                        <strong>{area.name}</strong>
-                        <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
-                        <p>Gennemsnitlig Naturværdi: {area.nature_value.toFixed(2)}</p>
-                      </div>
-                    </Tooltip>
-                  </Polygon>
-                );
-              }
-
-              console.warn("Ugyldig geometri-type fundet:", geometryType);
-              return null;
-            })}
-
+        <SavedAreas savedAreas={savedAreas} isSavedAreasVisible={isSavedAreasVisible} />
       
         {zoomLevel > 8 && isProjectMarkersVisible && (
           <MarkerClusterGroup>
