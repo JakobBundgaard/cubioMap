@@ -4,6 +4,7 @@ import Sidebar from "./components/Sidebar";
 import ProjectForm from "./components/ProjectForm";
 import { useState, useEffect } from "react";
 import { useProjects } from "./hooks/useProjects";
+import { useToggles } from "./hooks/useToggles";
 import {
   fetchSavedAreas,
   saveSelectedAreasAPI,
@@ -17,13 +18,10 @@ function App() {
   const [selectedArea, setSelectedArea] = useState(null);
   const [isMultiSelectActive, setIsMultiSelectActive] = useState(false);
   const [isDrawActive, setIsDrawActive] = useState(false);
-  const [isInsectMarkersVisible, setIsInsectMarkersVisible] = useState(false);
-  const [isProjectMarkersVisible, setIsProjectMarkersVisible] = useState(false);
-
+  
 
   // Gemte områder
   const [selectedAreas, setSelectedAreas] = useState([]);
-  const [isSavedAreasVisible, setIsSavedAreasVisible] = useState(false); 
   const [savedAreas, setSavedAreas] = useState([]);
   const [activeLayer, setActiveLayer] = useState(null);
 
@@ -43,7 +41,17 @@ function App() {
     cancelEditingProject, 
   } = useProjects();
 
-  
+  // Toggle logik
+  const {
+    isSavedAreasVisible,
+    isInsectMarkersVisible,
+    isProjectMarkersVisible,
+    toggleSavedAreas,
+    toggleInsectMarkers,
+    toggleProjectMarkers,
+  } = useToggles();
+
+
   // Funktion til at hente gemte områder
   const fetchSavedAreasInApp = async () => {
     try {
@@ -123,13 +131,6 @@ useEffect(() => {
 }, []);
 
 
-  // Toggle-funktion
-  const toggleSavedAreas = () => {
-    setIsSavedAreasVisible((prev) => !prev);
-    if (!isSavedAreasVisible) {
-      fetchSavedAreasInApp();
-    }
-  };
 
   const deleteSavedArea = async (areaId) => {
     try {      
@@ -144,18 +145,6 @@ useEffect(() => {
     }
   };
 
-  const toggleInsectMarkers = () => {
-    setIsInsectMarkersVisible(!isInsectMarkersVisible);
-  };
-
-  const toggleProjectMarkers = () => {
-    setIsProjectMarkersVisible(!isProjectMarkersVisible);
-  };
-
- 
-  useEffect(() => {
-    console.log("Updated projectLocation in App:", projectLocation);
-  }, [projectLocation]);
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
