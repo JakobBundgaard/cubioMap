@@ -43,15 +43,7 @@ function App() {
     cancelEditingProject, 
   } = useProjects();
 
-  useEffect(() => {
-    console.log("isCreatingProject ændret til:", isCreatingProject);
-  }, [isCreatingProject]);
-
-  useEffect(() => {
-    console.log("Saved Areas:", savedAreas);
-    console.log("Saved Areas Visibility:", isSavedAreasVisible);
-  }, [savedAreas, isSavedAreasVisible]);
-
+  
   // Funktion til at hente gemte områder
   const fetchSavedAreasInApp = async () => {
     try {
