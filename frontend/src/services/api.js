@@ -1,4 +1,3 @@
-// services/api.js
 import { parse as parseWKT } from "terraformer-wkt-parser";
 import { parseLocation } from "../utils/wktUtils"; // Opdateret sti, så den matcher strukturen
 

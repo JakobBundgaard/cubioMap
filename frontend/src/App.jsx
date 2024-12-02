@@ -192,18 +192,6 @@ useEffect(() => {
     }
 };
 
-  // const handleCreateAreaProject = async (formData) => {
-  //   try {
-  //     console.log("FormData sent to API:", Object.fromEntries(formData.entries()));
-  //     await createAreaProjectAPI(formData);
-  //     alert("Projekt blev oprettet!");
-  //     cancelCreatingAreaProject();
-  //     fetchSavedAreasInApp();
-  //   } catch (error) {
-  //     console.error("Fejl ved oprettelse af projekt:", error);
-  //     alert("Noget gik galt. Prøv igen.");
-  //   }
-  // };
 
   useEffect(() => {
     fetchSavedAreasAndProjects();
@@ -263,8 +251,8 @@ const deleteAreaProject = async (projectId) => {
   };
   
   const startEditingAreaProject = (project) => {
-    setEditingAreaProject(project); // Sæt det projekt, der skal redigeres
-    setIsEditingAreaProject(true); // Angiv, at vi redigerer et projekt
+    setEditingAreaProject(project); 
+    setIsEditingAreaProject(true); 
   };
   
 
@@ -392,39 +380,37 @@ const deleteAreaProject = async (projectId) => {
           />
         )}
 
-{isEditingAreaProject && editingAreaProject && (
-  <AreaProjectForm
-    project={editingAreaProject} // Send det projekt, der skal redigeres
-    selectedArea={savedAreas.find((area) =>
-      area.projects.some((proj) => proj.id === editingAreaProject.id)
-    )} // Find det område, projektet tilhører
-    onSave={async (updatedData) => {
-      await updateAreaProject(editingAreaProject.id, updatedData);
-      setIsEditingAreaProject(false); // Luk formularen efter gem
-      setEditingAreaProject(null); // Nulstil det redigerede projekt
-    }}
-    onCancel={() => {
-      setIsEditingAreaProject(false); // Luk formularen
-      setEditingAreaProject(null); // Nulstil
-    }}
-    initiatedBy={1} // Send user_id eller anden relevant data
-    style={{
-      position: "fixed",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      backgroundColor: "white",
-      padding: "20px",
-      border: "1px solid #ccc",
-      zIndex: 10000,
-      width: "400px",
-      maxHeight: "80vh",
-      overflowY: "auto",
-    }}
-  />
-)}
-
-
+        {isEditingAreaProject && editingAreaProject && (
+          <AreaProjectForm
+            project={editingAreaProject} 
+            selectedArea={savedAreas.find((area) =>
+              area.projects.some((proj) => proj.id === editingAreaProject.id)
+            )} 
+            onSave={async (updatedData) => {
+              await updateAreaProject(editingAreaProject.id, updatedData);
+              setIsEditingAreaProject(false); 
+              setEditingAreaProject(null);
+            }}
+            onCancel={() => {
+              setIsEditingAreaProject(false); 
+              setEditingAreaProject(null); 
+            }}
+            initiatedBy={1} 
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "white",
+              padding: "20px",
+              border: "1px solid #ccc",
+              zIndex: 10000,
+              width: "400px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          />
+        )}
       </div>
     </div>
   )

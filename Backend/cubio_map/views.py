@@ -60,7 +60,7 @@ class AreaProjectViewSet(viewsets.ModelViewSet):
         """
         Returnér alle projekter relateret til et bestemt område.
         """
-        area_id = request.query_params.get('area_id')  # Hent area_id fra URL
+        area_id = request.query_params.get('area_id')  
         if not area_id:
             return Response({"error": "area_id is required"}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -78,7 +78,7 @@ class AreaProjectViewSet(viewsets.ModelViewSet):
 class UserSelectedAreaViewSet(viewsets.ModelViewSet):
     queryset = UserSelectedArea.objects.all()
     serializer_class = UserSelectedAreaSerializer
-    permission_classes = [AllowAny]  # Midlertidig, indtil autentifikation er på plads
+    permission_classes = [AllowAny]  
 
     def create(self, request, *args, **kwargs):
         """
@@ -107,9 +107,7 @@ class UserSelectedAreaViewSet(viewsets.ModelViewSet):
             if not name:
                 existing_count = UserSelectedArea.objects.filter(user_id=user_id or 1).count() + 1
                 name = f"Brugerdefineret område {existing_count}"
-            # if not name:
-            #     next_id = UserSelectedArea.objects.count() + 1
-            #     name = f"Område {next_id}"
+           
 
             # Gem det nye brugerdefinerede område
             user_area = UserSelectedArea.objects.create(
@@ -199,57 +197,3 @@ class UserSelectedAreaViewSet(viewsets.ModelViewSet):
             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class UserSelectedAreaViewSet(viewsets.ModelViewSet):
-#     queryset = UserSelectedArea.objects.all()
-#     serializer_class = UserSelectedAreaSerializer
-#     permission_classes = [AllowAny]  # Midlertidig, indtil autentifikation er på plads
-
-#     def create(self, request, *args, **kwargs):
-#         geom_data = request.data.get('geom', None)
-#         user_id = request.data.get('user_id', None)
-#         name = request.data.get('name')
-#         nature_value = request.data.get('natureValue', 0)
-#         area_size = request.data.get('areaSize', 0)
-
-#         if not geom_data:
-#             return Response({"error": "No geometry provided"}, status=status.HTTP_400_BAD_REQUEST)
-
-#         try:
-#             # Opret geometri som MultiPolygon
-#             combined_geom = GEOSGeometry(geom_data)
-#             if combined_geom.geom_type != "MultiPolygon":
-#                 combined_geom = MultiPolygon(combined_geom)  # Konverter til MultiPolygon hvis nødvendigt
-
-#             # Hvis navn ikke er angivet, generér det
-#             if not name:
-#                 next_id = UserSelectedArea.objects.count() + 1
-#                 name = f"Område {next_id}"
-
-#             # Gem det samlede område
-#             user_area = UserSelectedArea.objects.create(
-#                 name=name,
-#                 nature_value=nature_value,
-#                 area_size=area_size,
-#                 geom=combined_geom,
-#                 user_id=user_id or 1,  # Standard user_id hvis ikke angivet
-#             )
-#             serializer = self.get_serializer(user_area)
-#             return Response(serializer.data, status=status.HTTP_201_CREATED)
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-#     @action(detail=False, methods=['get'])
-#     def by_user(self, request, *args, **kwargs):
-#         """
-#         Hent alle gemte områder for en specifik bruger baseret på user_id.
-#         """
-#         user_id = request.query_params.get('user_id', 1)  # Default user_id = 1
-#         if not user_id:
-#             return Response({"error": "user_id is required"}, status=status.HTTP_400_BAD_REQUEST)
-
-#         try:
-#             areas = UserSelectedArea.objects.filter(user_id=user_id)
-#             serializer = self.get_serializer(areas, many=True)
-#             return Response(serializer.data, status=status.HTTP_200_OK)
-#         except Exception as e:
-#             return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)

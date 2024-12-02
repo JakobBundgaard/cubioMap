@@ -1,4 +1,3 @@
-// AreaDetails.jsx
 import PropTypes from "prop-types";
 
 function AreaDetails({ selectedArea }) {
