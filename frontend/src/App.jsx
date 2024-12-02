@@ -167,16 +167,38 @@ useEffect(() => {
   // Håndter oprettelse af projekt tilknyttet område
   const handleCreateAreaProject = async (formData) => {
     try {
-      console.log("FormData sent to API:", Object.fromEntries(formData.entries()));
-      await createAreaProjectAPI(formData);
-      alert("Projekt blev oprettet!");
-      cancelCreatingAreaProject();
-      fetchSavedAreasInApp();
+        console.log("FormData sent to API:", Object.fromEntries(formData.entries()));
+        const newProject = await createAreaProjectAPI(formData); // Antager, at denne returnerer det oprettede projekt
+        alert("Projekt blev oprettet!");
+
+        // Find det rigtige område i savedAreas
+        setSavedAreas((prevSavedAreas) =>
+            prevSavedAreas.map((area) =>
+                area.id === newProject.area
+                    ? { ...area, projects: [...(area.projects || []), newProject] }
+                    : area
+            )
+        );
+
+        cancelCreatingAreaProject(); // Luk formularen
     } catch (error) {
-      console.error("Fejl ved oprettelse af projekt:", error);
-      alert("Noget gik galt. Prøv igen.");
+        console.error("Fejl ved oprettelse af projekt:", error);
+        alert("Noget gik galt. Prøv igen.");
     }
-  };
+};
+
+  // const handleCreateAreaProject = async (formData) => {
+  //   try {
+  //     console.log("FormData sent to API:", Object.fromEntries(formData.entries()));
+  //     await createAreaProjectAPI(formData);
+  //     alert("Projekt blev oprettet!");
+  //     cancelCreatingAreaProject();
+  //     fetchSavedAreasInApp();
+  //   } catch (error) {
+  //     console.error("Fejl ved oprettelse af projekt:", error);
+  //     alert("Noget gik galt. Prøv igen.");
+  //   }
+  // };
 
   useEffect(() => {
     fetchSavedAreasAndProjects();
