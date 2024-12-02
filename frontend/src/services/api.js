@@ -40,6 +40,14 @@ export const apiPost = async (endpoint, body, isFormData = false) => {
     }
   
     const response = await fetch(`${BASE_URL}${endpoint}`, options);
+
+    // Fejlhåndtering for bedre logs
+    if (!response.ok) {
+        const errorDetails = await response.json();
+        console.error(`Error from server:`, errorDetails); // Log serverens fejl
+        throw new Error(errorDetails.detail || "API error"); // Returner fejl
+    }
+
     return handleResponse(response);
   };
 

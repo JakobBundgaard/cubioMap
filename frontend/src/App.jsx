@@ -156,7 +156,11 @@ useEffect(() => {
     setIsCreatingAreaProject(true);
   };
 
-  const cancelCreatingAreaProject = () => {
+  const cancelCreatingAreaProject = (area) => {
+    if (!area || !area.id) {
+      alert("Området er ugyldigt eller mangler ID.");
+      return;
+  }
     setIsCreatingAreaProject(false);
     setSelectedAreaProject(null);
   };
@@ -164,6 +168,7 @@ useEffect(() => {
   // Håndter oprettelse af projekt tilknyttet område
   const handleCreateAreaProject = async (formData) => {
     try {
+      console.log("FormData sent to API:", Object.fromEntries(formData.entries()));
       await createAreaProjectAPI(formData);
       alert("Projekt blev oprettet!");
       cancelCreatingAreaProject();
@@ -277,6 +282,7 @@ useEffect(() => {
             selectedArea={selectedAreaProject}
             onSave={handleCreateAreaProject}
             onCancel={cancelCreatingAreaProject}
+            initiatedBy={1} 
             style={{
               position: "fixed",
               top: "50%",

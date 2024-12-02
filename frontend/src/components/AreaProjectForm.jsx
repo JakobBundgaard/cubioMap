@@ -1,17 +1,17 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
 
-function AreaProjectForm({ project, selectedArea, onSave, onCancel }) {
-    console.log("Received props:", { project, selectedArea }); 
-  const [formData, setFormData] = useState({
-    name: project?.name || "",
-    description: project?.description || "",
-    status: project?.status || "planned",
-    dateInitiated: project?.date_initiated || "",
-    expectedDuration: project?.expected_duration || "",
-    image: null,
-    area: selectedArea?.id || null, // Relateret område
-  });
+function AreaProjectForm({ project, selectedArea, onSave, onCancel, initiatedBy }) {
+    console.log("Received props:", { project, selectedArea, initiatedBy }); 
+    const [formData, setFormData] = useState({
+        name: project?.name || "",
+        description: project?.description || "",
+        status: project?.status || "planned",
+        dateInitiated: project?.date_initiated || "",
+        expectedDuration: project?.expected_duration || "",
+        image: null,
+        area: selectedArea?.id || null, // Relateret område
+    });
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
@@ -29,7 +29,8 @@ function AreaProjectForm({ project, selectedArea, onSave, onCancel }) {
     data.append("status", formData.status);
     data.append("date_initiated", formData.dateInitiated);
     data.append("expected_duration", formData.expectedDuration);
-    data.append("area", formData.area);
+      data.append("area", formData.area);
+      data.append("initiated_by", initiatedBy);
     if (formData.image) {
       data.append("image", formData.image);
       }
@@ -147,7 +148,8 @@ AreaProjectForm.propTypes = {
   project: PropTypes.object,
   selectedArea: PropTypes.object.isRequired,
   onSave: PropTypes.func.isRequired,
-  onCancel: PropTypes.func.isRequired,
+    onCancel: PropTypes.func.isRequired,
+    initiatedBy: PropTypes.number.isRequired,
 };
 
 export default AreaProjectForm;
