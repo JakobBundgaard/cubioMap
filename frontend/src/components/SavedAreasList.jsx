@@ -9,7 +9,7 @@ function SavedAreasList({
     savedAreas,
     deleteSavedArea,
     startCreatingAreaProject,
-    updateAreaProject,
+    startEditingAreaProject,
     deleteAreaProject,
 }) {
     
@@ -77,20 +77,12 @@ function SavedAreasList({
                           </p>
                         </div>
                         <div className="flex items-center space-x-2">
-                          <button
-                            className="bg-yellow-500 hover:bg-yellow-600 text-white py-1 px-3 rounded-md text-xs"
-                            onClick={() =>
-                              updateAreaProject(project.id, {
-                                ...project,
-                                status:
-                                  project.status === "planned"
-                                    ? "in_progress"
-                                    : "completed",
-                              })
-                            }
-                          >
-                            {project.status === "planned" ? "Start" : "Afslut"}
-                          </button>
+                        <button
+    className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md text-xs"
+    onClick={() => startEditingAreaProject(project)} // Åbn redigeringsformular
+  >
+    Rediger
+  </button>
                           <GoTrash
                             onClick={() => {
                               if (
@@ -221,7 +213,7 @@ SavedAreasList.propTypes = {
   savedAreas: PropTypes.array.isRequired,
     deleteSavedArea: PropTypes.func.isRequired,
     startCreatingAreaProject: PropTypes.func.isRequired,
-    updateAreaProject: PropTypes.func.isRequired,
+    startEditingAreaProject: PropTypes.func.isRequired,
   deleteAreaProject: PropTypes.func.isRequired,
 };
 

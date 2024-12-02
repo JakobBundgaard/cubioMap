@@ -223,14 +223,27 @@ const fetchSavedAreasAndProjects = async () => {
 };
 
 const updateAreaProject = async (projectId, updatedData) => {
-    try {
-        await updateAreaProjectAPI(projectId, updatedData);
-        alert("Projekt opdateret!");
-        fetchSavedAreasAndProjects();
-    } catch (error) {
-        console.error("Fejl ved opdatering af projekt:", error);
-        alert("Noget gik galt. Prøv igen.");
-    }
+  try {
+    const updatedProject = await updateAreaProjectAPI(projectId, updatedData);
+    alert("Projekt opdateret!");
+
+    // Opdater state direkte efter en vellykket opdatering
+    setSavedAreas((prevSavedAreas) =>
+      prevSavedAreas.map((area) =>
+        area.id === updatedProject.area
+          ? {
+              ...area,
+              projects: area.projects.map((project) =>
+                project.id === updatedProject.id ? updatedProject : project
+              ),
+            }
+          : area
+      )
+    );
+  } catch (error) {
+    console.error("Fejl ved opdatering af projekt:", error);
+    alert("Noget gik galt. Prøv igen.");
+  }
 };
 
 const deleteAreaProject = async (projectId) => {
@@ -242,7 +255,12 @@ const deleteAreaProject = async (projectId) => {
         console.error("Fejl ved sletning af projekt:", error);
         alert("Noget gik galt. Prøv igen.");
     }
-};
+  };
+  
+  const startEditingAreaProject = (project) => {
+    setSelectedProject(project); // Antag at du bruger `selectedProject` fra state
+    setIsEditingProject(true); // Angiv, at vi redigerer projektet
+  };
 
 
 
