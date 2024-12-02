@@ -1,7 +1,7 @@
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from .models import Area, GBIFData, EnhancedCubioArea, Project, UserSelectedArea
-from .serializers import AreaSerializer, GBIFDataSerializer, EnhancedCubioAreaSerializer, ProjectSerializer, UserSelectedAreaSerializer
+from .models import Area, GBIFData, EnhancedCubioArea, Project, UserSelectedArea, AreaProject
+from .serializers import AreaSerializer, GBIFDataSerializer, EnhancedCubioAreaSerializer, ProjectSerializer, UserSelectedAreaSerializer, AreaProjectSerializer
 from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
@@ -28,6 +28,29 @@ class ProjectViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         print("FILES:", request.FILES)  # Debugging
         return super().create(request, *args, **kwargs)
+
+
+class AreaProjectViewSet(viewsets.ModelViewSet):
+    queryset = AreaProject.objects.all()
+    serializer_class = AreaProjectSerializer
+
+    def create(self, request, *args, **kwargs):
+        # Debugging uploadede filer
+        print("FILES:", request.FILES)
+        print("DATA:", request.data)
+
+        # Validering af område-id
+        area_id = request.data.get('area')
+        if not Area.objects.filter(id=area_id).exists():
+            return Response({"error": "Invalid area ID"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Indstil en standardstatus, hvis den ikke er angivet
+        if not request.data.get('status'):
+            request.data['status'] = 'Pending'  # Standardstatus
+
+        # Opret nyt projekt
+        return super().create(request, *args, **kwargs)
+
 
 
 class UserSelectedAreaViewSet(viewsets.ModelViewSet):

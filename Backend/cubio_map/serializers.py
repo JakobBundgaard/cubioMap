@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Area, GBIFData, EnhancedCubioArea, Project, UserSelectedArea
+from .models import Area, GBIFData, EnhancedCubioArea, Project, UserSelectedArea, AreaProject
 
 class AreaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -35,3 +35,17 @@ class UserSelectedAreaSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSelectedArea
         fields = ['id', 'name', 'nature_value', 'area_size', 'geom', 'user_id']
+
+class AreaProjectSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = AreaProject
+        fields = ['id', 'name', 'description', 'area', 'image', 'image_url', 'initiated_by', 'status', 'date_initiated', 'expected_duration']
+
+    def get_image_url(self, obj):
+        request = self.context.get('request')  # Brug request-objektet til at bygge den fulde URL
+        if obj.image:
+            return request.build_absolute_uri(obj.image.url)
+        return None
+
