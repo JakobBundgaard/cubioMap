@@ -78,11 +78,11 @@ function SavedAreasList({
                         </div>
                         <div className="flex items-center space-x-2">
                         <button
-    className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md text-xs"
-    onClick={() => startEditingAreaProject(project)} // Åbn redigeringsformular
-  >
-    Rediger
-  </button>
+                            className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md text-xs"
+                            onClick={() => startEditingAreaProject(project)} // Åbn redigeringsformular
+                        >
+                            Rediger
+                        </button>
                           <GoTrash
                             onClick={() => {
                               if (

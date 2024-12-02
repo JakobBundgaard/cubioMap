@@ -26,7 +26,7 @@ function Sidebar({
   setActiveLayer,
   onSavePolygonAreas,
   startCreatingAreaProject,
-  updateAreaProject,
+  startEditingAreaProject,
   deleteAreaProject,
 }) {
   return (
@@ -90,7 +90,7 @@ function Sidebar({
             savedAreas={savedAreas}
             deleteSavedArea={deleteSavedArea}
             startCreatingAreaProject={startCreatingAreaProject}
-            updateAreaProject={updateAreaProject}
+            startEditingAreaProject={startEditingAreaProject}
             deleteAreaProject={deleteAreaProject}
           />
         )}
@@ -165,7 +165,7 @@ Sidebar.propTypes = {
   setActiveLayer: PropTypes.func.isRequired,
   onSavePolygonAreas: PropTypes.func.isRequired,
   startCreatingAreaProject: PropTypes.func.isRequired,
-  updateAreaProject: PropTypes.func.isRequired,
+  startEditingAreaProject: PropTypes.func.isRequired,
   deleteAreaProject: PropTypes.func.isRequired,
 };
 

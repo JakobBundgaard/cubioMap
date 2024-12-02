@@ -32,7 +32,12 @@ function App() {
 
    // State til AreaProject-formular
    const [isCreatingAreaProject, setIsCreatingAreaProject] = useState(false);
-   const [selectedAreaProject, setSelectedAreaProject] = useState(null);
+  const [selectedAreaProject, setSelectedAreaProject] = useState(null);
+  
+  // State til håndtering af redigeringsformular for et projekt
+const [isEditingAreaProject, setIsEditingAreaProject] = useState(false);
+const [editingAreaProject, setEditingAreaProject] = useState(null);
+
 
   // Projektrelateret logik
   const {
@@ -258,9 +263,10 @@ const deleteAreaProject = async (projectId) => {
   };
   
   const startEditingAreaProject = (project) => {
-    setSelectedProject(project); // Antag at du bruger `selectedProject` fra state
-    setIsEditingProject(true); // Angiv, at vi redigerer projektet
+    setEditingAreaProject(project); // Sæt det projekt, der skal redigeres
+    setIsEditingAreaProject(true); // Angiv, at vi redigerer et projekt
   };
+  
 
 
 
@@ -293,6 +299,7 @@ const deleteAreaProject = async (projectId) => {
           startCreatingAreaProject={startCreatingAreaProject}
           updateAreaProject={updateAreaProject}
           deleteAreaProject={deleteAreaProject}
+          startEditingAreaProject={startEditingAreaProject}
         />
 
         
@@ -384,6 +391,39 @@ const deleteAreaProject = async (projectId) => {
             }}
           />
         )}
+
+{isEditingAreaProject && editingAreaProject && (
+  <AreaProjectForm
+    project={editingAreaProject} // Send det projekt, der skal redigeres
+    selectedArea={savedAreas.find((area) =>
+      area.projects.some((proj) => proj.id === editingAreaProject.id)
+    )} // Find det område, projektet tilhører
+    onSave={async (updatedData) => {
+      await updateAreaProject(editingAreaProject.id, updatedData);
+      setIsEditingAreaProject(false); // Luk formularen efter gem
+      setEditingAreaProject(null); // Nulstil det redigerede projekt
+    }}
+    onCancel={() => {
+      setIsEditingAreaProject(false); // Luk formularen
+      setEditingAreaProject(null); // Nulstil
+    }}
+    initiatedBy={1} // Send user_id eller anden relevant data
+    style={{
+      position: "fixed",
+      top: "50%",
+      left: "50%",
+      transform: "translate(-50%, -50%)",
+      backgroundColor: "white",
+      padding: "20px",
+      border: "1px solid #ccc",
+      zIndex: 10000,
+      width: "400px",
+      maxHeight: "80vh",
+      overflowY: "auto",
+    }}
+  />
+)}
+
 
       </div>
     </div>
