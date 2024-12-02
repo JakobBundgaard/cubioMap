@@ -156,11 +156,8 @@ useEffect(() => {
     setIsCreatingAreaProject(true);
   };
 
-  const cancelCreatingAreaProject = (area) => {
-    if (!area || !area.id) {
-      alert("Området er ugyldigt eller mangler ID.");
-      return;
-  }
+  const cancelCreatingAreaProject = () => {
+   
     setIsCreatingAreaProject(false);
     setSelectedAreaProject(null);
   };

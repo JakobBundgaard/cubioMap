@@ -13,6 +13,8 @@ function AreaProjectForm({ project, selectedArea, onSave, onCancel, initiatedBy 
         area: selectedArea?.id || null, // Relateret område
     });
 
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     setFormData((prevData) => ({
@@ -22,7 +24,11 @@ function AreaProjectForm({ project, selectedArea, onSave, onCancel, initiatedBy 
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
+      e.preventDefault();
+      
+      if (isSubmitting) return; // Forhindr flere tryk
+      setIsSubmitting(true);
+
     const data = new FormData();
     data.append("name", formData.name);
     data.append("description", formData.description);
@@ -125,10 +131,11 @@ function AreaProjectForm({ project, selectedArea, onSave, onCancel, initiatedBy 
           </div>
           <div className="flex space-x-4">
             <button
-              type="submit"
+                        type="submit"
+                        disabled={isSubmitting}
               className="flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-md shadow-md"
             >
-              Save
+              {isSubmitting ? "Saving..." : "Save"}
             </button>
             <button
               type="button"
