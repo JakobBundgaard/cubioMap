@@ -1,8 +1,13 @@
 // SavedAreasList.jsx
 import PropTypes from "prop-types";
 import { GoTrash } from "react-icons/go";
+// import { useState, useEffect  } from "react";
+// import AreaProjectForm from "./AreaProjectForm"; // Importer den nye formular
+// import { createAreaProjectAPI } from "../services/api";
 
-function SavedAreasList({ savedAreas, deleteSavedArea }) {
+function SavedAreasList({ savedAreas, deleteSavedArea, startCreatingAreaProject }) {
+    
+      
   return (
     <div className="mt-6">
       <h3 className="text-lg font-semibold text-gray-800">Gemte Områder</h3>
@@ -13,7 +18,7 @@ function SavedAreasList({ savedAreas, deleteSavedArea }) {
               key={area.id}
               className="bg-white rounded-lg p-4 shadow-sm flex justify-between items-center space-x-4"
             >
-              <div>
+            <div>
                 <p
                   className="font-semibold truncate overflow-hidden whitespace-nowrap max-w-[12rem]"
                   title={area.name}
@@ -22,7 +27,16 @@ function SavedAreasList({ savedAreas, deleteSavedArea }) {
                 </p>
                 <p>Størrelse: {area.area_size.toFixed(2)} m²</p>
                 <p>Gns. Naturværdi: {area.nature_value.toFixed(2)}</p>
-              </div>
+            </div>
+                  
+            {/* Knappen til at oprette projekt */}
+            <button
+                className="bg-blue-500 hover:bg-blue-600 text-white py-1 px-3 rounded-md"
+                onClick={() => startCreatingAreaProject(area)}
+              >
+                Opret Projekt
+            </button>
+
               <div className="flex items-center justify-center w-10 h-10">
                 <GoTrash
                   onClick={() => {
@@ -44,14 +58,19 @@ function SavedAreasList({ savedAreas, deleteSavedArea }) {
         ) : (
           <p className="text-gray-500 italic">Ingen gemte områder.</p>
         )}
-      </ul>
+          </ul>
+          
+            
+          {/* Formularen vises, hvis et område er valgt */}
+      
     </div>
   );
 }
 
 SavedAreasList.propTypes = {
   savedAreas: PropTypes.array.isRequired,
-  deleteSavedArea: PropTypes.func.isRequired,
+    deleteSavedArea: PropTypes.func.isRequired,
+    startCreatingAreaProject: PropTypes.func.isRequired,
 };
 
 export default SavedAreasList;

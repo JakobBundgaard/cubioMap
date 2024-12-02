@@ -2,6 +2,7 @@ import MapComponent from "./components/MapComponent";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import ProjectForm from "./components/ProjectForm";
+import AreaProjectForm from "./components/AreaProjectForm";
 import { useState, useEffect } from "react";
 import { useProjects } from "./hooks/useProjects";
 import { useToggles } from "./hooks/useToggles";
@@ -10,6 +11,7 @@ import {
   saveSelectedAreasAPI,
   savePolygonAreasAPI,
   deleteSavedAreaAPI,
+  createAreaProjectAPI,
 } from "./services/api";
 
 
@@ -24,6 +26,10 @@ function App() {
   const [selectedAreas, setSelectedAreas] = useState([]);
   const [savedAreas, setSavedAreas] = useState([]);
   const [activeLayer, setActiveLayer] = useState(null);
+
+   // State til AreaProject-formular
+   const [isCreatingAreaProject, setIsCreatingAreaProject] = useState(false);
+   const [selectedAreaProject, setSelectedAreaProject] = useState(null);
 
   // Projektrelateret logik
   const {
@@ -145,6 +151,29 @@ useEffect(() => {
     }
   };
 
+  const startCreatingAreaProject = (area) => {
+    setSelectedAreaProject(area);
+    setIsCreatingAreaProject(true);
+  };
+
+  const cancelCreatingAreaProject = () => {
+    setIsCreatingAreaProject(false);
+    setSelectedAreaProject(null);
+  };
+
+  // Håndter oprettelse af projekt tilknyttet område
+  const handleCreateAreaProject = async (formData) => {
+    try {
+      await createAreaProjectAPI(formData);
+      alert("Projekt blev oprettet!");
+      cancelCreatingAreaProject();
+      fetchSavedAreasInApp();
+    } catch (error) {
+      console.error("Fejl ved oprettelse af projekt:", error);
+      alert("Noget gik galt. Prøv igen.");
+    }
+  };
+
 
   return (
     <div className="h-screen flex flex-col overflow-hidden">
@@ -172,6 +201,7 @@ useEffect(() => {
           activeLayer={activeLayer} 
           setActiveLayer={setActiveLayer} 
           onSavePolygonAreas={savePolygonAreas}
+          startCreatingAreaProject={startCreatingAreaProject}
         />
 
         
@@ -240,7 +270,29 @@ useEffect(() => {
                       overflowY: "auto",
                   }}
                 />
-            )}
+        )}
+        
+        {isCreatingAreaProject && selectedAreaProject && (
+          <AreaProjectForm
+            selectedArea={selectedAreaProject}
+            onSave={handleCreateAreaProject}
+            onCancel={cancelCreatingAreaProject}
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "white",
+              padding: "20px",
+              border: "1px solid #ccc",
+              zIndex: 10000,
+              width: "400px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          />
+        )}
+
       </div>
     </div>
   )

@@ -112,3 +112,8 @@ export const updateProjectAPI = (projectId, updatedData) =>
   apiPatch(`/projects/${projectId}/`, updatedData, true);
 
 export const deleteProjectAPI = (projectId) => apiDelete(`/projects/${projectId}/`);
+
+export const createAreaProjectAPI = (projectData) => apiPost("/area-projects/", projectData, true);
+export const updateAreaProjectAPI = (projectId, updatedData) => apiPatch(`/area-projects/${projectId}/`, updatedData, true);
+export const deleteAreaProjectAPI = (projectId) => apiDelete(`/area-projects/${projectId}/`);
+

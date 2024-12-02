@@ -25,6 +25,8 @@ function Sidebar({
   activeLayer,
   setActiveLayer,
   onSavePolygonAreas,
+  startCreatingAreaProject,
+
 }) {
   return (
     <aside className="bg-gray-50 w-96 border-r border-gray-200 shadow-md flex flex-col h-full">
@@ -83,7 +85,11 @@ function Sidebar({
       {/* Scrollområde */}
       <div className="flex-grow overflow-y-auto px-6">
         {isSavedAreasVisible && (
-          <SavedAreasList savedAreas={savedAreas} deleteSavedArea={deleteSavedArea} />
+          <SavedAreasList
+            savedAreas={savedAreas}
+            deleteSavedArea={deleteSavedArea}
+            startCreatingAreaProject={startCreatingAreaProject}
+          />
         )}
       </div>
 
@@ -155,6 +161,7 @@ Sidebar.propTypes = {
   activeLayer: PropTypes.string,
   setActiveLayer: PropTypes.func.isRequired,
   onSavePolygonAreas: PropTypes.func.isRequired,
+  startCreatingAreaProject: PropTypes.func.isRequired,
 };
 
 export default Sidebar;
