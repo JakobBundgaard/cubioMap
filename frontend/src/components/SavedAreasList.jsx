@@ -5,7 +5,13 @@ import { GoTrash } from "react-icons/go";
 // import AreaProjectForm from "./AreaProjectForm"; // Importer den nye formular
 // import { createAreaProjectAPI } from "../services/api";
 
-function SavedAreasList({ savedAreas, deleteSavedArea, startCreatingAreaProject }) {
+function SavedAreasList({
+    savedAreas,
+    deleteSavedArea,
+    startCreatingAreaProject,
+    updateAreaProject,
+    deleteAreaProject,
+}) {
     
       
   return (
@@ -52,7 +58,46 @@ function SavedAreasList({ savedAreas, deleteSavedArea, startCreatingAreaProject 
                   size={24}
                   title="Slet område"
                 />
-              </div>
+                  </div>
+                  
+
+                  {area.projects && area.projects.length > 0 && (
+                <div className="mt-4">
+                  <h4 className="font-semibold">Projekter:</h4>
+                  <ul>
+                    {area.projects.map((project) => (
+                      <li
+                        key={project.id}
+                        className="flex justify-between items-center bg-gray-100 p-2 rounded-md mt-2"
+                      >
+                        <div>
+                          <p>{project.name}</p>
+                          <p>Status: {project.status}</p>
+                        </div>
+                        <div>
+                          <button
+                            className="bg-yellow-500 text-white py-1 px-3 rounded-md mr-2"
+                            onClick={() =>
+                              updateAreaProject(project.id, {
+                                ...project,
+                                status: "completed",
+                              })
+                            }
+                          >
+                            Afslut
+                          </button>
+                          <GoTrash
+                            onClick={() => deleteAreaProject(project.id)}
+                            className="text-red-500 cursor-pointer"
+                            size={20}
+                          />
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
             </li>
           ))
         ) : (
@@ -61,7 +106,7 @@ function SavedAreasList({ savedAreas, deleteSavedArea, startCreatingAreaProject 
           </ul>
           
             
-          {/* Formularen vises, hvis et område er valgt */}
+          
       
     </div>
   );
@@ -71,6 +116,8 @@ SavedAreasList.propTypes = {
   savedAreas: PropTypes.array.isRequired,
     deleteSavedArea: PropTypes.func.isRequired,
     startCreatingAreaProject: PropTypes.func.isRequired,
+    updateAreaProject: PropTypes.func.isRequired,
+  deleteAreaProject: PropTypes.func.isRequired,
 };
 
 export default SavedAreasList;

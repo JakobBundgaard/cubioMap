@@ -26,7 +26,8 @@ function Sidebar({
   setActiveLayer,
   onSavePolygonAreas,
   startCreatingAreaProject,
-
+  updateAreaProject,
+  deleteAreaProject,
 }) {
   return (
     <aside className="bg-gray-50 w-96 border-r border-gray-200 shadow-md flex flex-col h-full">
@@ -89,6 +90,8 @@ function Sidebar({
             savedAreas={savedAreas}
             deleteSavedArea={deleteSavedArea}
             startCreatingAreaProject={startCreatingAreaProject}
+            updateAreaProject={updateAreaProject}
+            deleteAreaProject={deleteAreaProject}
           />
         )}
       </div>
@@ -162,6 +165,8 @@ Sidebar.propTypes = {
   setActiveLayer: PropTypes.func.isRequired,
   onSavePolygonAreas: PropTypes.func.isRequired,
   startCreatingAreaProject: PropTypes.func.isRequired,
+  updateAreaProject: PropTypes.func.isRequired,
+  deleteAreaProject: PropTypes.func.isRequired,
 };
 
 export default Sidebar;

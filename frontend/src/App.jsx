@@ -12,6 +12,9 @@ import {
   savePolygonAreasAPI,
   deleteSavedAreaAPI,
   createAreaProjectAPI,
+  updateAreaProjectAPI,
+  deleteAreaProjectAPI,
+  fetchProjectsByArea,
 } from "./services/api";
 
 
@@ -157,7 +160,6 @@ useEffect(() => {
   };
 
   const cancelCreatingAreaProject = () => {
-   
     setIsCreatingAreaProject(false);
     setSelectedAreaProject(null);
   };
@@ -175,6 +177,51 @@ useEffect(() => {
       alert("Noget gik galt. Prøv igen.");
     }
   };
+
+  useEffect(() => {
+    fetchSavedAreasAndProjects();
+}, []);
+
+const fetchSavedAreasAndProjects = async () => {
+  try {
+    const areas = await fetchSavedAreas(1);
+
+    // Fetch projects for each area
+    const areasWithProjects = await Promise.all(
+      areas.map(async (area) => {
+        const projects = await fetchProjectsByArea(area.id);
+        return { ...area, projects };
+      })
+    );
+
+    setSavedAreas(areasWithProjects);
+  } catch (error) {
+    console.error("Error fetching areas and projects:", error);
+  }
+};
+
+const updateAreaProject = async (projectId, updatedData) => {
+    try {
+        await updateAreaProjectAPI(projectId, updatedData);
+        alert("Projekt opdateret!");
+        fetchSavedAreasAndProjects();
+    } catch (error) {
+        console.error("Fejl ved opdatering af projekt:", error);
+        alert("Noget gik galt. Prøv igen.");
+    }
+};
+
+const deleteAreaProject = async (projectId) => {
+    try {
+        await deleteAreaProjectAPI(projectId);
+        alert("Projekt slettet!");
+        fetchSavedAreasAndProjects();
+    } catch (error) {
+        console.error("Fejl ved sletning af projekt:", error);
+        alert("Noget gik galt. Prøv igen.");
+    }
+};
+
 
 
   return (
@@ -204,6 +251,8 @@ useEffect(() => {
           setActiveLayer={setActiveLayer} 
           onSavePolygonAreas={savePolygonAreas}
           startCreatingAreaProject={startCreatingAreaProject}
+          updateAreaProject={updateAreaProject}
+          deleteAreaProject={deleteAreaProject}
         />
 
         

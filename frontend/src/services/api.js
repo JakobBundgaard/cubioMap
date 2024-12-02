@@ -122,6 +122,10 @@ export const updateProjectAPI = (projectId, updatedData) =>
 export const deleteProjectAPI = (projectId) => apiDelete(`/projects/${projectId}/`);
 
 export const createAreaProjectAPI = (projectData) => apiPost("/area-projects/", projectData, true);
+
+export const fetchProjectsByArea = async (areaId) => apiGet(`/area-projects/by_area/?area_id=${areaId}`);
+
 export const updateAreaProjectAPI = (projectId, updatedData) => apiPatch(`/area-projects/${projectId}/`, updatedData, true);
+
 export const deleteAreaProjectAPI = (projectId) => apiDelete(`/area-projects/${projectId}/`);
 

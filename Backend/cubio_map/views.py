@@ -30,6 +30,10 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return super().create(request, *args, **kwargs)
 
 
+from rest_framework.decorators import action
+from rest_framework.response import Response
+from rest_framework import status
+
 class AreaProjectViewSet(viewsets.ModelViewSet):
     queryset = AreaProject.objects.all()
     serializer_class = AreaProjectSerializer
@@ -50,6 +54,24 @@ class AreaProjectViewSet(viewsets.ModelViewSet):
 
         # Opret nyt projekt
         return super().create(request, *args, **kwargs)
+
+    @action(detail=False, methods=['get'], url_path='by_area')
+    def by_area(self, request, *args, **kwargs):
+        """
+        Returnér alle projekter relateret til et bestemt område.
+        """
+        area_id = request.query_params.get('area_id')  # Hent area_id fra URL
+        if not area_id:
+            return Response({"error": "area_id is required"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Filtrér projekter baseret på area_id
+            projects = AreaProject.objects.filter(area_id=area_id)
+            serializer = self.get_serializer(projects, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 
 
