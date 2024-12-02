@@ -46,7 +46,7 @@ function ProjectForm({ project, projectLocation, onSave, onCancel }) {
     if (formData.image) {
       data.append("image", formData.image); 
     }
-  
+    console.log("Submitting project data:", Object.fromEntries(data.entries()));
     onSave(data);
   };
 
