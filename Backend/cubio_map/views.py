@@ -6,10 +6,24 @@ from django.contrib.gis.geos import GEOSGeometry, MultiPolygon
 from rest_framework.decorators import action
 from rest_framework.permissions import AllowAny
 
-
-class AreaViewSet(viewsets.ReadOnlyModelViewSet):
+class AreaViewSet(viewsets.ModelViewSet):
     queryset = Area.objects.all()
     serializer_class = AreaSerializer
+
+    def destroy(self, request, *args, **kwargs):
+        area = self.get_object()
+        
+        # Slet relaterede AreaProject-objekter eksplicit
+        related_projects = area.projects.all()
+        related_projects.delete()
+
+        # Debugging
+        print(f"Slettede {related_projects.count()} projekter for område: {area.name}")
+
+        # Slet området
+        area.delete()
+        return Response({"success": "Området og dets relaterede projekter blev slettet."}, status=status.HTTP_200_OK)
+
 
 class EnhancedCubioAreaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = EnhancedCubioArea.objects.all()
