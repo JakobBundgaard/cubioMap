@@ -43,6 +43,24 @@ class Project(models.Model):
     def __str__(self):
         return self.name
     
+class AreaProject(models.Model):
+    name = models.CharField(max_length=100)
+    description = models.TextField()
+    area = models.ForeignKey(Area, on_delete=models.CASCADE, related_name="projects")  # Relation til område
+    image = models.ImageField(upload_to='area_project_images/', blank=True, null=True)
+    initiated_by = models.CharField(max_length=100)
+    status = models.CharField(
+        max_length=20,
+        choices=[('planned', 'Planned'), ('in_progress', 'In Progress'), ('completed', 'Completed')],
+        default='planned'
+    )
+    date_initiated = models.DateField()
+    expected_duration = models.PositiveIntegerField(help_text="Duration in days")
+
+    def __str__(self):
+        return f"{self.name} ({self.area.name})"
+
+    
 class UserSelectedArea(models.Model):
     name = models.CharField(max_length=100)
     nature_value = models.DecimalField(max_digits=5, decimal_places=4)

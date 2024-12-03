@@ -209,10 +209,12 @@ function MapComponent({
                     position="topright"
                     onCreated={onCreated}
                     draw={{
-                        polygon: true,
-                        circle: false,
-                        rectangle: false,
-                        polyline: false,
+                      polygon: true,
+                      circle: false,
+                      rectangle: false,
+                      polyline: false,
+                      marker: false,
+                      circlemarker: false,
                     }}
                 />
             )}

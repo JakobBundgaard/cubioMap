@@ -2,6 +2,7 @@ import MapComponent from "./components/MapComponent";
 import Header from "./components/Header";
 import Sidebar from "./components/Sidebar";
 import ProjectForm from "./components/ProjectForm";
+import AreaProjectForm from "./components/AreaProjectForm";
 import { useState, useEffect } from "react";
 import { useProjects } from "./hooks/useProjects";
 import { useToggles } from "./hooks/useToggles";
@@ -10,6 +11,10 @@ import {
   saveSelectedAreasAPI,
   savePolygonAreasAPI,
   deleteSavedAreaAPI,
+  createAreaProjectAPI,
+  updateAreaProjectAPI,
+  deleteAreaProjectAPI,
+  fetchProjectsByArea,
 } from "./services/api";
 
 
@@ -24,6 +29,15 @@ function App() {
   const [selectedAreas, setSelectedAreas] = useState([]);
   const [savedAreas, setSavedAreas] = useState([]);
   const [activeLayer, setActiveLayer] = useState(null);
+
+   // State til AreaProject-formular
+   const [isCreatingAreaProject, setIsCreatingAreaProject] = useState(false);
+  const [selectedAreaProject, setSelectedAreaProject] = useState(null);
+  
+  // State til håndtering af redigeringsformular for et projekt
+const [isEditingAreaProject, setIsEditingAreaProject] = useState(false);
+const [editingAreaProject, setEditingAreaProject] = useState(null);
+
 
   // Projektrelateret logik
   const {
@@ -100,8 +114,9 @@ const saveSelectedAreas = async () => {
     
     await saveSelectedAreasAPI(geoJSON, selectedArea, 1); 
     alert("Området blev gemt!");
+    await fetchSavedAreasAndProjects();
     setSelectedAreas([]);
-    fetchSavedAreasInApp(); 
+    // fetchSavedAreasInApp(); 
   } catch (error) {
     console.error("Fejl ved gemning af området:", error);
     alert("Noget gik galt. Prøv igen.");
@@ -118,8 +133,9 @@ const savePolygonAreas = async () => {
   try {
     await savePolygonAreasAPI(selectedArea, 1); 
     alert("Polygon blev gemt!");
+    await fetchSavedAreasAndProjects();
     setSelectedArea(null); 
-    fetchSavedAreasInApp(); 
+    // fetchSavedAreasInApp(); 
   } catch (error) {
     console.error("Fejl ved gemning af polygon:", error);
     alert("Noget gik galt. Prøv igen.");
@@ -144,6 +160,122 @@ useEffect(() => {
       alert("Kunne ikke slette området. Prøv igen.");
     }
   };
+
+  const startCreatingAreaProject = (area) => {
+    setSelectedAreaProject(area);
+    setIsCreatingAreaProject(true);
+  };
+
+  const cancelCreatingAreaProject = () => {
+    setIsCreatingAreaProject(false);
+    setSelectedAreaProject(null);
+  };
+
+  // Håndter oprettelse af projekt tilknyttet område
+  const handleCreateAreaProject = async (formData) => {
+    try {
+      console.log("FormData sent to API:", Object.fromEntries(formData.entries()));
+      await createAreaProjectAPI(formData); // API-opkald for at oprette projektet
+      alert("Projekt blev oprettet!");
+  
+      // Genhent savedAreas med projekter efter oprettelse
+      await fetchSavedAreasAndProjects();
+  
+      cancelCreatingAreaProject(); // Luk formularen
+    } catch (error) {
+      console.error("Fejl ved oprettelse af projekt:", error);
+      alert("Noget gik galt. Prøv igen.");
+    }
+  };
+  
+
+
+//   const handleCreateAreaProject = async (formData) => {
+//     try {
+//         console.log("FormData sent to API:", Object.fromEntries(formData.entries()));
+//         const newProject = await createAreaProjectAPI(formData); // Antager, at denne returnerer det oprettede projekt
+//         alert("Projekt blev oprettet!");
+
+//         // Find det rigtige område i savedAreas
+//         setSavedAreas((prevSavedAreas) =>
+//             prevSavedAreas.map((area) =>
+//                 area.id === newProject.area
+//                     ? { ...area, projects: [...(area.projects || []), newProject] }
+//                     : area
+//             )
+//         );
+
+//         cancelCreatingAreaProject(); // Luk formularen
+//     } catch (error) {
+//         console.error("Fejl ved oprettelse af projekt:", error);
+//         alert("Noget gik galt. Prøv igen.");
+//     }
+// };
+
+
+  useEffect(() => {
+    fetchSavedAreasAndProjects();
+}, []);
+
+const fetchSavedAreasAndProjects = async () => {
+  try {
+    const areas = await fetchSavedAreas(1);
+
+    // Fetch projects for each area
+    const areasWithProjects = await Promise.all(
+      areas.map(async (area) => {
+        const projects = await fetchProjectsByArea(area.id);
+        return { ...area, projects };
+      })
+    );
+
+    setSavedAreas(areasWithProjects);
+  } catch (error) {
+    console.error("Error fetching areas and projects:", error);
+  }
+};
+
+const updateAreaProject = async (projectId, updatedData) => {
+  try {
+    const updatedProject = await updateAreaProjectAPI(projectId, updatedData);
+    alert("Projekt opdateret!");
+
+    // Opdater state direkte efter en vellykket opdatering
+    setSavedAreas((prevSavedAreas) =>
+      prevSavedAreas.map((area) =>
+        area.id === updatedProject.area
+          ? {
+              ...area,
+              projects: area.projects.map((project) =>
+                project.id === updatedProject.id ? updatedProject : project
+              ),
+            }
+          : area
+      )
+    );
+  } catch (error) {
+    console.error("Fejl ved opdatering af projekt:", error);
+    alert("Noget gik galt. Prøv igen.");
+  }
+};
+
+const deleteAreaProject = async (projectId) => {
+    try {
+        await deleteAreaProjectAPI(projectId);
+        alert("Projekt slettet!");
+        fetchSavedAreasAndProjects();
+    } catch (error) {
+        console.error("Fejl ved sletning af projekt:", error);
+        alert("Noget gik galt. Prøv igen.");
+    }
+  };
+  
+  const startEditingAreaProject = (project) => {
+    setEditingAreaProject(project); 
+    setIsEditingAreaProject(true); 
+  };
+  
+
 
 
   return (
@@ -172,6 +304,10 @@ useEffect(() => {
           activeLayer={activeLayer} 
           setActiveLayer={setActiveLayer} 
           onSavePolygonAreas={savePolygonAreas}
+          startCreatingAreaProject={startCreatingAreaProject}
+          updateAreaProject={updateAreaProject}
+          deleteAreaProject={deleteAreaProject}
+          startEditingAreaProject={startEditingAreaProject}
         />
 
         
@@ -240,7 +376,61 @@ useEffect(() => {
                       overflowY: "auto",
                   }}
                 />
-            )}
+        )}
+        
+        {isCreatingAreaProject && selectedAreaProject && (
+          <AreaProjectForm
+            selectedArea={selectedAreaProject}
+            onSave={handleCreateAreaProject}
+            onCancel={cancelCreatingAreaProject}
+            initiatedBy={1} 
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "white",
+              padding: "20px",
+              border: "1px solid #ccc",
+              zIndex: 10000,
+              width: "400px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          />
+        )}
+
+        {isEditingAreaProject && editingAreaProject && (
+          <AreaProjectForm
+            project={editingAreaProject} 
+            selectedArea={savedAreas.find((area) =>
+              area.projects.some((proj) => proj.id === editingAreaProject.id)
+            )} 
+            onSave={async (updatedData) => {
+              await updateAreaProject(editingAreaProject.id, updatedData);
+              setIsEditingAreaProject(false); 
+              setEditingAreaProject(null);
+            }}
+            onCancel={() => {
+              setIsEditingAreaProject(false); 
+              setEditingAreaProject(null); 
+            }}
+            initiatedBy={1} 
+            style={{
+              position: "fixed",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              backgroundColor: "white",
+              padding: "20px",
+              border: "1px solid #ccc",
+              zIndex: 10000,
+              width: "400px",
+              maxHeight: "80vh",
+              overflowY: "auto",
+            }}
+          />
+        )}
       </div>
     </div>
   )

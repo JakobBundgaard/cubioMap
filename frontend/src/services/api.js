@@ -1,4 +1,3 @@
-// services/api.js
 import { parse as parseWKT } from "terraformer-wkt-parser";
 import { parseLocation } from "../utils/wktUtils"; // Opdateret sti, så den matcher strukturen
 
@@ -40,6 +39,14 @@ export const apiPost = async (endpoint, body, isFormData = false) => {
     }
   
     const response = await fetch(`${BASE_URL}${endpoint}`, options);
+
+    // Fejlhåndtering for bedre logs
+    if (!response.ok) {
+        const errorDetails = await response.json();
+        console.error(`Error from server:`, errorDetails); // Log serverens fejl
+        throw new Error(errorDetails.detail || "API error"); // Returner fejl
+    }
+
     return handleResponse(response);
   };
 
@@ -112,3 +119,12 @@ export const updateProjectAPI = (projectId, updatedData) =>
   apiPatch(`/projects/${projectId}/`, updatedData, true);
 
 export const deleteProjectAPI = (projectId) => apiDelete(`/projects/${projectId}/`);
+
+export const createAreaProjectAPI = (projectData) => apiPost("/area-projects/", projectData, true);
+
+export const fetchProjectsByArea = async (areaId) => apiGet(`/area-projects/by_area/?area_id=${areaId}`);
+
+export const updateAreaProjectAPI = (projectId, updatedData) => apiPatch(`/area-projects/${projectId}/`, updatedData, true);
+
+export const deleteAreaProjectAPI = (projectId) => apiDelete(`/area-projects/${projectId}/`);
+
