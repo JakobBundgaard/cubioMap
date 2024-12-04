@@ -1,5 +1,4 @@
 import PropTypes from "prop-types";
-import { GoTrash } from "react-icons/go";
 
 
 function SavedAreasList({
@@ -41,20 +40,20 @@ function SavedAreasList({
                             >
                             Opret Projekt
                             </button>
-                            <GoTrash
-                            onClick={() => {
-                                if (
-                                window.confirm(
-                                    `Er du sikker på, at du vil slette området "${area.name}"?`
-                                )
-                                ) {
-                                deleteSavedArea(area.id);
-                                }
-                            }}
-                            className="text-red-500 cursor-pointer hover:text-red-700"
-                            size={24}
-                            title="Slet område"
-                            />
+                            <button
+                                className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md"
+                                onClick={() => {
+                                    if (
+                                        window.confirm(
+                                            `Er du sikker på, at du vil slette området "${area.name}"?`
+                                        )
+                                    ) {
+                                        deleteSavedArea(area.id);
+                                    }
+                                }}
+                            >
+                                Slet Område
+                            </button>
                         </div>
 
                         {/* Projekter knyttet til Området */}
@@ -81,7 +80,21 @@ function SavedAreasList({
                                                     >
                                                         Rediger
                                                     </button>
-                                                    <GoTrash
+                                                    <button
+                                                        className="bg-red-500 hover:bg-red-600 text-white py-1 px-3 rounded-md text-xs"
+                                                        onClick={() => {
+                                                            if (
+                                                                window.confirm(
+                                                                    `Er du sikker på, at du vil slette projektet "${project.name}"?`
+                                                                )
+                                                            ) {
+                                                                deleteAreaProject(project.id);
+                                                            }
+                                                        }}
+                                                    >
+                                                        Slet Projekt
+                                                    </button>
+                                                    {/* <GoTrash
                                                         onClick={() => {
                                                             if (
                                                                 window.confirm(
@@ -94,7 +107,7 @@ function SavedAreasList({
                                                         className="text-red-500 cursor-pointer hover:text-red-700"
                                                         size={20}
                                                         title="Slet projekt"
-                                                    />
+                                                    /> */}
                                                 </div>
                                             </div>
                                             {/* Billede sektion */}
