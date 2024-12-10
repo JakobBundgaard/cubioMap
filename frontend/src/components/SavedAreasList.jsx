@@ -94,20 +94,6 @@ function SavedAreasList({
                                                     >
                                                         Slet Projekt
                                                     </button>
-                                                    {/* <GoTrash
-                                                        onClick={() => {
-                                                            if (
-                                                                window.confirm(
-                                                                    `Er du sikker på, at du vil slette projektet "${project.name}"?`
-                                                                )
-                                                            ) {
-                                                                deleteAreaProject(project.id);
-                                                            }
-                                                        }}
-                                                        className="text-red-500 cursor-pointer hover:text-red-700"
-                                                        size={20}
-                                                        title="Slet projekt"
-                                                    /> */}
                                                 </div>
                                             </div>
                                             {/* Billede sektion */}
