@@ -21,14 +21,22 @@ const ActionButtons = ({
       <div
         title="Marker område"
         className={`cursor-pointer ${isDrawActive ? "text-blue-500" : "hover:text-blue-500"}`}
-        onClick={() => setIsDrawActive(!isDrawActive)}
+        // onClick={() => setIsDrawActive(!isDrawActive)}
+        onClick={() => {
+          setIsDrawActive(!isDrawActive);
+          if (!isDrawActive) setIsMultiSelectActive(false); // Deaktiver den anden knap
+        }}
       >
         <BsPencilSquare size={24} />
       </div>
       <div
         title="Vælg flere kvadrater"
         className={`cursor-pointer ${isMultiSelectActive ? "text-blue-500" : "hover:text-blue-500"}`}
-        onClick={() => setIsMultiSelectActive(!isMultiSelectActive)}
+        // onClick={() => setIsMultiSelectActive(!isMultiSelectActive)}
+        onClick={() => {
+          setIsMultiSelectActive(!isMultiSelectActive);
+          if (!isMultiSelectActive) setIsDrawActive(false); // Deaktiver den anden knap
+        }}
       >
         <TbPointerPlus size={24} />
       </div>
