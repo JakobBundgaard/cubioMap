@@ -1,10 +1,9 @@
-// SavedAreas.jsx
 import PropTypes from "prop-types";
 import { Polygon, Tooltip } from "react-leaflet";
 import * as L from "leaflet";
 
 const SavedAreas = ({ savedAreas, isSavedAreasVisible }) => {
-  if (!isSavedAreasVisible) return null; // Vis kun områder, hvis de er synlige
+  if (!isSavedAreasVisible) return null; 
 
   return savedAreas.map((area) => {
     let geomData;

@@ -12,7 +12,7 @@ class EnhancedCubioAreaSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class GBIFDataSerializer(serializers.ModelSerializer):  # Tilføj serializer for GBIFData
+class GBIFDataSerializer(serializers.ModelSerializer):  
     class Meta:
         model = GBIFData
         fields = ['id', 'species', 'occurrence_date', 'coordinates', 'source_id']
@@ -44,7 +44,7 @@ class AreaProjectSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'description', 'area', 'image', 'image_url', 'initiated_by', 'status', 'date_initiated', 'expected_duration']
 
     def get_image_url(self, obj):
-        request = self.context.get('request')  # Brug request-objektet til at bygge den fulde URL
+        request = self.context.get('request')  
         if obj.image:
             return request.build_absolute_uri(obj.image.url)
         return None

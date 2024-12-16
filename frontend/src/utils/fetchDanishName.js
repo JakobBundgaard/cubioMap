@@ -1,4 +1,4 @@
-// /utils/fetchDanishName.js
+
 export async function fetchDanishName(scientificName) {
     try {
       const response = await fetch(`https://api.gbif.org/v1/species?name=${scientificName}`);

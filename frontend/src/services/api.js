@@ -1,5 +1,5 @@
 import { parse as parseWKT } from "terraformer-wkt-parser";
-import { parseLocation } from "../utils/wktUtils"; // Opdateret sti, så den matcher strukturen
+import { parseLocation } from "../utils/wktUtils"; 
 
 const BASE_URL = "http://127.0.0.1:8000/api";
 
@@ -16,10 +16,10 @@ const handleResponse = async (response) => {
     // Hvis der ikke er indhold i responsen (204 No Content)
     const contentType = response.headers.get("Content-Type");
     if (!contentType || contentType.indexOf("application/json") === -1) {
-      return null; // Returnér null, hvis der ikke er JSON-indhold
+      return null; 
     }
   
-    return response.json(); // Fortsæt med at parse JSON for andre svar
+    return response.json(); 
   };
 
 export const apiGet = async (endpoint) => {
@@ -40,11 +40,11 @@ export const apiPost = async (endpoint, body, isFormData = false) => {
   
     const response = await fetch(`${BASE_URL}${endpoint}`, options);
 
-    // Fejlhåndtering for bedre logs
+    
     if (!response.ok) {
         const errorDetails = await response.json();
-        console.error(`Error from server:`, errorDetails); // Log serverens fejl
-        throw new Error(errorDetails.detail || "API error"); // Returner fejl
+        console.error(`Error from server:`, errorDetails); 
+        throw new Error(errorDetails.detail || "API error"); 
     }
 
     return handleResponse(response);
@@ -70,7 +70,7 @@ export const apiDelete = async (endpoint) => {
   return handleResponse(response);
 };
 
-// Specific API functions
+
 
 export const fetchSavedAreas = async (userId) => {
   const data = await apiGet(`/user-selected-areas/by_user/?user_id=${userId}`);
@@ -89,7 +89,7 @@ export const fetchProjects = async () => {
   const data = await apiGet("/projects/");
   return data.map((project) => ({
     ...project,
-    location: parseLocation(project.location), // Parser projektlokation
+    location: parseLocation(project.location), 
   }));
 };
 
