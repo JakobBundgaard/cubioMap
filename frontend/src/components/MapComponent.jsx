@@ -122,7 +122,6 @@ function MapComponent({
             geom: geom,
         });
       
-      // Fjern laget, hvis ikke længere aktiv
     if (!isDrawActive && featureGroupRef.current) {
       featureGroupRef.current.clearLayers();
   }
@@ -173,7 +172,6 @@ function MapComponent({
         <MapClickHandler
             isCreatingProject={isCreatingProject}
             setProjectLocation={setProjectLocation}
-            // setIsCreatingProject={setIsCreatingProject}
           />
 
         <ZoomWatcher />
