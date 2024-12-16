@@ -1,12 +1,6 @@
-// utils/areaCalculations.js
-
 import * as L from "leaflet";
 
-/**
- * Beregn kvadratets areal baseret på koordinaterne i bounds.
- * @param {Array} bounds - Array med to punkter: [southWest, northEast].
- * @returns {number} - Arealet i kvadratmeter.
- */
+
 export const calculateAreaSize = (bounds) => {
   if (!bounds || bounds.length !== 2) return 0;
 
@@ -19,12 +13,7 @@ export const calculateAreaSize = (bounds) => {
   return parseFloat((latDistance * lngDistance).toFixed(2));
 };
 
-/**
- * Beregn gennemsnitsværdier for et brugerdefineret område.
- * @param {Object} layer - Leaflet-lag (Polygon, Rectangle eller Circle).
- * @param {Array} areas - Liste over alle områder.
- * @returns {Object} - Gennemsnitsværdier for området.
- */
+
 export const calculateAverageValuesForDrawnArea = (layer, areas) => {
   const overlappingAreas = areas.filter((area) => {
     const areaBounds = L.latLngBounds(area.bounds);
