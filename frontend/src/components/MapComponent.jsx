@@ -122,9 +122,9 @@ function MapComponent({
             geom: geom,
         });
       
-    if (!isDrawActive && featureGroupRef.current) {
-      featureGroupRef.current.clearLayers();
-  }
+        if (!isDrawActive && featureGroupRef.current) {
+          featureGroupRef.current.clearLayers();
+        }
     };
 
     useEffect(() => {
@@ -172,7 +172,7 @@ function MapComponent({
         <MapClickHandler
             isCreatingProject={isCreatingProject}
             setProjectLocation={setProjectLocation}
-          />
+        />
 
         <ZoomWatcher />
         <MapClickListener />
@@ -308,8 +308,8 @@ function MapComponent({
                         </Popup>
                       </Marker>
                     );
-            })}
-          </MarkerClusterGroup>
+                  })}
+                </MarkerClusterGroup>
         )}
     </MapContainer>
   );

@@ -31,12 +31,12 @@ function App() {
   const [activeLayer, setActiveLayer] = useState(null);
 
    // State til AreaProject-formular
-   const [isCreatingAreaProject, setIsCreatingAreaProject] = useState(false);
+  const [isCreatingAreaProject, setIsCreatingAreaProject] = useState(false);
   const [selectedAreaProject, setSelectedAreaProject] = useState(null);
   
   // State til håndtering af redigeringsformular for et projekt
-const [isEditingAreaProject, setIsEditingAreaProject] = useState(false);
-const [editingAreaProject, setEditingAreaProject] = useState(null);
+  const [isEditingAreaProject, setIsEditingAreaProject] = useState(false);
+  const [editingAreaProject, setEditingAreaProject] = useState(null);
 
 
   // Projektrelateret logik
