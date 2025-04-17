@@ -13,4 +13,4 @@ Projektet blev gennemført i tæt dialog med Tecology og tilpasset deres behov o
 
 🔗 [Tecology hjemmeside](https://tecology.ai/)
 
-📄 Se rapporten (PDF)
+
