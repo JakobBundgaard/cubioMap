@@ -1,6 +1,4 @@
-Bachelorprojekt i samarbejde med Tecology
-
-Cubio Map er en webapplikation udviklet som del af mit afsluttende bachelorprojekt. Formålet med applikationen er at hjælpe Tecology med at analysere og visualisere naturværdi i Danmark, baseret på data som biodiversitet, vegetationstæthed (NDVI) og jordkvalitet.
+Cubio Map er en webapplikation udviklet som del af mit afsluttende bachelorprojekt i samarbejde med Tecology. Formålet med applikationen er at hjælpe Tecology med at analysere og visualisere naturværdi i Danmark, baseret på data som biodiversitet, vegetationstæthed (NDVI) og jordkvalitet.
 
 Projektet er bygget med:
 
